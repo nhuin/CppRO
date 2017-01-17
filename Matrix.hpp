@@ -3,10 +3,13 @@
 
 #include <new>
 #include <cstring>
+#include <iostream>
+#include <cassert>
 
 template<typename T>
 class Matrix {
-	template<typename V> friend std::ostream& operator<<(std::ostream& _out, Matrix<V> _mat);
+	template<typename V> friend std::ostream& operator<<(std::ostream&, Matrix<V>);
+
 	private:
 		int m_nbRow;
 		int m_nbColumn;
@@ -18,9 +21,11 @@ class Matrix {
 			m_nbColumn(_nbColumn),
 			m_matrix((T*) malloc(sizeof(T) * m_nbRow * m_nbColumn))
 		{
+			assert(m_nbColumn > 0);
+			assert(m_nbRow > 0);
 			for(int i = 0; i < m_nbRow; ++i) {
 				for(int j = 0; j < m_nbColumn; ++j) {
-					T* v = m_matrix + (m_nbColumn * j + i);
+					T* v = m_matrix + (m_nbRow * j + i);
 					new(v) T(_value);
 				}
 			}
@@ -35,8 +40,8 @@ class Matrix {
 		{
 			for(int i = 0; i < m_nbRow; ++i) {
 				for(int j = 0; j < m_nbColumn; ++j) {
-					T* v = m_matrix + (m_nbColumn * j + i);
-					new(v) T(_other.m_matrix[m_nbColumn * j + i]);
+					T* v = m_matrix + (m_nbRow * j + i);
+					new(v) T(_other.m_matrix[m_nbRow * j + i]);
 				}
 			}
 		}
@@ -45,7 +50,7 @@ class Matrix {
 		{
 			for(int i = 0; i < m_nbRow; ++i) {
 				for(int j = 0; j < m_nbColumn; ++j) {
-					m_matrix[m_nbColumn * j + i].~T();
+					m_matrix[m_nbRow * j + i].~T();
 				}
 			}
 
@@ -56,8 +61,8 @@ class Matrix {
 			
 			for(int i = 0; i < m_nbRow; ++i) {
 				for(int j = 0; j < m_nbColumn; ++j) {
-					T* v = m_matrix + (m_nbColumn * j + i);
-					new(v) T(_other.m_matrix[m_nbColumn * j + i]);
+					T* v = m_matrix + (m_nbRow * j + i);
+					new(v) T(_other.m_matrix[m_nbRow * j + i]);
 				}
 			}
 			return *this;
@@ -84,7 +89,7 @@ class Matrix {
 		~Matrix() {
 			for(int i = 0; i < m_nbRow; ++i) {
 				for(int j = 0; j < m_nbColumn; ++j) {
-					m_matrix[m_nbColumn * j + i].~T();
+					m_matrix[m_nbRow * j + i].~T();
 				}
 			}
 			free(m_matrix);
@@ -94,21 +99,22 @@ class Matrix {
 			// TODO: Exception fail realloc
 			++m_nbColumn; ++m_nbRow;
 			m_matrix = (T*) realloc(m_matrix, sizeof(T) * m_nbRow * m_nbColumn);
-			for(int i = m_nbRow-2; i >= 0; --i) {
-				for(int j = m_nbColumn-1; j >= 0; --j) {
-					T* v = m_matrix + (m_nbColumn * j + i);
+
+			for(int i = m_nbColumn - 2; i >= 0; --i) {
+				for(int j = m_nbRow - 2; j >= 0; --j) {
+					T* v = m_matrix + (m_nbRow * j + i);
 					new (v) T(m_matrix[(m_nbColumn - 1) * j + i]);
 				}
 			}
 
 			for(int j = 0; j < m_nbColumn; ++j) {
-				int i = m_nbRow;
-				T* v = m_matrix + (m_nbColumn * j + i);
+				int i = m_nbRow - 1;
+				T* v = m_matrix + (m_nbRow * j + i);
 				new(v) T(_value);
 			}
 			for(int i = 0; i < m_nbRow; ++i) {
-				int j = m_nbColumn;
-				T* v = m_matrix + (m_nbColumn * j + i);
+				int j = m_nbColumn - 1;;
+				T* v = m_matrix + (m_nbRow * j + i);
 				new(v) T(_value);
 			}
 		}
@@ -116,12 +122,16 @@ class Matrix {
 		int size1() const { return m_nbRow; }
 		int size2() const { return m_nbColumn; }
 
-		const T& operator()(int i, int j) const {
-			return m_matrix[m_nbColumn * j + i];
+		const T& operator()(const int _i, const int _j) const {
+			assert(0 <= _i && _i < m_nbRow);
+			assert(0 <= _j && _j < m_nbColumn);
+			return m_matrix[m_nbRow * _j + _i];
 		}
 
-		T& operator()(int i, int j) {
-			return m_matrix[m_nbColumn * j + i];
+		T& operator()(const int _i, const int _j) {
+			assert(0 <= _i && _i < m_nbRow);
+			assert(0 <= _j && _j < m_nbColumn);
+			return m_matrix[m_nbRow * _j + _i];
 		}
 
 };
@@ -132,8 +142,25 @@ std::ostream& operator<<(std::ostream& _out, Matrix<T> _mat) {
 		for(int j = 0; j < _mat.size2(); ++j) {
 			_out << _mat(i, j) << ' ';
 		}	
-		_out << std::endl;
+		_out << '\n';
 	}
 	return _out;
 }
+
+template<typename T>
+bool operator==(const Matrix<T>& _m1, const Matrix<T>& _m2) {
+	if(_m1.size1() != _m2.size1() || _m1.size2() != _m2.size2()) {
+		return false;
+	} else {
+		for(int i = 0; i < _m1.size1(); ++i) {
+			for(int j = 0; j < _m1.size2(); ++j) {
+				if (_m1(i, j) != _m2(i, j)) {
+					return false;
+				}
+			}	
+		}
+		return true;
+	}
+}
+
 #endif
