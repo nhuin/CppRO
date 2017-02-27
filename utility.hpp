@@ -7,6 +7,7 @@
 #include <vector>
 #include <set>
 #include <chrono>
+#include <tuple>
 #include <iomanip>
 
 template<typename T>
@@ -61,7 +62,7 @@ inline std::ostream& operator<<(std::ostream& _out, const std::pair<A, B>& _p) {
     return _out << "(" << _p.first << ", " << _p.second << ")";
 }
 
-namespace aux{
+namespace aux {
 	template<std::size_t...> struct seq{};
 
 	template<std::size_t N, std::size_t... Is>

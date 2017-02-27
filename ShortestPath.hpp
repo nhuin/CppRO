@@ -8,22 +8,22 @@
 template<typename G>
 class ShortestPath {
 	public:
-		ShortestPath(const G& _graph) :
+		ShortestPath(G& _graph) :
 			m_graph(_graph),
 			m_distance(m_graph.getOrder(), std::numeric_limits<int>::max()),
-			m_numberHops(m_graph.getOrder(), 0),
-	    	m_comp(m_distance),
 		    m_parent(m_graph.getOrder(), -1),	
 		    m_color(m_graph.getOrder(), 0),
 	    	m_handles(m_graph.getOrder()),
-	    	m_heap(m_graph.getOrder(), m_comp)
+	    	m_heap(m_graph.getOrder(), [=](const Graph::Node __u, const Graph::Node __v){
+	    		return m_distance[__u] < m_distance[__v];
+	    	})
 		{}
 
 		ShortestPath(const ShortestPath& _other) : 
 			ShortestPath(_other.m_graph)
 		{}
 
-		ShortestPath(ShortestPath&& _other) : 
+		ShortestPath(ShortestPath&& _other) :  
 			ShortestPath(_other.m_graph)
 		{}
 
@@ -31,12 +31,12 @@ class ShortestPath {
 			if(this != &_other) {
 				m_graph = _other.m_graph;
 				m_distance = std::vector<double>(m_graph.getOrder(), std::numeric_limits<int>::max());
-				m_numberHops =  std::vector<int>(m_graph.getOrder(), 0);
-		    	m_comp = Comparator(m_distance);
 			    m_parent = std::vector<int>(m_graph.getOrder(), -1);	
 			    m_color = std::vector<short>(m_graph.getOrder(), 0);
-		    	m_handles = std::vector< typename BinaryHeap<int, Comparator>::Handle* >(m_graph.getOrder());
-		    	m_heap = BinaryHeap<int, Comparator>(m_graph.getOrder(), m_comp);
+		    	m_handles = std::vector< typename BinaryHeap<int, std::function<bool(const Graph::Node&, const Graph::Node&)>>::Handle* >(m_graph.getOrder());
+		    	m_heap = BinaryHeap<int, std::function<bool(const Graph::Node&, const Graph::Node&)>>(m_graph.getOrder(), [=](const Graph::Node __u, const Graph::Node __v){
+		    		return m_distance[__u] < m_distance[__v];
+		    	});
 			}
 			return *this;
 		}
@@ -45,12 +45,12 @@ class ShortestPath {
 			if(this != &_other) {
 				m_graph = _other.m_graph;
 				m_distance = std::vector<double>(m_graph.getOrder(), std::numeric_limits<int>::max());
-				m_numberHops =  std::vector<int>(m_graph.getOrder(), 0);
-		    	m_comp = Comparator(m_distance);
 			    m_parent = std::vector<int>(m_graph.getOrder(), -1);	
 			    m_color = std::vector<short>(m_graph.getOrder(), 0);
-		    	m_handles = std::vector< typename BinaryHeap<int, Comparator>::Handle* >(m_graph.getOrder());
-		    	m_heap = BinaryHeap<int, Comparator>(m_graph.getOrder(), m_comp);
+		    	m_handles = std::vector< typename BinaryHeap<int, std::function<bool(const Graph::Node&, const Graph::Node&)>>::Handle* >(m_graph.getOrder());
+		    	m_heap = BinaryHeap<int, std::function<bool(const Graph::Node&, const Graph::Node&)>>(m_graph.getOrder(), [=](const Graph::Node __u, const Graph::Node __v){
+		    		return m_distance[__u] < m_distance[__v];
+		    	});
 			}
 			return *this;
 		}
@@ -61,7 +61,6 @@ class ShortestPath {
 		void clear() {
 		    std::fill(m_parent.begin(), m_parent.end(), -1);
 		    std::fill(m_distance.begin(), m_distance.end(), std::numeric_limits<double>::max());
-		    std::fill(m_numberHops.begin(), m_numberHops.end(), 0);
 		    std::fill(m_color.begin(), m_color.end(), 0);
 		    m_heap.clear();
 		}
@@ -85,7 +84,6 @@ class ShortestPath {
 		                auto distT = m_distance[u] + m_graph.getEdgeWeight(u, v);
 		                if ( distT < m_distance[v] ) {
 		                    m_distance[v] = distT;
-		                    m_numberHops[v] = m_numberHops[u] + 1;
 		                    if(m_color[v] == 1) {
 		                        m_heap.decrease(m_handles[v]);
 		                    } else {
@@ -140,7 +138,6 @@ class ShortestPath {
 		                auto distT = m_distance[u] + 1;
 		                if ( distT < m_distance[v] ) {
 		                    m_distance[v] = distT;
-		                    m_numberHops[v] = m_numberHops[u] + 1;
 		                    if(m_color[v] == 1) {
 		                        m_heap.decrease(m_handles[v]);
 		                    } else {
@@ -157,7 +154,6 @@ class ShortestPath {
 		    }
 		    #if !defined(NDEBUG) && defined(LOG_LEVEL) && LOG_LEVEL <= 0
 		    std::cout << m_parent << '\n';
-		    std::cout << m_numberHops << '\n';
 		    #endif
 
 		    /* Path is found, need to build it */
@@ -189,7 +185,6 @@ class ShortestPath {
 		        for (auto& v : m_graph.getNeighbors(u)) {
 		            if(m_color[v] != 2 && _isNeighbor(u, v)) {
 		                auto distT = m_distance[u] + _getWeight(u, v);
-		                m_numberHops[v] = m_numberHops[u] + 1;
 		                if ( distT < m_distance[v] ) {
 		                    m_distance[v] = distT;
 		                    if(m_color[v] == 1) {
@@ -244,7 +239,6 @@ class ShortestPath {
 				        std::cout << " -> " << (m_distance[u] + 1);
 				        #endif
 		                auto distT = m_distance[u] + 1;
-		                m_numberHops[v] = m_numberHops[u] + 1;
 		                if ( distT < m_distance[v] ) {
 		                    m_distance[v] = distT;
 		                    if(m_color[v] == 1) {
@@ -387,35 +381,13 @@ class ShortestPath {
 		}
 
 	private:
-		struct Comparator {
-            std::vector<double>& distance;
 
-            Comparator(std::vector<double>& _distance) : distance(_distance) {}
-
-
-            bool operator()(int u, int v) const {
-                return distance[u] < distance[v];
-            }
-
-            Comparator& operator=(const Comparator&) = default; 
-            Comparator(const Comparator&) = default;
-            Comparator& operator=(Comparator&& _other) {
-            	if(this != &_other) {
-            		distance = _other.distance;
-            	}
-            	return *this;
-            } 
-            Comparator(Comparator&& _other) = default;
-        };
-
-	    const G& m_graph;
+	    G& m_graph;
 	    std::vector<double> m_distance;
-	    std::vector<int> m_numberHops;
-	    Comparator m_comp;
 	    std::vector<int> m_parent;
 	    std::vector<short> m_color;	
-	    std::vector< typename BinaryHeap<int, Comparator>::Handle* > m_handles;
-	    BinaryHeap<int, Comparator> m_heap;
+	    std::vector< typename BinaryHeap<int, std::function<bool(const Graph::Node&, const Graph::Node&)>>::Handle* > m_handles;
+	    BinaryHeap<int, std::function<bool(const Graph::Node&, const Graph::Node&)>> m_heap;
 };
 
 #endif
