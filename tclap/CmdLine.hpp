@@ -24,21 +24,21 @@
 #ifndef TCLAP_CMDLINE_H
 #define TCLAP_CMDLINE_H
 
-#include <tclap/SwitchArg.h>
-#include <tclap/MultiSwitchArg.h>
-#include <tclap/UnlabeledValueArg.h>
-#include <tclap/UnlabeledMultiArg.h>
+#include <tclap/SwitchArg.hpp>
+#include <tclap/MultiSwitchArg.hpp>
+#include <tclap/UnlabeledValueArg.hpp>
+#include <tclap/UnlabeledMultiArg.hpp>
 
-#include <tclap/XorHandler.h>
-#include <tclap/HelpVisitor.h>
-#include <tclap/VersionVisitor.h>
-#include <tclap/IgnoreRestVisitor.h>
+#include <tclap/XorHandler.hpp>
+#include <tclap/HelpVisitor.hpp>
+#include <tclap/VersionVisitor.hpp>
+#include <tclap/IgnoreRestVisitor.hpp>
 
-#include <tclap/CmdLineOutput.h>
-#include <tclap/StdOutput.h>
+#include <tclap/CmdLineOutput.hpp>
+#include <tclap/StdOutput.hpp>
 
-#include <tclap/Constraint.h>
-#include <tclap/ValuesConstraint.h>
+#include <tclap/Constraint.hpp>
+#include <tclap/ValuesConstraint.hpp>
 
 #include <string>
 #include <vector>
@@ -46,7 +46,7 @@
 #include <iomanip>
 #include <list>
 #include <algorithm>
-#include <stdlib.h> // Needed for exit(), which isn't defined in some envs.
+#include <cstdlib> // Needed for exit(), which isn't defined in some envs.
 #include <memory>
 
 namespace TCLAP {

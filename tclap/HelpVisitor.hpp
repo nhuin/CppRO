@@ -22,9 +22,9 @@
 #ifndef TCLAP_HELP_VISITOR_H
 #define TCLAP_HELP_VISITOR_H
 
-#include <tclap/CmdLineInterface.h>
-#include <tclap/CmdLineOutput.h>
-#include <tclap/Visitor.h>
+#include <tclap/CmdLineInterface.hpp>
+#include <tclap/CmdLineOutput.hpp>
+#include <tclap/Visitor.hpp>
 
 namespace TCLAP {
 

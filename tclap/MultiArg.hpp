@@ -1,6 +1,6 @@
 /****************************************************************************** 
  * 
- *  file:  MultiArg.h
+ *  file:  MultiArg.hpp
  * 
  *  Copyright (c) 2003, Michael E. Smoot .
  *  Copyright (c) 2004, Michael E. Smoot, Daniel Aarno.
@@ -26,8 +26,8 @@
 #include <string>
 #include <vector>
 
-#include <tclap/Arg.h>
-#include <tclap/Constraint.h>
+#include <tclap/Arg.hpp>
+#include <tclap/Constraint.hpp>
 
 namespace TCLAP {
 /**

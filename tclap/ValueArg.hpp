@@ -26,8 +26,8 @@
 #include <string>
 #include <vector>
 
-#include <tclap/Arg.h>
-#include <tclap/Constraint.h>
+#include <tclap/Arg.hpp>
+#include <tclap/Constraint.hpp>
 
 namespace TCLAP {
 
@@ -215,7 +215,7 @@ class ValueArg : public Arg
          * \param args - Mutable list of strings. Passed 
          * in from main().
          */
-        virtual bool processArg(int* i, std::vector<std::string>& args); 
+        virtual bool processArg(int* i, std::vector<std::string>& args) override; 
 
         /**
          * Returns the value of the argument.
@@ -226,15 +226,15 @@ class ValueArg : public Arg
          * Specialization of shortID.
          * \param val - value to be used.
          */
-        virtual std::string shortID(const std::string& val = "val") const;
+        virtual std::string shortID(const std::string& val = "val") const override;
 
         /**
          * Specialization of longID.
          * \param val - value to be used.
          */
-        virtual std::string longID(const std::string& val = "val") const;
+        virtual std::string longID(const std::string& val = "val") const override;
         
-        virtual void reset() ;
+        virtual void reset() override;
 
 private:
        /**

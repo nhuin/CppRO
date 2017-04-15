@@ -40,19 +40,19 @@
 
 #if defined(HAVE_SSTREAM)
 #include <sstream>
-typedef std::istringstream istringstream;
+using istringstream = std::istringstream;
 #elif defined(HAVE_STRSTREAM)
 #include <strstream>
-typedef std::istrstream istringstream;
+using istringstream = std::istrstream;
 #else
 #error "Need a stringstream (sstream or strstream) to compile!"
 #endif
 
-#include <tclap/ArgException.h>
-#include <tclap/Visitor.h>
-#include <tclap/CmdLineInterface.h>
-#include <tclap/ArgTraits.h>
-#include <tclap/StandardTraits.h>
+#include <tclap/ArgException.hpp>
+#include <tclap/Visitor.hpp>
+#include <tclap/CmdLineInterface.hpp>
+#include <tclap/ArgTraits.hpp>
+#include <tclap/StandardTraits.hpp>
 
 namespace TCLAP {
 
@@ -66,12 +66,12 @@ class Arg {
 		/**
 		 * Prevent accidental copying.
 		 */
-		Arg(const Arg& rhs);
+		Arg(const Arg& rhs) = delete;
 
 		/**
 		 * Prevent accidental copying.
 		 */
-		Arg& operator=(const Arg& rhs);
+		Arg& operator=(const Arg& rhs) = delete;
 
 		/**
 		 * Indicates whether the rest of the arguments should be ignored.

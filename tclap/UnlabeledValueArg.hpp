@@ -27,8 +27,8 @@
 #include <string>
 #include <vector>
 
-#include <tclap/ValueArg.h>
-#include <tclap/OptionalUnlabeledTracker.h>
+#include <tclap/ValueArg.hpp>
+#include <tclap/OptionalUnlabeledTracker.hpp>
 
 
 namespace TCLAP {
@@ -181,28 +181,28 @@ class UnlabeledValueArg : public ValueArg<T>
 		 * \param i - Pointer the the current argument in the list.
 		 * \param args - Mutable list of strings. 
 		 */
-		virtual bool processArg(int* i, std::vector<std::string>& args); 
+		virtual bool processArg(int* i, std::vector<std::string>& args) override;
 
 		/**
 		 * Overrides shortID for specific behavior.
 		 */
-		virtual std::string shortID(const std::string& val="val") const;
+		virtual std::string shortID(const std::string& val="val") const override;
 
 		/**
 		 * Overrides longID for specific behavior.
 		 */
-		virtual std::string longID(const std::string& val="val") const;
+		virtual std::string longID(const std::string& val="val") const override;
 
 		/**
 		 * Overrides operator== for specific behavior.
 		 */
-		virtual bool operator==(const Arg& a ) const;
+		virtual bool operator==(const Arg& a ) const override;
 
 		/**
 		 * Instead of pushing to the front of list, push to the back.
 		 * \param argList - The list to add this to.
 		 */
-		virtual void addToList( std::list<Arg*>& argList ) const;
+		virtual void addToList( std::vector<Arg*>& argList ) const override;
 
 };
 
@@ -281,12 +281,12 @@ template<class T>
 bool UnlabeledValueArg<T>::processArg(int *i, std::vector<std::string>& args) 
 {
 	
-	if ( _alreadySet )
+	if ( _alreadySet ){
 		return false;
-	
-	if ( _hasBlanks( args[*i] ) )
+	}
+	if ( _hasBlanks( args[*i] ) ) {
 		return false;
-
+	}
 	// never ignore an unlabeled arg
 	
 	_extractValue( args[*i] );
@@ -324,14 +324,14 @@ std::string UnlabeledValueArg<T>::longID(const std::string& val) const
 template<class T>
 bool UnlabeledValueArg<T>::operator==(const Arg& a ) const
 {
-	if ( _name == a.getName() || _description == a.getDescription() )
+	if ( _name == a.getName() || _description == a.getDescription() ) {
 		return true;
-	else
-		return false;
+	}
+	return false;
 }
 
 template<class T>
-void UnlabeledValueArg<T>::addToList( std::list<Arg*>& argList ) const
+void UnlabeledValueArg<T>::addToList( std::vector<Arg*>& argList ) const
 {
 	argList.push_back( const_cast<Arg*>(static_cast<const Arg* const>(this)) );
 }

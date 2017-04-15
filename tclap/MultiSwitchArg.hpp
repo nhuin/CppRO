@@ -1,7 +1,7 @@
 
 /****************************************************************************** 
 *
-*  file:  MultiSwitchArg.h
+*  file:  MultiSwitchArg.hpp
 *
 *  Copyright (c) 2003, Michael E. Smoot .
 *  Copyright (c) 2004, Michael E. Smoot, Daniel Aarno.
@@ -28,7 +28,7 @@
 #include <string>
 #include <vector>
 
-#include <tclap/SwitchArg.h>
+#include <tclap/SwitchArg.hpp>
 
 namespace TCLAP {
 
