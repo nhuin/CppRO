@@ -23,10 +23,10 @@
 #ifndef TCLAP_VALUESCONSTRAINT_H
 #define TCLAP_VALUESCONSTRAINT_H
 
-#include <string>
-#include <vector>
-#include <tclap/Constraint.hpp>
 #include <cassert>
+#include <string>
+#include <tclap/Constraint.hpp>
+#include <vector>
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -36,7 +36,7 @@
 
 #if defined(HAVE_SSTREAM)
 #include <sstream>
-typedef std::ostringstream streamtype;
+using streamtype = std::ostringstream;
 #elif defined(HAVE_STRSTREAM)
 #include <strstream>
 typedef std::ostrstream streamtype;
@@ -60,12 +60,12 @@ class ValuesConstraint : public Constraint<T>
 		 * Constructor. 
 		 * \param allowed - vector of allowed values. 
 		 */
-		ValuesConstraint(std::vector<T> _allowed);	
+		explicit ValuesConstraint(std::vector<T> _allowed);	
 
 		/**
 		 * Virtual destructor.
 		 */
-		virtual ~ValuesConstraint() {}
+		~ValuesConstraint() override = default;;
 
 		
 		ValuesConstraint(const ValuesConstraint&) = default;
@@ -77,19 +77,19 @@ class ValuesConstraint : public Constraint<T>
 		/**
 		 * Returns a description of the Constraint. 
 		 */
-		virtual const std::string& description() const;
+		const std::string& description() const override;
 
 		/**
 		 * Returns the short ID for the Constraint.
 		 */
-		virtual const std::string& shortID() const;
+		const std::string& shortID() const override;
 
 		/**
 		 * The method used to verify that the value parsed from the command
 		 * line meets the constraint.
 		 * \param value - The value that will be checked. 
 		 */
-		virtual bool check(const T& value) const;
+		bool check(const T& val) const override;
 	
 	protected:
 

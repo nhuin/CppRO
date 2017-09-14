@@ -23,11 +23,11 @@
 #ifndef TCLAP_XORHANDLER_H
 #define TCLAP_XORHANDLER_H
 
-#include <tclap/Arg.hpp>
-#include <string>
-#include <vector>
+#include "Arg.hpp"
 #include <algorithm>
 #include <iostream>
+#include <string>
+#include <vector>
 
 namespace TCLAP {
 
@@ -103,39 +103,41 @@ inline int XorHandler::check( const Arg* a )
 	for ( int i = 0; static_cast<unsigned int>(i) < _orList.size(); i++ )
 	{
 		// if the XOR list contains the arg..
-		ArgVectorIterator ait = std::find( _orList[i].begin(), 
+		auto ait = std::find( _orList[i].begin(), 
 		                                   _orList[i].end(), a );
 		if ( ait != _orList[i].end() )
 		{
 			// first check to see if a mutually exclusive switch
 			// has not already been set
-			for ( ArgVectorIterator it = _orList[i].begin(); 
-				  it != _orList[i].end(); 
-				  it++ )
-				if ( a != (*it) && (*it)->isSet() )
+			for (auto & it : _orList[i]) {
+				if ( a != it && it->isSet() ) {
 					throw(CmdLineParseException(
 					      "Mutually exclusive argument already set!",
-					      (*it)->toString()));
+					      it->toString()));
+}
+}
 
 			// go through and set each arg that is not a
-			for ( ArgVectorIterator it = _orList[i].begin(); 
-				  it != _orList[i].end(); 
-				  it++ )
-				if ( a != (*it) )
-					(*it)->xorSet();
+			for (auto & it : _orList[i]) {
+				if ( a != it ) {
+					it->xorSet();
+}
+}
 
 			// return the number of required args that have now been set
-			if ( (*ait)->allowMore() )
+			if ( (*ait)->allowMore() ) {
 				return 0;
-			else
+			}  {
 				return static_cast<int>(_orList[i].size());
+}
 		}
 	}
 
-	if ( a->isRequired() )
+	if ( a->isRequired() ) {
 		return 1;
-	else
+	}  {
 		return 0;
+}
 }
 
 inline bool XorHandler::contains( const Arg* a ) const  {

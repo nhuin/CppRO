@@ -26,8 +26,8 @@
 #include <string>
 #include <vector>
 
-#include <tclap/MultiArg.hpp>
-#include <tclap/OptionalUnlabeledTracker.hpp>
+#include "MultiArg.hpp"
+#include "OptionalUnlabeledTracker.hpp"
 
 namespace TCLAP {
 
@@ -75,7 +75,7 @@ class UnlabeledMultiArg : public MultiArg<T>
 						   bool req,
 				           const std::string& typeDesc,
 						   bool ignoreable = false,
-				           Visitor* v = NULL );
+				           Visitor* v = nullptr );
 		/**
 		 * Constructor.  
 		 * \param name - The name of the Arg. Note that this is used for
@@ -100,7 +100,7 @@ class UnlabeledMultiArg : public MultiArg<T>
 				           const std::string& typeDesc,
 						   CmdLineInterface& parser,
 						   bool ignoreable = false,
-				           Visitor* v = NULL );
+				           Visitor* v = nullptr );
 						 
 		/**
 		 * Constructor.  
@@ -122,7 +122,7 @@ class UnlabeledMultiArg : public MultiArg<T>
 						   bool req,
 						   Constraint<T>* constraint,
 						   bool ignoreable = false,
-						   Visitor* v = NULL );
+						   Visitor* v = nullptr );
 
 		/**
 		 * Constructor.  
@@ -146,7 +146,7 @@ class UnlabeledMultiArg : public MultiArg<T>
 						   Constraint<T>* constraint,
 						   CmdLineInterface& parser,
 						   bool ignoreable = false,
-						   Visitor* v = NULL );
+						   Visitor* v = nullptr );
 						 
 		/**
 		 * Handles the processing of the argument.
@@ -156,31 +156,31 @@ class UnlabeledMultiArg : public MultiArg<T>
 		 * \param i - Pointer the the current argument in the list.
 		 * \param args - Mutable list of strings. Passed from main().
 		 */
-		virtual bool processArg(int* i, std::vector<std::string>& args); 
+		bool processArg(int* i, std::vector<std::string>& args) override; 
 
 		/**
 		 * Returns the a short id string.  Used in the usage.
 		 * \param val - value to be used.
 		 */
-		virtual std::string shortID(const std::string& val="val") const;
+		std::string shortID(const std::string& val) const override;
 
 		/**
 		 * Returns the a long id string.  Used in the usage.
 		 * \param val - value to be used.
 		 */
-		virtual std::string longID(const std::string& val="val") const;
+		std::string longID(const std::string& val) const override;
 
 		/**
 		 * Opertor ==.
 		 * \param a - The Arg to be compared to this.
 		 */
-		virtual bool operator==(const Arg& a) const;
+		bool operator==(const Arg& a) const override;
 
 		/**
 		 * Pushes this to back of list rather than front.
 		 * \param argList - The list this should be added to.
 		 */
-		virtual void addToList( std::vector<Arg*>& argList ) const;
+		void addToList( std::vector<Arg*>& argList ) override;
 };
 
 template<class T>
@@ -191,7 +191,8 @@ UnlabeledMultiArg<T>::UnlabeledMultiArg(const std::string& name,
 										bool ignoreable,
 					                    Visitor* v)
 : MultiArg<T>("", name, desc,  req, typeDesc, v)
-{ 
+{
+	Arg::checkParams(); 
 	_ignoreable = ignoreable;
 	OptionalUnlabeledTracker::check(true, toString());
 }
@@ -205,7 +206,8 @@ UnlabeledMultiArg<T>::UnlabeledMultiArg(const std::string& name,
 										bool ignoreable,
 					                    Visitor* v)
 : MultiArg<T>("", name, desc,  req, typeDesc, v)
-{ 
+{
+	Arg::checkParams(); 
 	_ignoreable = ignoreable;
 	OptionalUnlabeledTracker::check(true, toString());
 	parser.add( this );
@@ -220,7 +222,8 @@ UnlabeledMultiArg<T>::UnlabeledMultiArg(const std::string& name,
 										bool ignoreable,
 					                    Visitor* v)
 : MultiArg<T>("", name, desc,  req, constraint, v)
-{ 
+{
+	Arg::checkParams(); 
 	_ignoreable = ignoreable;
 	OptionalUnlabeledTracker::check(true, toString());
 }
@@ -234,7 +237,8 @@ UnlabeledMultiArg<T>::UnlabeledMultiArg(const std::string& name,
 										bool ignoreable,
 					                    Visitor* v)
 : MultiArg<T>("", name, desc,  req, constraint, v)
-{ 
+{
+	Arg::checkParams(); 
 	_ignoreable = ignoreable;
 	OptionalUnlabeledTracker::check(true, toString());
 	parser.add( this );
@@ -244,9 +248,10 @@ UnlabeledMultiArg<T>::UnlabeledMultiArg(const std::string& name,
 template<class T>
 bool UnlabeledMultiArg<T>::processArg(int *i, std::vector<std::string>& args) 
 {
-
-	if ( _hasBlanks( args[*i] ) )
+	*i += 0; // clang-tidy hack
+	if ( _hasBlanks( args[*i] ) ) {
 		return false;
+}
 
 	// never ignore an unlabeled multi arg
 
@@ -284,18 +289,19 @@ std::string UnlabeledMultiArg<T>::longID(const std::string& val) const
 template<class T>
 bool UnlabeledMultiArg<T>::operator==(const Arg& a) const
 {
-	if ( _name == a.getName() || _description == a.getDescription() )
+	if ( _name == a.getName() || _description == a.getDescription() ) {
 		return true;
-	else
+	}  {
 		return false;
+}
 }
 
 template<class T>
-void UnlabeledMultiArg<T>::addToList( std::vector<Arg*>& argList ) const
+void UnlabeledMultiArg<T>::addToList( std::vector<Arg*>& argList )
 {
-	argList.push_back( const_cast<Arg*>(static_cast<const Arg* const>(this)) );
+	argList.push_back(this);
 }
 
-}
+}  // namespace TCLAP
 
 #endif

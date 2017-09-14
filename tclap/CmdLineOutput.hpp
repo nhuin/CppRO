@@ -23,12 +23,12 @@
 #ifndef TCLAP_CMDLINEOUTPUT_H
 #define TCLAP_CMDLINEOUTPUT_H
 
+#include <algorithm>
+#include <iomanip>
+#include <iostream>
+#include <list>
 #include <string>
 #include <vector>
-#include <list>
-#include <iostream>
-#include <iomanip>
-#include <algorithm>
 
 namespace TCLAP {
 
@@ -46,19 +46,24 @@ class CmdLineOutput
 		/**
 		 * Virtual destructor.
 		 */
-		virtual ~CmdLineOutput() {}
+		virtual ~CmdLineOutput() = default;
+		CmdLineOutput() = default;
+		CmdLineOutput(const CmdLineOutput&) = default;
+		CmdLineOutput& operator=(const CmdLineOutput&) = default;
+		CmdLineOutput(CmdLineOutput&&) = default;
+		CmdLineOutput& operator=(CmdLineOutput&&) = default;
 
 		/**
 		 * Generates some sort of output for the USAGE. 
 		 * \param c - The CmdLine object the output is generated for. 
 		 */
-		virtual void usage(CmdLineInterface& c)=0;
+		virtual void usage(CmdLineInterface& c) = 0;
 
 		/**
 		 * Generates some sort of output for the version. 
 		 * \param c - The CmdLine object the output is generated for. 
 		 */
-		virtual void version(CmdLineInterface& c)=0;
+		virtual void version(CmdLineInterface& c) = 0;
 
 		/**
 		 * Generates some sort of output for a failure. 
@@ -66,7 +71,7 @@ class CmdLineOutput
 		 * \param e - The ArgException that caused the failure. 
 		 */
 		virtual void failure( CmdLineInterface& c, 
-						      ArgException& e )=0;
+						      ArgException& e ) = 0;
 
 };
 

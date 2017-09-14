@@ -22,12 +22,12 @@
 #ifndef TCLAP_CONSTRAINT_H
 #define TCLAP_CONSTRAINT_H
 
+#include <algorithm>
+#include <iomanip>
+#include <iostream>
+#include <list>
 #include <string>
 #include <vector>
-#include <list>
-#include <iostream>
-#include <iomanip>
-#include <algorithm>
 
 namespace TCLAP {
 
@@ -61,7 +61,12 @@ class Constraint
 		 * Silences warnings about Constraint being a base class with virtual
 		 * functions but without a virtual destructor.
 		 */
-		virtual ~Constraint() {}
+		virtual ~Constraint() = default;
+		Constraint() = default;
+		Constraint(const Constraint&) = default;
+		Constraint& operator=(const Constraint&) = default;
+		Constraint(Constraint&&) noexcept = default;
+		Constraint& operator=(Constraint&&) noexcept = default;
 };
 
 } //namespace TCLAP

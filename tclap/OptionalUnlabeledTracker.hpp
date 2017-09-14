@@ -24,6 +24,8 @@
 #ifndef TCLAP_OPTIONAL_UNLABELED_TRACKER_H
 #define TCLAP_OPTIONAL_UNLABELED_TRACKER_H
 
+#include "ArgException.hpp"
+
 #include <string>
 
 namespace TCLAP {
@@ -47,13 +49,15 @@ class OptionalUnlabeledTracker
 
 inline void OptionalUnlabeledTracker::check( bool req, const std::string& argName )
 {
-    if ( OptionalUnlabeledTracker::alreadyOptional() )
+    if ( OptionalUnlabeledTracker::alreadyOptional() ) {
         throw( SpecificationException(
 	"You can't specify ANY Unlabeled Arg following an optional Unlabeled Arg",
 	                argName ) );
+}
 
-    if ( !req )
+    if ( !req ) {
         OptionalUnlabeledTracker::gotOptional();
+}
 }
 
 

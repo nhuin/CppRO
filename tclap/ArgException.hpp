@@ -24,8 +24,8 @@
 #ifndef TCLAP_ARG_EXCEPTION_H
 #define TCLAP_ARG_EXCEPTION_H
 
-#include <string>
 #include <exception>
+#include <string>
 
 namespace TCLAP {
 
@@ -44,19 +44,23 @@ class ArgException : public std::exception
 		 * \param td - Text describing the type of ArgException it is.
 		 * of the exception.
 		 */
-		ArgException( const std::string& text = "undefined exception", 
-					  const std::string& id = "undefined",
-					  const std::string& td = "Generic ArgException")
-			: std::exception(), 
-			  _errorText(text), 
-			  _argId( id ), 
-			  _typeDescription(td)
-		{ } 
+		explicit ArgException( std::string text = "undefined exception", 
+					  std::string id = "undefined",
+					  std::string td = "Generic ArgException")
+			: _errorText(std::move(text))
+			  , _argId(std::move(id))
+			  , _typeDescription(std::move(td))
+		{ }
 		
 		/**
 		 * Destructor.
 		 */
-		virtual ~ArgException() throw() { }
+		~ArgException() throw() override = default;
+
+		ArgException(const ArgException&) = default;
+		ArgException& operator=(const ArgException&) = default;
+		ArgException(ArgException&&) = default;
+		ArgException& operator=(ArgException&&) = default;
 
 		/**
 		 * Returns the error text.
@@ -68,16 +72,16 @@ class ArgException : public std::exception
 		 */
 		std::string argId() const  
 		{ 
-			if ( _argId == "undefined" )
-				return " ";
-			else
-				return ( "Argument: " + _argId ); 
+			if ( _argId != "undefined" ) {
+				return "Argument: " + _argId;
+			}
+			return " ";
 		}
 
 		/**
 		 * Returns the arg id and error text. 
 		 */
-		const char* what() const throw() 
+		const char* what() const throw() override
 		{
 			static std::string ex; 
 			ex = _argId + " -- " + _errorText;
@@ -127,7 +131,7 @@ class ArgParseException : public ArgException
 		 * \param id - The text identifying the argument source 
 		 * of the exception.
 		 */
-		ArgParseException( const std::string& text = "undefined exception", 
+		explicit ArgParseException( const std::string& text = "undefined exception", 
 					       const std::string& id = "undefined" )
 			: ArgException( text, 
 			                id, 
@@ -149,7 +153,7 @@ class CmdLineParseException : public ArgException
 		 * \param id - The text identifying the argument source 
 		 * of the exception.
 		 */
-		CmdLineParseException( const std::string& text = "undefined exception", 
+		explicit CmdLineParseException( const std::string& text = "undefined exception", 
 					           const std::string& id = "undefined" )
 			: ArgException( text, 
 			                id,
@@ -173,7 +177,7 @@ class SpecificationException : public ArgException
 		 * \param id - The text identifying the argument source 
 		 * of the exception.
 		 */
-		SpecificationException( const std::string& text = "undefined exception",
+		explicit SpecificationException( const std::string& text = "undefined exception",
 					            const std::string& id = "undefined" )
 			: ArgException( text, 
 			                id,
@@ -186,7 +190,7 @@ class SpecificationException : public ArgException
 
 class ExitException {
 public:
-	ExitException(int estat) : _estat(estat) {}
+	explicit ExitException(int estat) : _estat(estat) {}
 
 	int getExitStatus() const { return _estat; }
 

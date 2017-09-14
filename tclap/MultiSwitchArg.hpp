@@ -28,7 +28,7 @@
 #include <string>
 #include <vector>
 
-#include <tclap/SwitchArg.hpp>
+#include "SwitchArg.hpp"
 
 namespace TCLAP {
 
@@ -70,7 +70,7 @@ class MultiSwitchArg : public SwitchArg
 				const std::string& name,
 				const std::string& desc,
 				int init = 0,
-				Visitor* v = NULL);
+				Visitor* v = nullptr);
 
 
 		/**
@@ -92,7 +92,7 @@ class MultiSwitchArg : public SwitchArg
 				const std::string& desc,
 				CmdLineInterface& parser,
 				int init = 0,
-				Visitor* v = NULL);
+				Visitor* v = nullptr);
 
 
 		/**
@@ -103,7 +103,7 @@ class MultiSwitchArg : public SwitchArg
 		 * \param args - Mutable list of strings. Passed
 		 * in from main().
 		 */
-		virtual bool processArg(int* i, std::vector<std::string>& args); 
+		bool processArg(int* i, std::vector<std::string>& args) override; 
 
 		/**
 		 * Returns int, the number of times the switch has been set.
@@ -113,14 +113,14 @@ class MultiSwitchArg : public SwitchArg
 		/**
 		 * Returns the shortID for this Arg.
 		 */
-		std::string shortID(const std::string& val) const;
+		std::string shortID(const std::string& val) const override;
 
 		/**
 		 * Returns the longID for this Arg.
 		 */
-		std::string longID(const std::string& val) const;
+		std::string longID(const std::string& val) const override;
 		
-		void reset();
+		void reset() override;
 
 };
 
@@ -135,7 +135,9 @@ MultiSwitchArg::MultiSwitchArg(const std::string& flag,
 	SwitchArg(flag, name, desc, false, v),
 	_value( init ),
 	_default( init )
-{}
+{
+	Arg::checkParams();
+}
 
 MultiSwitchArg::MultiSwitchArg(const std::string& flag,
 					const std::string& name, 
@@ -147,6 +149,7 @@ MultiSwitchArg::MultiSwitchArg(const std::string& flag,
 _value( init ),
 _default( init )
 { 
+	Arg::checkParams();
 	parser.add( this );
 }
 
@@ -154,8 +157,9 @@ int MultiSwitchArg::getValue() { return _value; }
 
 bool MultiSwitchArg::processArg(int *i, std::vector<std::string>& args)
 {
-	if ( _ignoreable && Arg::ignoreRest() )
+	if ( _ignoreable && Arg::ignoreRest() ) {
 		return false;
+}
 
 	if ( argMatches( args[*i] ))
 	{
@@ -169,7 +173,7 @@ bool MultiSwitchArg::processArg(int *i, std::vector<std::string>& args)
 
 		return true;
 	}
-	else if ( combinedSwitchesMatch( args[*i] ) )
+	if ( combinedSwitchesMatch( args[*i] ) )
 	{
 		// so the isSet() method will work
 		_alreadySet = true;
@@ -178,15 +182,17 @@ bool MultiSwitchArg::processArg(int *i, std::vector<std::string>& args)
 		++_value;
 
 		// Check for more in argument and increment value.
-		while ( combinedSwitchesMatch( args[*i] ) ) 
+		while ( combinedSwitchesMatch( args[*i] ) ) { 
 			++_value;
+}
 
 		_checkWithVisitor();
 
 		return false;
 	}
-	else
+	
 		return false;
+
 }
 
 std::string 

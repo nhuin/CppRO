@@ -24,10 +24,11 @@
 #define TCLAP_MULTIPLE_ARGUMENT_H
 
 #include <string>
+#include <utility>
 #include <vector>
 
-#include <tclap/Arg.hpp>
-#include <tclap/Constraint.hpp>
+#include "Arg.hpp"
+#include "Constraint.hpp"
 
 namespace TCLAP {
 /**
@@ -39,9 +40,9 @@ template<class T>
 class MultiArg : public Arg
 {
 public:
-	typedef std::vector<T> container_type;	
-	typedef typename container_type::iterator iterator;
-	typedef typename container_type::const_iterator const_iterator;
+	using container_type = std::vector<T>;	
+	using iterator = typename container_type::iterator;
+	using const_iterator = typename container_type::const_iterator;
 
 protected:
 
@@ -96,8 +97,8 @@ public:
                   const std::string& name,
                   const std::string& desc,
                   bool req,
-                  const std::string& typeDesc,
-                  Visitor* v = NULL);
+                  std::string  typeDesc,
+                  Visitor* v = nullptr);
 
 	/**
 	 * Constructor.
@@ -121,9 +122,9 @@ public:
                   const std::string& name,
                   const std::string& desc,
                   bool req,
-                  const std::string& typeDesc,
+                  std::string  typeDesc,
                   CmdLineInterface& parser,
-                  Visitor* v = NULL );
+                  Visitor* v = nullptr );
 
 	/**
 	 * Constructor.
@@ -145,7 +146,7 @@ public:
                   const std::string& desc,
                   bool req,
                   Constraint<T>* constraint,
-                  Visitor* v = NULL );
+                  Visitor* v = nullptr );
 		  
 	/**
 	 * Constructor.
@@ -169,8 +170,14 @@ public:
                   bool req,
                   Constraint<T>* constraint,
                   CmdLineInterface& parser,
-                  Visitor* v = NULL );
-		  
+                  Visitor* v = nullptr );
+		
+	MultiArg(const MultiArg&) = delete;
+	MultiArg& operator=(const MultiArg&) = delete;
+	MultiArg(MultiArg&&) noexcept = default;
+	MultiArg& operator=(MultiArg&&) noexcept = default;
+	~MultiArg() override = default;
+
 	/**
 	 * Handles the processing of the argument.
 	 * This re-implements the Arg version of this method to set the
@@ -179,7 +186,7 @@ public:
 	 * \param i - Pointer the the current argument in the list.
 	 * \param args - Mutable list of strings. Passed from main().
 	 */
-	virtual bool processArg(int* i, std::vector<std::string>& args); 
+	bool processArg(int* i, std::vector<std::string>& args) override; 
 
 	/**
 	 * Returns a vector of type T containing the values parsed from
@@ -203,30 +210,23 @@ public:
 	 * Returns the a short id string.  Used in the usage. 
 	 * \param val - value to be used.
 	 */
-	virtual std::string shortID(const std::string& val="val") const;
+	std::string shortID(const std::string& val) const override;
 
 	/**
 	 * Returns the a long id string.  Used in the usage. 
 	 * \param val - value to be used.
 	 */
-	virtual std::string longID(const std::string& val="val") const;
+	std::string longID(const std::string& val) const override;
 
 	/**
 	 * Once we've matched the first value, then the arg is no longer
 	 * required.
 	 */
-	virtual bool isRequired() const;
+	bool isRequired() const override;
 
-	virtual bool allowMore();
+	bool allowMore() override;
 	
-	virtual void reset();
-
-private:
-	/**
-	 * Prevent accidental copying
-	 */
-	MultiArg<T>(const MultiArg<T>& rhs);
-	MultiArg<T>& operator=(const MultiArg<T>& rhs);
+	void reset() override;
 
 };
 
@@ -235,14 +235,15 @@ MultiArg<T>::MultiArg(const std::string& flag,
                       const std::string& name,
                       const std::string& desc,
                       bool req,
-                      const std::string& typeDesc,
+                      std::string  typeDesc,
                       Visitor* v) :
    Arg( flag, name, desc, req, true, v ),
   _values(std::vector<T>()),
-  _typeDesc( typeDesc ),
+  _typeDesc(std::move( typeDesc )),
   _constraint( NULL ),
   _allowMore(false)
 { 
+	Arg::checkParams();
 	_acceptsMultipleValues = true;
 }
 
@@ -251,15 +252,16 @@ MultiArg<T>::MultiArg(const std::string& flag,
                       const std::string& name,
                       const std::string& desc,
                       bool req,
-                      const std::string& typeDesc,
+                      std::string  typeDesc,
                       CmdLineInterface& parser,
                       Visitor* v)
 : Arg( flag, name, desc, req, true, v ),
   _values(std::vector<T>()),
-  _typeDesc( typeDesc ),
+  _typeDesc(std::move( typeDesc )),
   _constraint( NULL ),
   _allowMore(false)
 { 
+	Arg::checkParams();
 	parser.add( this );
 	_acceptsMultipleValues = true;
 }
@@ -280,6 +282,7 @@ MultiArg<T>::MultiArg(const std::string& flag,
   _constraint( constraint ),
   _allowMore(false)
 { 
+	Arg::checkParams();
 	_acceptsMultipleValues = true;
 }
 
@@ -297,6 +300,7 @@ MultiArg<T>::MultiArg(const std::string& flag,
   _constraint( constraint ),
   _allowMore(false)
 { 
+	Arg::checkParams();
 	parser.add( this );
 	_acceptsMultipleValues = true;
 }
@@ -307,36 +311,41 @@ const std::vector<T>& MultiArg<T>::getValue() { return _values; }
 template<class T>
 bool MultiArg<T>::processArg(int *i, std::vector<std::string>& args) 
 {
- 	if ( _ignoreable && Arg::ignoreRest() )
+ 	if ( _ignoreable && Arg::ignoreRest() ) {
 		return false;
+}
 
-	if ( _hasBlanks( args[*i] ) )
+	if ( _hasBlanks( args[*i] ) ) {
 		return false;
+}
 
 	std::string flag = args[*i];
-	std::string value = "";
+	std::string value;
 
    	trimFlag( flag, value );
 
    	if ( argMatches( flag ) )
    	{
-   		if ( Arg::delimiter() != ' ' && value == "" )
+   		if ( Arg::delimiter() != ' ' && value == "" ) {
 			throw( ArgParseException( 
 			           "Couldn't find delimiter for this argument!",
 					   toString() ) );
+}
 
 		// always take the first one, regardless of start string
 		if ( value == "" )
 		{
 			(*i)++;
-			if ( static_cast<unsigned int>(*i) < args.size() )
+			if ( static_cast<unsigned int>(*i) < args.size() ) {
 				_extractValue( args[*i] );
-			else
+			} else {
 				throw( ArgParseException("Missing a value for this argument!",
                                          toString() ) );
+}
 		} 
-		else
+		else {
 			_extractValue( value );
+}
 
 		/*
 		// continuing taking the args until we hit one with a start string 
@@ -351,8 +360,9 @@ bool MultiArg<T>::processArg(int *i, std::vector<std::string>& args)
 
 		return true;
 	}
-	else
+	 {
 		return false;
+}
 }
 
 /**
@@ -382,16 +392,14 @@ std::string MultiArg<T>::longID(const std::string& val) const
 template<class T>
 bool MultiArg<T>::isRequired() const
 {
-	if ( _required )
-	{
-		if ( _values.size() > 1 )
-			return false;
-		else
-			return true;
-   	}
-   	else
-		return false;
-
+	return _required && _values.empty();
+	// if ( _required ) {
+	// 	if ( _values.size() > 1 ) {
+	// 		return false;
+	// 	}
+	// 	return true;
+ //   	}
+	// return false;
 }
 
 template<class T>
@@ -405,12 +413,14 @@ void MultiArg<T>::_extractValue( const std::string& val )
 	throw ArgParseException(e.error(), toString());
     }
 
-    if ( _constraint != NULL )
-	if ( ! _constraint->check( _values.back() ) )
+    if ( _constraint != NULL ) {
+	if ( ! _constraint->check( _values.back() ) ) {
 	    throw( CmdLineParseException( "Value '" + val +
 					  "' does not meet constraint: " +
 					  _constraint->description(), 
 					  toString() ) );
+}
+}
 }
 		
 template<class T>

@@ -31,12 +31,12 @@
 #define HAVE_SSTREAM
 #endif
 
+#include <cstdio>
+#include <iomanip>
+#include <iostream>
+#include <list>
 #include <string>
 #include <vector>
-#include <list>
-#include <iostream>
-#include <iomanip>
-#include <cstdio>
 
 #if defined(HAVE_SSTREAM)
 #include <sstream>
@@ -48,11 +48,11 @@ using istringstream = std::istrstream;
 #error "Need a stringstream (sstream or strstream) to compile!"
 #endif
 
-#include <tclap/ArgException.hpp>
-#include <tclap/Visitor.hpp>
-#include <tclap/CmdLineInterface.hpp>
-#include <tclap/ArgTraits.hpp>
-#include <tclap/StandardTraits.hpp>
+#include "ArgException.hpp"
+#include "ArgTraits.hpp"
+#include "CmdLineInterface.hpp"
+#include "StandardTraits.hpp"
+#include "Visitor.hpp"
 
 namespace TCLAP {
 
@@ -63,16 +63,6 @@ namespace TCLAP {
  */
 class Arg {
 	private:
-		/**
-		 * Prevent accidental copying.
-		 */
-		Arg(const Arg& rhs) = delete;
-
-		/**
-		 * Prevent accidental copying.
-		 */
-		Arg& operator=(const Arg& rhs) = delete;
-
 		/**
 		 * Indicates whether the rest of the arguments should be ignored.
 		 */
@@ -138,7 +128,7 @@ class Arg {
 		/**
 		 * A pointer to a vistitor object.
 		 * The visitor allows special handling to occur as soon as the
-		 * argument is matched.  This defaults to NULL and should not
+		 * argument is matched.  This defaults to nullptr and should not
 		 * be used unless absolutely necessary.
 		 */
 		Visitor* _visitor;
@@ -172,22 +162,43 @@ class Arg {
 		 * \param desc - The description of the argument, used in the usage.
 		 * \param req - Whether the argument is required.
 		 * \param valreq - Whether the a value is required for the argument.
-		 * \param v - The visitor checked by the argument. Defaults to NULL.
+		 * \param v - The visitor checked by the argument. Defaults to nullptr.
 		 */
- 		Arg(const std::string& flag, const std::string& name, const std::string& desc, bool req, bool valreq, 
- 			Visitor* v = NULL );
+ 		Arg(std::string flag, std::string name, std::string desc, bool req, bool valreq, 
+ 			Visitor* v = nullptr );
 
 	public:
+
+		/**
+		 * Prevent accidental copying.
+		 */
+		Arg(const Arg& rhs) = delete;
+
+		/**
+		 * Prevent accidental copying.
+		 */
+		Arg& operator=(const Arg& rhs) = delete;
+
+		/**
+		* Default constructor by move
+		*/
+		Arg(Arg&&) = default;
+		
+		/**
+		* Default move operator
+		*/
+		Arg& operator=(Arg&&) = default;
+
 		/**
 		 * Destructor.
 		 */
-		virtual ~Arg();
+		virtual ~Arg() = default;
 
 		/**
 		 * Adds this to the specified list of Args.
 		 * \param argList - The list to add this to.
 		 */
-		virtual void addToList( std::vector<Arg*>& argList ) const;
+		virtual void addToList( std::vector<Arg*>& argList );
 
 		/**
 		 * Begin ignoring arguments since the "--" argument was specified.
@@ -209,7 +220,7 @@ class Arg {
 		 * The char used as a place holder when SwitchArgs are combined.
 		 * Currently set to the bell char (ASCII 7).
 		 */
-		static char blankChar() { return (char)7; }
+		static char blankChar() { return '\7'; }
 
 		/**
 		 * The char that indicates the beginning of a flag.  Defaults to '-', but
@@ -322,7 +333,7 @@ class Arg {
 		 * \param s - The string to be compared to the flag/name to determine
 		 * whether the arg matches.
 		 */
-		virtual bool argMatches( const std::string& s ) const;
+		virtual bool argMatches( const std::string& argFlag ) const;
 
 		/**
 		 * Returns a simple string representation of the argument.
@@ -334,13 +345,13 @@ class Arg {
 		 * Returns a short ID for the usage.
 		 * \param valueId - The value used in the id.
 		 */
-		virtual std::string shortID( const std::string& valueId = "val" ) const;
+		virtual std::string shortID( const std::string& valueId ) const;
 
 		/**
 		 * Returns a long ID for the usage.
 		 * \param valueId - The value used in the id.
 		 */
-		virtual std::string longID( const std::string& valueId = "val" ) const;
+		virtual std::string longID( const std::string& valueId ) const;
 
 		/**
 		 * Trims a value off of the flag.
@@ -383,22 +394,24 @@ class Arg {
 		 * command lines.
 		 */
 		 virtual void reset();
+
+		 virtual void checkParams();
 };
 
 /**
  * Typedef of an Arg list iterator.
  */
-typedef std::vector<Arg*>::iterator ArgListIterator;
+using ArgListIterator = std::vector<Arg*>::iterator;
 
 /**
  * Typedef of an Arg vector iterator.
  */
-typedef std::vector<Arg*>::iterator ArgVectorIterator;
+using ArgVectorIterator = std::vector<Arg*>::iterator;
 
 /**
  * Typedef of a Visitor list iterator.
  */
-typedef std::vector<Visitor*>::iterator VisitorListIterator;
+using VisitorListIterator = std::vector<Visitor*>::iterator;
 
 /*
  * Extract a value of type T from it's string representation contained
@@ -407,33 +420,34 @@ typedef std::vector<Visitor*>::iterator VisitorListIterator;
  * ValueLike traits use operator>> to assign the value from strVal.
  */
 template<typename T> void
-ExtractValue(T &destVal, const std::string& strVal, ValueLike vl)
-{
+ExtractValue(T &destVal, const std::string& strVal, ValueLike vl) {
     static_cast<void>(vl); // Avoid warning about unused vl
     std::istringstream is(strVal);
 
     int valuesRead = 0;
     while ( is.good() ) {
-	if ( is.peek() != EOF )
+		if ( is.peek() != EOF ) {
 #ifdef TCLAP_SETBASE_ZERO
 	    is >> std::setbase(0) >> destVal;
 #else
 	    is >> destVal;
 #endif
-	else
-	    break;
-
-	valuesRead++;
+		} else {
+		    break;
+		}
+		valuesRead++;
     }
 
-    if ( is.fail() )
-	throw( ArgParseException("Couldn't read argument value "
-				 "from string '" + strVal + "'"));
+    if ( is.fail() ) {
+    	throw( ArgParseException("Couldn't read argument value "
+    				 "from string '" + strVal + "'"));
+    }
 
 
-    if ( valuesRead > 1 )
-	throw( ArgParseException("More than one valid value parsed from "
-				 "string '" + strVal + "'"));
+    if ( valuesRead > 1 ){ 
+    	throw( ArgParseException("More than one valid value parsed from "
+					 "string '" + strVal + "'"));
+	}
 
 }
 
@@ -444,8 +458,7 @@ ExtractValue(T &destVal, const std::string& strVal, ValueLike vl)
  * StringLike uses assignment (operator=) to assign from strVal.
  */
 template<typename T> void
-ExtractValue(T &destVal, const std::string& strVal, StringLike sl)
-{
+ExtractValue(T &destVal, const std::string& strVal, StringLike sl) {
     static_cast<void>(sl); // Avoid warning about unused sl
     SetString(destVal, strVal);
 }
@@ -454,15 +467,15 @@ ExtractValue(T &destVal, const std::string& strVal, StringLike sl)
 //BEGIN Arg.cpp
 //////////////////////////////////////////////////////////////////////
 
-inline Arg::Arg(const std::string& flag,
-         const std::string& name,
-         const std::string& desc,
+inline Arg::Arg(std::string flag,
+         std::string name,
+         std::string desc,
          bool req,
          bool valreq,
          Visitor* v) :
-  _flag(flag),
-  _name(name),
-  _description(desc),
+  _flag(std::move(flag)),
+  _name(std::move(name)),
+  _description(std::move(desc)),
   _required(req),
   _requireLabel("required"),
   _valueRequired(valreq),
@@ -470,8 +483,9 @@ inline Arg::Arg(const std::string& flag,
   _visitor( v ),
   _ignoreable(true),
   _xorSet(false),
-  _acceptsMultipleValues(false)
-{
+  _acceptsMultipleValues(false) {}
+
+inline void Arg::checkParams() {
 	if ( _flag.length() > 1 ) {
 			throw(SpecificationException(
 					"Argument flag can only be one character long", toString() ) );
@@ -487,70 +501,68 @@ inline Arg::Arg(const std::string& flag,
 		   }
 	if ( ( _name.substr( 0, Arg::flagStartString().length() ) == Arg::flagStartString() ) ||
 		 ( _name.substr( 0, Arg::nameStartString().length() ) == Arg::nameStartString() ) ||
-		 ( _name.find( " ", 0 ) != std::string::npos ) )
+		 ( _name.find( ' ', 0 ) != std::string::npos ) ) {
 		throw(SpecificationException("Argument name begin with either '" +
 							Arg::flagStartString() + "' or '" +
 							Arg::nameStartString() + "' or space.",
 							toString() ) );
-
+	}
 }
 
-inline Arg::~Arg() { }
+inline std::string Arg::shortID( const std::string& valueId ) const {
+	std::string id;
 
-inline std::string Arg::shortID( const std::string& valueId ) const
-{
-	std::string id = "";
-
-	if ( _flag != "" )
+	if ( _flag != "" ) {
 		id = Arg::flagStartString() + _flag;
-	else
+	} else {
 		id = Arg::nameStartString() + _name;
+	}
 
-	if ( _valueRequired )
+	if ( _valueRequired ) {
 		id += std::string( 1, Arg::delimiter() ) + "<" + valueId  + ">";
+	}
 
-	if ( !_required )
+	if ( !_required ) {
 		id = "[" + id + "]";
+	}
 
 	return id;
 }
 
-inline std::string Arg::longID( const std::string& valueId ) const
-{
-	std::string id = "";
+inline std::string Arg::longID( const std::string& valueId ) const {
+	std::string id;
 
 	if ( _flag != "" )
 	{
 		id += Arg::flagStartString() + _flag;
 
-		if ( _valueRequired )
+		if ( _valueRequired ) {
 			id += std::string( 1, Arg::delimiter() ) + "<" + valueId + ">";
+		}
 
 		id += ",  ";
 	}
 
 	id += Arg::nameStartString() + _name;
 
-	if ( _valueRequired )
+	if ( _valueRequired ) {
 		id += std::string( 1, Arg::delimiter() ) + "<" + valueId + ">";
+	}
 
 	return id;
 
 }
 
-inline bool Arg::operator==(const Arg& a) const
-{
-	if ( ( _flag != "" && _flag == a._flag ) || _name == a._name)
-		return true;
-	else
-		return false;
+inline bool Arg::operator==(const Arg& a) const {
+	return ( _flag != "" && _flag == a._flag ) 
+			|| _name == a._name;
 }
 
-inline std::string Arg::getDescription() const
-{
-	std::string desc = "";
-	if ( _required )
+inline std::string Arg::getDescription() const {
+	std::string desc;
+	if ( _required ) {
 		desc = "(" + _requireLabel + ")  ";
+	}
 
 //	if ( _valueRequired )
 //		desc += "(value required)  ";
@@ -567,63 +579,52 @@ inline bool Arg::isRequired() const { return _required; }
 
 inline bool Arg::isValueRequired() const { return _valueRequired; }
 
-inline bool Arg::isSet() const
-{
-	if ( _alreadySet && !_xorSet )
-		return true;
-	else
-		return false;
+inline bool Arg::isSet() const {
+	return _alreadySet && !_xorSet;
 }
 
 inline bool Arg::isIgnoreable() const { return _ignoreable; }
 
-inline void Arg::setRequireLabel( const std::string& s)
-{
+inline void Arg::setRequireLabel( const std::string& s) {
 	_requireLabel = s;
 }
 
-inline bool Arg::argMatches( const std::string& argFlag ) const
-{
-	if ( ( argFlag == Arg::flagStartString() + _flag && _flag != "" ) ||
-	       argFlag == Arg::nameStartString() + _name )
-		return true;
-	else
-		return false;
+inline bool Arg::argMatches( const std::string& argFlag ) const {
+	return ( argFlag == Arg::flagStartString() + _flag && _flag != "" ) ||
+	       argFlag == Arg::nameStartString() + _name;
 }
 
-inline std::string Arg::toString() const
-{
-	std::string s = "";
+inline std::string Arg::toString() const {
+	std::string s;
 
-	if ( _flag != "" )
-		s += Arg::flagStartString() + _flag + " ";
+	if ( _flag != "" ) {
+		s += Arg::flagStartString() + _flag + ' ';
+	}
 
 	s += "(" + Arg::nameStartString() + _name + ")";
 
 	return s;
 }
 
-inline void Arg::_checkWithVisitor() const
-{
-	if ( _visitor != NULL )
+inline void Arg::_checkWithVisitor() const {
+	if ( _visitor != nullptr ) {
 		_visitor->visit();
+	}
 }
 
 /**
  * Implementation of trimFlag.
  */
-inline void Arg::trimFlag(std::string& flag, std::string& value) const
-{
-	int stop = 0;
-	for ( int i = 0; static_cast<unsigned int>(i) < flag.length(); i++ )
-		if ( flag[i] == Arg::delimiter() )
-		{
+inline void Arg::trimFlag(std::string& flag, std::string& value) const {
+	uint64_t stop = 0;
+	for ( int i = 0; static_cast<unsigned int>(i) < flag.length(); i++ ) {
+		if ( flag[i] == Arg::delimiter() ) {
 			stop = i;
 			break;
 		}
+	}
 
-	if ( stop > 1 )
-	{
+	if ( stop > 1 ) {
 		value = flag.substr(stop+1);
 		flag = flag.substr(0,stop);
 	}
@@ -633,22 +634,20 @@ inline void Arg::trimFlag(std::string& flag, std::string& value) const
 /**
  * Implementation of _hasBlanks.
  */
-inline bool Arg::_hasBlanks( const std::string& s ) const
-{
-	for ( int i = 1; static_cast<unsigned int>(i) < s.length(); i++ )
-		if ( s[i] == Arg::blankChar() )
-			return true;
-
+inline bool Arg::_hasBlanks( const std::string& s ) const {
+	for ( int i = 1; static_cast<unsigned int>(i) < s.length(); i++ ){
+		if ( s[i] == Arg::blankChar() ) {
+				return true;
+		}
+	}
 	return false;
 }
 
-inline void Arg::forceRequired()
-{
+inline void Arg::forceRequired() {
 	_required = true;
 }
 
-inline void Arg::xorSet()
-{
+inline void Arg::xorSet() {
 	_alreadySet = true;
 	_xorSet = true;
 }
@@ -656,23 +655,19 @@ inline void Arg::xorSet()
 /**
  * Overridden by Args that need to added to the end of the list.
  */
-inline void Arg::addToList( std::vector<Arg*>& argList ) const
-{
-	argList.push_back( const_cast<Arg*>(this) );
+inline void Arg::addToList( std::vector<Arg*>& argList ) {
+	argList.push_back( this );
 }
 
-inline bool Arg::allowMore()
-{
+inline bool Arg::allowMore() {
 	return false;
 }
 
-inline bool Arg::acceptsMultipleValues()
-{
+inline bool Arg::acceptsMultipleValues() {
 	return _acceptsMultipleValues;
 }
 
-inline void Arg::reset()
-{
+inline void Arg::reset() {
 	_xorSet = false;
 	_alreadySet = false;
 }

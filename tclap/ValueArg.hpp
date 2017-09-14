@@ -24,10 +24,11 @@
 #define TCLAP_VALUE_ARGUMENT_H
 
 #include <string>
+#include <utility>
 #include <vector>
 
-#include <tclap/Arg.hpp>
-#include <tclap/Constraint.hpp>
+#include "Arg.hpp"
+#include "Constraint.hpp"
 
 namespace TCLAP {
 
@@ -108,9 +109,9 @@ class ValueArg : public Arg
                   const std::string& name, 
                   const std::string& desc, 
                   bool req, 
-                  T value,
-                  const std::string& typeDesc,
-                  Visitor* v = NULL);
+                  T val,
+                  std::string  typeDesc,
+                  Visitor* v = nullptr);
 				 
 				 
         /**
@@ -141,10 +142,10 @@ class ValueArg : public Arg
                   const std::string& name, 
                   const std::string& desc, 
                   bool req, 
-                  T value,
-                  const std::string& typeDesc,
+                  T val,
+                  std::string  typeDesc,
                   CmdLineInterface& parser,
-                  Visitor* v = NULL );
+                  Visitor* v = nullptr );
  
         /**
          * Labeled ValueArg constructor.
@@ -172,10 +173,10 @@ class ValueArg : public Arg
                   const std::string& name, 
                   const std::string& desc, 
                   bool req, 
-                  T value,
+                  T val,
                   Constraint<T>* constraint,
                   CmdLineInterface& parser,
-                  Visitor* v = NULL );
+                  Visitor* v = nullptr );
 	  
         /**
          * Labeled ValueArg constructor.
@@ -202,9 +203,16 @@ class ValueArg : public Arg
                   const std::string& name, 
                   const std::string& desc, 
                   bool req, 
-                  T value,
+                  T val,
                   Constraint<T>* constraint,
-                  Visitor* v = NULL );
+                  Visitor* v = nullptr );
+
+
+        ValueArg(const ValueArg&) = delete;
+        ValueArg& operator=(const ValueArg&) = delete;
+        ValueArg(ValueArg&&) = default;
+        ValueArg& operator=(ValueArg&&) = default;
+        ~ValueArg() override = default;
 
         /**
          * Handles the processing of the argument.
@@ -215,7 +223,7 @@ class ValueArg : public Arg
          * \param args - Mutable list of strings. Passed 
          * in from main().
          */
-        virtual bool processArg(int* i, std::vector<std::string>& args) override; 
+        bool processArg(int* i, std::vector<std::string>& args) override; 
 
         /**
          * Returns the value of the argument.
@@ -226,22 +234,15 @@ class ValueArg : public Arg
          * Specialization of shortID.
          * \param val - value to be used.
          */
-        virtual std::string shortID(const std::string& val = "val") const override;
+        std::string shortID(const std::string& val) const override;
 
         /**
          * Specialization of longID.
          * \param val - value to be used.
          */
-        virtual std::string longID(const std::string& val = "val") const override;
+        std::string longID(const std::string& val) const override;
         
-        virtual void reset() override;
-
-private:
-       /**
-        * Prevent accidental copying
-        */
-       ValueArg<T>(const ValueArg<T>& rhs);
-       ValueArg<T>& operator=(const ValueArg<T>& rhs);
+        void reset() override;
 };
 
 
@@ -254,14 +255,16 @@ ValueArg<T>::ValueArg(const std::string& flag,
                       const std::string& desc, 
                       bool req, 
                       T val,
-                      const std::string& typeDesc,
+                      std::string  typeDesc,
                       Visitor* v)
 : Arg(flag, name, desc, req, true, v),
   _value( val ),
   _default( val ),
-  _typeDesc( typeDesc ),
-  _constraint( NULL )
-{ }
+  _typeDesc(std::move( typeDesc )),
+  _constraint( nullptr )
+{
+  Arg::checkParams();
+}
 
 template<class T>
 ValueArg<T>::ValueArg(const std::string& flag, 
@@ -269,15 +272,16 @@ ValueArg<T>::ValueArg(const std::string& flag,
                       const std::string& desc, 
                       bool req, 
                       T val,
-                      const std::string& typeDesc,
+                      std::string  typeDesc,
                       CmdLineInterface& parser,
                       Visitor* v)
 : Arg(flag, name, desc, req, true, v),
   _value( val ),
   _default( val ),
-  _typeDesc( typeDesc ),
+  _typeDesc(std::move( typeDesc )),
   _constraint( NULL )
 { 
+    Arg::checkParams();
     parser.add( this );
 }
 
@@ -294,7 +298,9 @@ ValueArg<T>::ValueArg(const std::string& flag,
   _default( val ),
   _typeDesc( constraint->shortID() ),
   _constraint( constraint )
-{ }
+{
+  Arg::checkParams();
+}
 
 template<class T>
 ValueArg<T>::ValueArg(const std::string& flag, 
@@ -311,7 +317,8 @@ ValueArg<T>::ValueArg(const std::string& flag,
   _typeDesc( constraint->shortID() ),
   _constraint( constraint )
 { 
-    parser.add( this );
+  Arg::checkParams();
+  parser.add( this );
 }
 
 
@@ -337,7 +344,7 @@ bool ValueArg<T>::processArg(int *i, std::vector<std::string>& args) {
     }
     std::string flag = args[*i];
 
-    std::string value = "";
+    std::string value;
     trimFlag( flag, value );
 
     if ( argMatches( flag ) ) {
@@ -366,9 +373,9 @@ bool ValueArg<T>::processArg(int *i, std::vector<std::string>& args) {
         _alreadySet = true;
         _checkWithVisitor();
         return true;
-    } else {
+    } 
         return false;
-    }
+    
 }
 
 /**
@@ -400,7 +407,7 @@ void ValueArg<T>::_extractValue( const std::string& val )
 	throw ArgParseException(e.error(), toString());
     }
     
-    if ( _constraint != NULL ) {
+    if ( _constraint != nullptr ) {
     	if ( ! _constraint->check( _value ) ) {
     	    throw( CmdLineParseException( "Value '" + val + 
     					  + "' does not meet constraint: " 

@@ -27,7 +27,7 @@
 #include <string>
 #include <vector>
 
-#include <tclap/Arg.hpp>
+#include "Arg.hpp"
 
 namespace TCLAP {
 
@@ -68,8 +68,8 @@ class SwitchArg : public Arg
 		SwitchArg(const std::string& flag, 
 			      const std::string& name, 
 			      const std::string& desc,
-			      bool def = false,
-				  Visitor* v = NULL);
+			      bool default_val = false,
+				  Visitor* v = nullptr);
 
 				  
 		/**
@@ -89,8 +89,8 @@ class SwitchArg : public Arg
 			      const std::string& name, 
 			      const std::string& desc,
 				  CmdLineInterface& parser,
-			      bool def = false,
-				  Visitor* v = NULL);
+			      bool default_val = false,
+				  Visitor* v = nullptr);
 				  
 				  
         /**
@@ -101,27 +101,27 @@ class SwitchArg : public Arg
 		 * \param args - Mutable list of strings. Passed
 		 * in from main().
 		 */
-		virtual bool processArg(int* i, std::vector<std::string>& args); 
+		bool processArg(int* i, std::vector<std::string>& args) override; 
 
 		/**
 		 * Checks a string to see if any of the chars in the string
 		 * match the flag for this Switch.
 		 */
-		bool combinedSwitchesMatch(std::string& combined);
+		bool combinedSwitchesMatch(std::string& combinedSwitches);
 
 		/**
 		 * Returns bool, whether or not the switch has been set.
 		 */
 		bool getValue();
 		
-		virtual void reset();
+		void reset() override;
 
 	private:
 		/**
 		 * Checks to see if we've found the last match in
 		 * a combined string.
 		 */
-		bool lastCombined(std::string& combined);
+		bool lastCombined(std::string& combinedSwitches);
 
 		/**
 		 * Does the common processing of processArg.
@@ -140,7 +140,9 @@ inline SwitchArg::SwitchArg(const std::string& flag,
 : Arg(flag, name, desc, false, false, v),
   _value( default_val ),
   _default( default_val )
-{ }
+{
+	Arg::checkParams();
+}
 
 inline SwitchArg::SwitchArg(const std::string& flag, 
                             const std::string& name, 
@@ -152,6 +154,7 @@ inline SwitchArg::SwitchArg(const std::string& flag,
   _value( default_val ),
   _default(default_val)
 { 
+	Arg::checkParams();
 	parser.add( this );
 }
 
@@ -159,9 +162,11 @@ inline bool SwitchArg::getValue() { return _value; }
 
 inline bool SwitchArg::lastCombined(std::string& combinedSwitches ) 
 {
-	for ( unsigned int i = 1; i < combinedSwitches.length(); i++ )
-		if ( combinedSwitches[i] != Arg::blankChar() )
+	for ( unsigned int i = 1; i < combinedSwitches.length(); i++ ) {
+		if ( combinedSwitches[i] != Arg::blankChar() ) {
 			return false;
+}
+}
 	
 	return true;
 }
@@ -170,21 +175,24 @@ inline bool SwitchArg::combinedSwitchesMatch(std::string& combinedSwitches )
 {
 	// make sure this is actually a combined switch
 	if ( combinedSwitches.length() > 0 &&
-	     combinedSwitches[0] != Arg::flagStartString()[0] )
+	     combinedSwitches[0] != Arg::flagStartString()[0] ) {
 		return false;
+}
 
 	// make sure it isn't a long name 
 	if ( combinedSwitches.substr( 0, Arg::nameStartString().length() ) == 
-	     Arg::nameStartString() )
+	     Arg::nameStartString() ) {
 		return false;
+}
 
 	// make sure the delimiter isn't in the string 
-	if ( combinedSwitches.find_first_of( Arg::delimiter() ) != std::string::npos )
+	if ( combinedSwitches.find_first_of( Arg::delimiter() ) != std::string::npos ) {
 		return false;
+}
 
 	// ok, we're not specifying a ValueArg, so we know that we have
 	// a combined switch list.  
-	for ( unsigned int i = 1; i < combinedSwitches.length(); i++ )
+	for ( unsigned int i = 1; i < combinedSwitches.length(); i++ ) {
 		if ( _flag.length() > 0 && 
 		     combinedSwitches[i] == _flag[0] &&
 		     _flag[0] != Arg::flagStartString()[0] ) 
@@ -196,6 +204,7 @@ inline bool SwitchArg::combinedSwitchesMatch(std::string& combinedSwitches )
 			combinedSwitches[i] = Arg::blankChar(); 
 			return true;
 		}
+}
 
 	// none of the switches passed in the list match. 
 	return false;	
@@ -203,27 +212,31 @@ inline bool SwitchArg::combinedSwitchesMatch(std::string& combinedSwitches )
 
 inline void SwitchArg::commonProcessing()
 {
-	if ( _xorSet )
+	if ( _xorSet ) {
 		throw(CmdLineParseException(
 		      "Mutually exclusive argument already set!", toString()));
+}
 
-	if ( _alreadySet ) 
+	if ( _alreadySet ) { 
 		throw(CmdLineParseException("Argument already set!", toString()));
+}
 
 	_alreadySet = true;
 
-	if ( _value == true )
+	if ( _value == true ) {
 		_value = false;
-	else
+	} else {
 		_value = true;
+}
 
 	_checkWithVisitor();
 }
 
 inline bool SwitchArg::processArg(int *i, std::vector<std::string>& args)
 {
-	if ( _ignoreable && Arg::ignoreRest() )
+	if ( _ignoreable && Arg::ignoreRest() ) {
 		return false;
+}
 
 	// if the whole string matches the flag or name string
 	if ( argMatches( args[*i] ) )
@@ -233,13 +246,14 @@ inline bool SwitchArg::processArg(int *i, std::vector<std::string>& args)
 		return true;
 	}
 	// if a substring matches the flag as part of a combination
-	else if ( combinedSwitchesMatch( args[*i] ) )
+	if ( combinedSwitchesMatch( args[*i] ) )
 	{
 		// check again to ensure we don't misinterpret 
 		// this as a MultiSwitchArg 
-		if ( combinedSwitchesMatch( args[*i] ) )
+		if ( combinedSwitchesMatch( args[*i] ) ) {
 			throw(CmdLineParseException("Argument already set!", 
 			                            toString()));
+}
 
 		commonProcessing();
 
@@ -248,8 +262,9 @@ inline bool SwitchArg::processArg(int *i, std::vector<std::string>& args)
 		// switches in the combination will have a chance to match.
 		return lastCombined( args[*i] );
 	}
-	else
+	
 		return false;
+
 }
 
 inline void SwitchArg::reset()

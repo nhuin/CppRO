@@ -39,6 +39,11 @@
 #endif
 #endif
 
+#include "ArgTraits.hpp"
+
+#include <cstdint>
+#include <string>
+
 namespace TCLAP {
 
 // ======================================================================
@@ -49,8 +54,8 @@ namespace TCLAP {
  * longs have value-like semantics.
  */
 template<>
-struct ArgTraits<long> {
-    typedef ValueLike ValueCategory;
+struct ArgTraits<int64_t> {
+    using ValueCategory = TCLAP::ValueLike;
 };
 
 /**
@@ -58,15 +63,15 @@ struct ArgTraits<long> {
  */
 template<>
 struct ArgTraits<int> {
-    typedef ValueLike ValueCategory;
+    using ValueCategory = TCLAP::ValueLike;
 };
 
 /**
  * shorts have value-like semantics.
  */
 template<>
-struct ArgTraits<short> {
-    typedef ValueLike ValueCategory;
+struct ArgTraits<int16_t> {
+    using ValueCategory = TCLAP::ValueLike;
 };
 
 /**
@@ -74,7 +79,7 @@ struct ArgTraits<short> {
  */
 template<>
 struct ArgTraits<char> {
-    typedef ValueLike ValueCategory;
+    using ValueCategory = TCLAP::ValueLike;
 };
 
 #ifdef HAVE_LONG_LONG
@@ -95,8 +100,8 @@ struct ArgTraits<long long> {
  * unsigned longs have value-like semantics.
  */
 template<>
-struct ArgTraits<unsigned long> {
-    typedef ValueLike ValueCategory;
+struct ArgTraits<uint64_t> {
+    using ValueCategory = TCLAP::ValueLike;
 };
 
 /**
@@ -104,15 +109,15 @@ struct ArgTraits<unsigned long> {
  */
 template<>
 struct ArgTraits<unsigned int> {
-    typedef ValueLike ValueCategory;
+    using ValueCategory = TCLAP::ValueLike;
 };
 
 /**
  * unsigned shorts have value-like semantics.
  */
 template<>
-struct ArgTraits<unsigned short> {
-    typedef ValueLike ValueCategory;
+struct ArgTraits<uint16_t> {
+    using ValueCategory = TCLAP::ValueLike;
 };
 
 /**
@@ -120,7 +125,7 @@ struct ArgTraits<unsigned short> {
  */
 template<>
 struct ArgTraits<unsigned char> {
-    typedef ValueLike ValueCategory;
+    using ValueCategory = TCLAP::ValueLike;
 };
 
 // Microsoft implements size_t awkwardly. 
@@ -130,7 +135,7 @@ struct ArgTraits<unsigned char> {
  */
 template<>
 struct ArgTraits<size_t> {
-    typedef ValueLike ValueCategory;
+    using ValueCategory = TCLAP::ValueLike;
 };
 #endif
 
@@ -141,7 +146,7 @@ struct ArgTraits<size_t> {
  */
 template<>
 struct ArgTraits<unsigned long long> {
-    typedef ValueLike ValueCategory;
+    using ValueCategory = TCLAP::ValueLike;
 };
 #endif
 
@@ -154,7 +159,7 @@ struct ArgTraits<unsigned long long> {
  */
 template<>
 struct ArgTraits<float> {
-    typedef ValueLike ValueCategory;
+    using ValueCategory = TCLAP::ValueLike;
 };
 
 /**
@@ -162,7 +167,7 @@ struct ArgTraits<float> {
  */
 template<>
 struct ArgTraits<double> {
-    typedef ValueLike ValueCategory;
+    using ValueCategory = TCLAP::ValueLike;
 };
 
 // ======================================================================
@@ -174,7 +179,7 @@ struct ArgTraits<double> {
  */
 template<>
 struct ArgTraits<bool> {
-    typedef ValueLike ValueCategory;
+    using ValueCategory = TCLAP::ValueLike;
 };
 
 
@@ -184,7 +189,7 @@ struct ArgTraits<bool> {
 #ifndef TCLAP_DONT_DECLARE_WCHAR_T_ARGTRAITS
 template<>
 struct ArgTraits<wchar_t> {
-    typedef ValueLike ValueCategory;
+    using ValueCategory = TCLAP::ValueLike;
 };
 #endif
 
@@ -193,16 +198,15 @@ struct ArgTraits<wchar_t> {
  */
 template<>
 struct ArgTraits<std::string> {
-    typedef StringLike ValueCategory;
+    using ValueCategory = TCLAP::StringLike;
 };
 
 template<typename T>
-void SetString(T &dst, const std::string &src)
-{
+void SetString(T &dst, const std::string &src) {
     dst = src;
 }
 
-} // namespace
+} // namespace TCLAP
 
 #endif
 

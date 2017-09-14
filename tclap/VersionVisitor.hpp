@@ -24,9 +24,10 @@
 #ifndef TCLAP_VERSION_VISITOR_H
 #define TCLAP_VERSION_VISITOR_H
 
-#include <tclap/CmdLineInterface.hpp>
-#include <tclap/CmdLineOutput.hpp>
-#include <tclap/Visitor.hpp>
+#include "ArgException.hpp"
+#include "CmdLineInterface.hpp"
+#include "CmdLineOutput.hpp"
+#include "Visitor.hpp"
 
 namespace TCLAP {
 
@@ -36,13 +37,6 @@ namespace TCLAP {
  */
 class VersionVisitor: public Visitor
 {
-	private:
-		/**
-		 * Prevent accidental copying
-		 */
-		VersionVisitor(const VersionVisitor& rhs);
-		VersionVisitor& operator=(const VersionVisitor& rhs);
-
 	protected:
 
 		/**
@@ -63,22 +57,28 @@ class VersionVisitor: public Visitor
 		 * \param out - The type of output. 
 		 */
 		VersionVisitor( CmdLineInterface& cmd, CmdLineOutput& out ) : 
-			Visitor(), 
+			 
 			_cmd( cmd ), 
 			_out( out )
 		{}
+
+		VersionVisitor(const VersionVisitor&) = delete;
+		VersionVisitor& operator=(const VersionVisitor&) = delete;
+		VersionVisitor(VersionVisitor&&) = default;
+		VersionVisitor& operator=(VersionVisitor&&) = default;
+		~VersionVisitor() override = default;
 
 		/**
 		 * Calls the version method of the output object using the
 		 * specified CmdLine.
 		 */
-		void visit() { 
+		void visit() override { 
 		    _out.version(_cmd); 
 		    throw ExitException(0); 
 		}
 
 };
 
-}
+}  // namespace TCLAP
 
 #endif

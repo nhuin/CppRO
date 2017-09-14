@@ -23,10 +23,10 @@
 #ifndef TCLAP_COMMANDLINE_INTERFACE_H
 #define TCLAP_COMMANDLINE_INTERFACE_H
 
+#include <algorithm>
+#include <iostream>
 #include <string>
 #include <vector>
-#include <iostream>
-#include <algorithm>
 
 
 namespace TCLAP {
@@ -41,11 +41,12 @@ class XorHandler;
  */
 class CmdLineInterface {
 	public:
-
-		/**
-		 * Destructor
-		 */
-		virtual ~CmdLineInterface() {}
+		CmdLineInterface() = default;
+		CmdLineInterface(const CmdLineInterface&) = default;
+		CmdLineInterface& operator=(const CmdLineInterface&) = default;
+		CmdLineInterface(CmdLineInterface&&) = default;
+		CmdLineInterface& operator=(CmdLineInterface&&) = default;
+		virtual ~CmdLineInterface() = default;
 
 		/**
 		 * An alternative add.  Functionally identical.
@@ -136,7 +137,7 @@ class CmdLineInterface {
 		virtual void reset()=0;
 };
 
-} //namespace
+} // namespace TCLAP
 
 
 #endif 

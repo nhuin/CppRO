@@ -3,61 +3,58 @@
 
 #include <cassert>
 
-template<typename T>
+template <typename T>
 class FixedSizeAllocator {
-	private:
+  private:
+    int m_size;
+    T* m_objects;
 
-	int m_size;
-	T* m_objects;
+    int m_ptrAlloc;
+    T** m_allocation;
 
-	int m_ptrAlloc;
-	T** m_allocation;
+  public:
+    explicit FixedSizeAllocator(int _size)
+        : m_size(_size)
+        , m_objects(static_cast<T*> malloc(m_size * sizeof(T)))
+        , m_ptrAlloc(0)
+        , m_allocation(static_cast<T**> malloc(m_size * sizeof(T*))) {
+        for (int i = 0; i < m_size; ++i) {
+            m_allocation[i] = m_objects + i;
+        }
+        m_ptrAlloc = m_size - 1;
+    }
 
-	public:
+    ~FixedSizeAllocator() {
+        free(m_objects);
+        free(m_allocation);
+    }
 
-	FixedSizeAllocator(int _size) :
-		m_size(_size),
-		m_objects((T*)malloc(m_size * sizeof(T))),
-		m_ptrAlloc(0),
-		m_allocation((T**)malloc(m_size * sizeof(T*)))
-	{
-		for(int i = 0; i < m_size; ++i) {
-			m_allocation[i] = m_objects+i;
-		}
-		m_ptrAlloc = m_size - 1;
-	}
+    FixedSizeAllocator(const FixedSizeAllocator& _other) = delete;
 
-	~FixedSizeAllocator() {
-		free(m_objects);
-		free(m_allocation);
-	}
+    FixedSizeAllocator& operator=(const FixedSizeAllocator&) = delete;
 
-	FixedSizeAllocator(const FixedSizeAllocator& _other) = delete;
+    FixedSizeAllocator(FixedSizeAllocator&&) = delete;
+    FixedSizeAllocator& operator=(FixedSizeAllocator&&) = delete;
 
-	FixedSizeAllocator& operator=(const FixedSizeAllocator&) = delete;
+    bool canAllocate() const {
+        return m_ptrAlloc >= 0;
+    }
 
-	FixedSizeAllocator(FixedSizeAllocator&&) = delete;
-	FixedSizeAllocator& operator=(FixedSizeAllocator&&) = delete;
+    T* allocate() {
+        assert(m_ptrAlloc > 0);
+        return m_allocation[m_ptrAlloc--];
+    }
 
-	bool canAllocate() const {
-		return m_ptrAlloc >= 0;
-	}
+    void deallocate(T* _obj) {
+        m_allocation[++m_ptrAlloc] = _obj;
+    }
 
-	T* allocate() {
-		assert(m_ptrAlloc > 0);
-		return m_allocation[m_ptrAlloc--];
-	}
-
-	void deallocate(T* _obj) {
-		m_allocation[++m_ptrAlloc] = _obj;
-	}
-
-	void deallocateAll() {
-		for(int i = 0; i < m_size; ++i) {
-			m_allocation[i] = m_objects+i;
-		}
-		m_ptrAlloc = m_size - 1;
-	}
+    void deallocateAll() {
+        for (int i = 0; i < m_size; ++i) {
+            m_allocation[i] = m_objects + i;
+        }
+        m_ptrAlloc = m_size - 1;
+    }
 };
 
 #endif

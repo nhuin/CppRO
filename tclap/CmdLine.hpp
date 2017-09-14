@@ -24,30 +24,31 @@
 #ifndef TCLAP_CMDLINE_H
 #define TCLAP_CMDLINE_H
 
-#include <tclap/SwitchArg.hpp>
-#include <tclap/MultiSwitchArg.hpp>
-#include <tclap/UnlabeledValueArg.hpp>
-#include <tclap/UnlabeledMultiArg.hpp>
+#include "MultiSwitchArg.hpp"
+#include "SwitchArg.hpp"
+#include "UnlabeledMultiArg.hpp"
+#include "UnlabeledValueArg.hpp"
 
-#include <tclap/XorHandler.hpp>
-#include <tclap/HelpVisitor.hpp>
-#include <tclap/VersionVisitor.hpp>
-#include <tclap/IgnoreRestVisitor.hpp>
+#include "HelpVisitor.hpp"
+#include "IgnoreRestVisitor.hpp"
+#include "VersionVisitor.hpp"
+#include "XorHandler.hpp"
 
-#include <tclap/CmdLineOutput.hpp>
-#include <tclap/StdOutput.hpp>
+#include "CmdLineOutput.hpp" 
+#include "StdOutput.hpp"
 
-#include <tclap/Constraint.hpp>
-#include <tclap/ValuesConstraint.hpp>
+#include "Constraint.hpp"
+#include "ValuesConstraint.hpp"
 
-#include <string>
-#include <vector>
-#include <iostream>
-#include <iomanip>
-#include <list>
 #include <algorithm>
 #include <cstdlib> // Needed for exit(), which isn't defined in some envs.
+#include <iomanip>
+#include <iostream>
+#include <list>
 #include <memory>
+#include <string>
+#include <utility>
+#include <vector>
 
 namespace TCLAP {
 
@@ -61,29 +62,29 @@ class CmdLine : public CmdLineInterface {
 		 * The list of arguments that will be tested against the
 		 * command line.
 		 */
-		std::vector<Arg*> m_argList;
+		std::vector<Arg*> m_argList = std::vector<Arg*>();
 
 		/**
 		 * The name of the program.  Set to argv[0].
 		 */
-		std::string m_progName;
+		std::string m_progName = "";
 
 		/**
 		 * A message used to describe the program.  Used in the usage output.
 		 */
-		std::string m_message;
+		std::string m_message = "";
 
 		/**
 		 * The version to be displayed with the --version switch.
 		 */
-		std::string m_version;
+		std::string m_version = "";
 
 		/**
 		 * The number of arguments that are required to be present on
 		 * the command line. This is set dynamically, based on the
 		 * Args added to the CmdLine object.
 		 */
-		int m_numRequired;
+		int m_numRequired = 0;
 
 		/**
 		 * The character that is used to separate the argument flag/name
@@ -94,31 +95,31 @@ class CmdLine : public CmdLineInterface {
 		/**
 		 * The handler that manages xoring lists of args.
 		 */
-		XorHandler m_xorHandler;
+		XorHandler m_xorHandler = XorHandler();
 
 		/**
 		 * A list of Args to be explicitly deleted when the destructor
 		 * is called.  At the moment, this only includes the three default
 		 * Args.
 		 */
-		std::vector<std::unique_ptr<Arg>> m_argDeleteOnExitList;
+		std::vector<std::unique_ptr<Arg>> m_argDeleteOnExitList = std::vector<std::unique_ptr<Arg>>();
 
 		/**
 		 * A list of Visitors to be explicitly deleted when the destructor
 		 * is called.  At the moment, these are the Vistors created for the
 		 * default Args.
 		 */
-		std::vector<std::unique_ptr<Visitor>> m_visitorDeleteOnExitList;
+		std::vector<std::unique_ptr<Visitor>> m_visitorDeleteOnExitList = std::vector<std::unique_ptr<Visitor>>();
 
 		/**
 		 * Object that handles all output for the CmdLine.
 		 */
-		std::unique_ptr<CmdLineOutput> m_output;
+		std::unique_ptr<CmdLineOutput> m_output = std::make_unique<StdOutput>();
 
 		/**
 		 * Should CmdLine handle parsing exceptions internally?
 		 */
-		bool m_handleExceptions;
+		bool m_handleExceptions = true;
 
 		/**
 		 * Throws an exception listing the missing args.
@@ -145,12 +146,6 @@ class CmdLine : public CmdLineInterface {
 	private:
 
 		/**
-		 * Prevent accidental copying.
-		 */
-		CmdLine(const CmdLine& rhs);
-		CmdLine& operator=(const CmdLine& rhs);
-
-		/**
 		 * Encapsulates the code common to the constructors
 		 * (which is all of it).
 		 */
@@ -161,7 +156,7 @@ class CmdLine : public CmdLineInterface {
 		 * Is set to true when a user sets the output object. We use this so
 		 * that we don't delete objects that are created outside of this lib.
 		 */
-		bool m_userSetOutput;
+		bool m_userSetOutput = false;
 
 		/**
 		 * Whether or not to automatically create help and version switches.
@@ -181,18 +176,23 @@ class CmdLine : public CmdLineInterface {
 		 * \param helpAndVersion - Whether or not to create the Help and
 		 * Version switches. Defaults to true.
 		 */
-		CmdLine(const std::string& message,
-				const char delimiter = ' ',
-				const std::string& version = "none",
-				bool helpAndVersion = true);
+		explicit CmdLine(std::string  _m,
+				char _delim = ' ',
+				std::string  _v = "none",
+				bool _help = true);
 
+		/**
+		 * Prevent accidental copying.
+		 */
+		CmdLine(const CmdLine& rhs) = delete;
+		CmdLine& operator=(const CmdLine& rhs) = delete;
 		CmdLine(CmdLine&& rhs) = default;
 		CmdLine& operator=(CmdLine&& rhs) = default;
 
 		/**
 		 * Deletes any resources allocated by a CmdLine object.
 		 */
-		virtual ~CmdLine();
+		~CmdLine() override;
 
 		/**
 		 * Adds an argument to the list of arguments to be parsed.
@@ -204,7 +204,7 @@ class CmdLine : public CmdLineInterface {
 		 * An alternative add.  Functionally identical.
 		 * \param a - Argument to be added.
 		 */
-		void add( Arg* a );
+		void add( Arg* a ) override;
 
 		/**
 		 * Add two Args that will be xor'd.  If this method is used, add does
@@ -212,21 +212,21 @@ class CmdLine : public CmdLineInterface {
 		 * \param a - Argument to be added and xor'd.
 		 * \param b - Argument to be added and xor'd.
 		 */
-		void xorAdd( Arg* a, Arg* b );
+		void xorAdd( Arg* a, Arg* b ) override;
 
 		/**
 		 * Add a list of Args that will be xor'd.  If this method is used,
 		 * add does not need to be called.
 		 * \param xors - List of Args to be added and xor'd.
 		 */
-		void xorAdd( const std::vector<Arg*>& xors );
+		void xorAdd( const std::vector<Arg*>& ors ) override;
 
 		/**
 		 * Parses the command line.
 		 * \param argc - Number of arguments.
 		 * \param argv - Array of arguments.
 		 */
-		void parse(int argc, const char * const * argv);
+		void parse(int argc, const char * const * argv) override;
 
 		/**
 		 * Parses the command line.
@@ -238,54 +238,54 @@ class CmdLine : public CmdLineInterface {
 		/**
 		 *
 		 */
-		const CmdLineOutput& getOutput() const;
+		const CmdLineOutput& getOutput() const override;
 
 		/**
 		 *
 		 */
-		void setOutput(CmdLineOutput* co);
+		void setOutput(CmdLineOutput* co) override;
 
 		/**
 		 *
 		 */
-		const std::string& getVersion() const;
+		const std::string& getVersion() const override;
 
 		/**
 		 *
 		 */
-		const std::string& getProgramName() const;
+		const std::string& getProgramName() const override;
 
 		/**
 		 *
 		 */
-		const std::vector<Arg*>& getArgList() const;
+		const std::vector<Arg*>& getArgList() const override;
 
 		/**
 		 *
 		 */
-		const XorHandler& getXorHandler() const;
+		const XorHandler& getXorHandler() const override;
 
 		/**
 		 *
 		 */
-		char getDelimiter() const;
+		char getDelimiter() const override;
 
 		/**
 		 *
 		 */
-		const std::string& getMessage() const;
+		const std::string& getMessage() const override;
 
 		/**
 		 *
 		 */
-		bool hasHelpAndVersion() const;
+		bool hasHelpAndVersion() const override;
 
 		/**
 		 * Disables or enables CmdLine's internal parsing exception handling.
 		 *
 		 * @param state Should CmdLine handle parsing exceptions internally?
 		 */
-		void setExceptionHandling(const bool state);
+		void setExceptionHandling(bool state);
 
 		/**
 		 * Returns the current state of the internal exception handling.
@@ -298,7 +298,7 @@ class CmdLine : public CmdLineInterface {
 		/**
 		 * Allows the CmdLine object to be reused.
 		 */
-		void reset();
+		void reset() override;
 };
 
 
@@ -306,29 +306,22 @@ class CmdLine : public CmdLineInterface {
 //Begin CmdLine.cpp
 ///////////////////////////////////////////////////////////////////////////////
 
-inline CmdLine::CmdLine(const std::string& _m,
+inline CmdLine::CmdLine(std::string  _m,
                         char _delim,
-                        const std::string& _v,
+                        std::string  _v,
                         bool _help )
     :
-  m_argList(),
-  m_progName(),
-  m_message(_m),
-  m_version(_v),
-  m_numRequired(0),
-  m_delimiter(_delim),
-  m_xorHandler(XorHandler()),
-  m_argDeleteOnExitList(),
-  m_visitorDeleteOnExitList(),
-  m_output(std::make_unique<StdOutput>()),
-  m_handleExceptions(true),
-  m_userSetOutput(false),
+  
+  m_message(std::move(_m)),
+  m_version(std::move(_v)),
+  m_delimiter(_delim), 
+  
   m_helpAndVersion(_help)
 {
 	_constructor();
 }
 
-inline CmdLine::~CmdLine() {}
+inline CmdLine::~CmdLine() = default;
 
 inline void CmdLine::_constructor() {
 	Arg::setDelimiter( m_delimiter );
@@ -374,7 +367,7 @@ inline void CmdLine::add( Arg* a ) {
 	if(std::find(m_argList.begin(), m_argList.end(), a) != m_argList.end()) {
 		throw( SpecificationException(
 			        "Argument with same flag/name already exists!",
-			        a->longID() ) );
+			        a->longID("val") ) );
 	}		
 	a->addToList( m_argList );
 
@@ -389,8 +382,9 @@ inline void CmdLine::parse(int argc, const char * const * argv) {
 		// mutable strings.
 		std::vector<std::string> args;
 		args.reserve(argc);
-		for (int i = 0; i < argc; i++)
+		for (int i = 0; i < argc; ++i) {
 			args.emplace_back(argv[i]);
+		}
 		parse(args);
 }
 
@@ -418,20 +412,24 @@ inline void CmdLine::parse(std::vector<std::string>& args) {
 
 			// checks to see if the argument is an empty combined
 			// switch and if so, then we've actually matched it
-			if ( !matched && _emptyCombined( args[i] ) )
+			if ( !matched && _emptyCombined( args[i] ) ) {
 				matched = true;
+}
 
-			if ( !matched && !Arg::ignoreRest() )
+			if ( !matched && !Arg::ignoreRest() ) {
 				throw(CmdLineParseException("Couldn't find match "
 				                            "for argument",
 				                            args[i]));
+}
 		}
 
-		if ( requiredCount < m_numRequired )
+		if ( requiredCount < m_numRequired ) {
 			missingArgsException();
+}
 
-		if ( requiredCount > m_numRequired )
+		if ( requiredCount > m_numRequired ) {
 			throw(CmdLineParseException("Too many arguments!"));
+}
 
 	} catch ( ArgException& e ) {
 		// If we're not handling the exceptions, rethrow.
@@ -455,17 +453,21 @@ inline void CmdLine::parse(std::vector<std::string>& args) {
 		shouldExit = true;
 	}
 
-	if (shouldExit)
+	if (shouldExit) {
 		exit(estat);
+}
 }
 
 inline bool CmdLine::_emptyCombined(const std::string& s) {
-	if ( s.length() > 0 && s[0] != Arg::flagStartChar() )
+	if ( s.length() > 0 && s[0] != Arg::flagStartChar() ) {
 		return false;
+}
 
-	for ( int i = 1; static_cast<unsigned int>(i) < s.length(); i++ )
-		if ( s[i] != Arg::blankChar() )
+	for ( int i = 1; static_cast<unsigned int>(i) < s.length(); i++ ) {
+		if ( s[i] != Arg::blankChar() ) {
 			return false;
+}
+}
 
 	return true;
 }
@@ -541,8 +543,9 @@ inline bool CmdLine::getExceptionHandling() const {
 }
 
 inline void CmdLine::reset() {
-	for( ArgListIterator it = m_argList.begin(); it != m_argList.end(); ++it )
-		(*it)->reset();
+	for(auto & it : m_argList) {
+		it->reset();
+}
 	
 	m_progName.clear();
 }

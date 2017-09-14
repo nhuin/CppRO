@@ -27,8 +27,8 @@
 #include <string>
 #include <vector>
 
-#include <tclap/ValueArg.hpp>
-#include <tclap/OptionalUnlabeledTracker.hpp>
+#include "OptionalUnlabeledTracker.hpp"
+#include "ValueArg.hpp"
 
 
 namespace TCLAP {
@@ -80,10 +80,10 @@ class UnlabeledValueArg : public ValueArg<T>
 		UnlabeledValueArg( const std::string& name, 
 			               const std::string& desc, 
 						   bool req,
-				           T value,
+				           T val,
 				           const std::string& typeDesc,
 						   bool ignoreable = false,
-				           Visitor* v = NULL); 
+				           Visitor* v = nullptr); 
 
 		/**
 		 * UnlabeledValueArg constructor.
@@ -110,11 +110,11 @@ class UnlabeledValueArg : public ValueArg<T>
 		UnlabeledValueArg( const std::string& name, 
 			               const std::string& desc, 
 						   bool req,
-				           T value,
+				           T val,
 				           const std::string& typeDesc,
 						   CmdLineInterface& parser,
 						   bool ignoreable = false,
-				           Visitor* v = NULL ); 					
+				           Visitor* v = nullptr ); 					
 						
 		/**
 		 * UnlabeledValueArg constructor.
@@ -138,10 +138,10 @@ class UnlabeledValueArg : public ValueArg<T>
 		UnlabeledValueArg( const std::string& name, 
 			               const std::string& desc, 
 						   bool req,
-				           T value,
+				           T val,
 				           Constraint<T>* constraint,
 						   bool ignoreable = false,
-				           Visitor* v = NULL ); 
+				           Visitor* v = nullptr ); 
 
 		
 		/**
@@ -167,11 +167,11 @@ class UnlabeledValueArg : public ValueArg<T>
 		UnlabeledValueArg( const std::string& name, 
 			               const std::string& desc, 
 						   bool req,
-				           T value,
+				           T val,
 				           Constraint<T>* constraint,
 						   CmdLineInterface& parser,
 						   bool ignoreable = false,
-				           Visitor* v = NULL);
+				           Visitor* v = nullptr);
 						
 		/**
 		 * Handles the processing of the argument.
@@ -181,28 +181,28 @@ class UnlabeledValueArg : public ValueArg<T>
 		 * \param i - Pointer the the current argument in the list.
 		 * \param args - Mutable list of strings. 
 		 */
-		virtual bool processArg(int* i, std::vector<std::string>& args) override;
+		bool processArg(int* i, std::vector<std::string>& args) override;
 
 		/**
 		 * Overrides shortID for specific behavior.
 		 */
-		virtual std::string shortID(const std::string& val="val") const override;
+		std::string shortID(const std::string& val) const override;
 
 		/**
 		 * Overrides longID for specific behavior.
 		 */
-		virtual std::string longID(const std::string& val="val") const override;
+		std::string longID(const std::string& val) const override;
 
 		/**
 		 * Overrides operator== for specific behavior.
 		 */
-		virtual bool operator==(const Arg& a ) const override;
+		bool operator==(const Arg& a ) const override;
 
 		/**
 		 * Instead of pushing to the front of list, push to the back.
 		 * \param argList - The list to add this to.
 		 */
-		virtual void addToList( std::vector<Arg*>& argList ) const override;
+		void addToList( std::vector<Arg*>& argList ) override;
 
 };
 
@@ -218,7 +218,8 @@ UnlabeledValueArg<T>::UnlabeledValueArg(const std::string& name,
 					                    bool ignoreable,
 					                    Visitor* v)
 : ValueArg<T>("", name, desc, req, val, typeDesc, v)
-{ 
+{
+	Arg::checkParams();
 	_ignoreable = ignoreable;
 
 	OptionalUnlabeledTracker::check(req, toString());
@@ -235,7 +236,8 @@ UnlabeledValueArg<T>::UnlabeledValueArg(const std::string& name,
 					                    bool ignoreable,
 					                    Visitor* v)
 : ValueArg<T>("", name, desc, req, val, typeDesc, v)
-{ 
+{
+	Arg::checkParams();
 	_ignoreable = ignoreable;
 	OptionalUnlabeledTracker::check(req, toString());
 	parser.add( this );
@@ -253,7 +255,8 @@ UnlabeledValueArg<T>::UnlabeledValueArg(const std::string& name,
                                         bool ignoreable,
                                         Visitor* v)
 : ValueArg<T>("", name, desc, req, val, constraint, v)
-{ 
+{
+	Arg::checkParams();
 	_ignoreable = ignoreable;
 	OptionalUnlabeledTracker::check(req, toString());
 }
@@ -268,7 +271,8 @@ UnlabeledValueArg<T>::UnlabeledValueArg(const std::string& name,
 					                    bool ignoreable,
 					                    Visitor* v)
 : ValueArg<T>("", name, desc, req, val, constraint,  v)
-{ 
+{
+	Arg::checkParams();
 	_ignoreable = ignoreable;
 	OptionalUnlabeledTracker::check(req, toString());
 	parser.add( this );
@@ -278,9 +282,9 @@ UnlabeledValueArg<T>::UnlabeledValueArg(const std::string& name,
  * Implementation of processArg().
  */
 template<class T>
-bool UnlabeledValueArg<T>::processArg(int *i, std::vector<std::string>& args) 
+bool UnlabeledValueArg<T>::processArg(int* i, std::vector<std::string>& args) 
 {
-	
+	*i += 0;
 	if ( _alreadySet ){
 		return false;
 	}
@@ -324,17 +328,14 @@ std::string UnlabeledValueArg<T>::longID(const std::string& val) const
 template<class T>
 bool UnlabeledValueArg<T>::operator==(const Arg& a ) const
 {
-	if ( _name == a.getName() || _description == a.getDescription() ) {
-		return true;
-	}
-	return false;
+	return static_cast<bool>(_name == a.getName() || _description == a.getDescription());
 }
 
 template<class T>
-void UnlabeledValueArg<T>::addToList( std::vector<Arg*>& argList ) const
+void UnlabeledValueArg<T>::addToList( std::vector<Arg*>& argList )
 {
-	argList.push_back( const_cast<Arg*>(static_cast<const Arg* const>(this)) );
+	argList.push_back(this);
 }
 
-}
+} // namespace TCLAP
 #endif

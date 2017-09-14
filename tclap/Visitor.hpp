@@ -30,24 +30,16 @@ namespace TCLAP {
  */
 class Visitor
 {
-	public:
-
-		/**
-		 * Constructor. Does nothing.
-		 */
-		Visitor() { }
-
-		/**
-		 * Destructor. Does nothing.
-		 */
-		virtual ~Visitor() { }
-
-		/**
-		 * Does nothing. Should be overridden by child.
-		 */
-		virtual void visit() { }
+	public:	
+		Visitor() = default;
+		Visitor(const Visitor&) = default;
+		Visitor& operator=(const Visitor&) = default;
+		Visitor(Visitor&&) noexcept = default;
+		Visitor& operator=(Visitor&&) noexcept = default;
+		virtual ~Visitor() = default;
+		virtual void visit() = 0;
 };
 
-}
+} // namespace TCLAP
 
 #endif

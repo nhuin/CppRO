@@ -22,9 +22,10 @@
 #ifndef TCLAP_HELP_VISITOR_H
 #define TCLAP_HELP_VISITOR_H
 
-#include <tclap/CmdLineInterface.hpp>
-#include <tclap/CmdLineOutput.hpp>
-#include <tclap/Visitor.hpp>
+#include "ArgException.hpp"
+#include "CmdLineInterface.hpp"
+#include "CmdLineOutput.hpp"
+#include "Visitor.hpp"
 
 namespace TCLAP {
 
@@ -34,13 +35,6 @@ namespace TCLAP {
  */
 class HelpVisitor: public Visitor
 {
-	private:
-		/**
-		 * Prevent accidental copying.
-		 */
-		HelpVisitor(const HelpVisitor& rhs);
-		HelpVisitor& operator=(const HelpVisitor& rhs);
-
 	protected:
 
 		/**
@@ -60,23 +54,27 @@ class HelpVisitor: public Visitor
 		 * \param cmd - The CmdLine the output will be generated for.
 		 * \param out - The type of output. 
 		 */
-		HelpVisitor(CmdLineInterface& cmd, CmdLineOutput& out) : 
-			Visitor(), 
+		HelpVisitor(CmdLineInterface& cmd, CmdLineOutput& out) : 			 
 			_cmd( cmd ), 
 			_out( out ) 
 		{}
 
+		HelpVisitor(const HelpVisitor&) = delete;
+		HelpVisitor& operator=(const HelpVisitor&) = delete;
+		HelpVisitor(HelpVisitor&&) = default;
+		HelpVisitor& operator=(HelpVisitor&&) = default;
+		~HelpVisitor() override = default;
 		/**
 		 * Calls the usage method of the CmdLineOutput for the 
 		 * specified CmdLine.
 		 */
-		void visit() { 
+		void visit() override { 
 			_out.usage(_cmd); 
 			throw ExitException(0); 
 		}
 		
 };
 
-}
+}  // namespace TCLAP
 
 #endif

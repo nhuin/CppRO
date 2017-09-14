@@ -23,8 +23,8 @@
 #ifndef TCLAP_IGNORE_REST_VISITOR_H
 #define TCLAP_IGNORE_REST_VISITOR_H
 
-#include <tclap/Visitor.hpp>
-#include <tclap/Arg.hpp>
+#include "Arg.hpp"
+#include "Visitor.hpp"
 
 namespace TCLAP {
 
@@ -39,14 +39,19 @@ class IgnoreRestVisitor: public Visitor
 		/**
 		 * Constructor.
 		 */
-		IgnoreRestVisitor() : Visitor() {}
+		IgnoreRestVisitor()  = default;
+		IgnoreRestVisitor(const IgnoreRestVisitor&) = default;
+		IgnoreRestVisitor& operator=(const IgnoreRestVisitor&) = default;
+		IgnoreRestVisitor(IgnoreRestVisitor&&) = default;
+		IgnoreRestVisitor& operator=(IgnoreRestVisitor&&) = default;
+		~IgnoreRestVisitor()  override = default;
 
 		/**
 		 * Sets Arg::_ignoreRest.
 		 */
-		void visit() { Arg::beginIgnoring();  }
+		void visit() override { Arg::beginIgnoring();  }
 };
 
-}
+}  // namespace TCLAP
 
 #endif
