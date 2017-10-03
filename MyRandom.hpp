@@ -1,5 +1,5 @@
-#ifndef MYRANDOM_H
-#define MYRANDOM_H
+#ifndef MYRANDOM_HPP
+#define MYRANDOM_HPP
 
 #include <algorithm>
 #include <chrono>
@@ -18,11 +18,11 @@ class MyRandom {
     MyRandom& operator=(MyRandom&&) = delete;
 
     template <typename T>
-    T getIntUniform(T _a, T _b);
-    double getRealUniform(double _a, double _b);
+    inline T getIntUniform(T _a, T _b);
+    inline double getRealUniform(double _a, double _b);
 
-    std::vector<int> getShuffled(int _a, int _b);
-    std::vector<int> getKShuffled(int _k, int _a, int _b);
+    inline std::vector<int> getShuffled(int _a, int _b);
+    inline std::vector<int> getKShuffled(int _k, int _a, int _b);
 
     inline void setEngine(std::mt19937&& _mt19937) { m_mt19937 = _mt19937; }
     inline std::mt19937& getEngine() { return m_mt19937; };
@@ -30,7 +30,7 @@ class MyRandom {
   private:
     MyRandom() = default;
     ~MyRandom() = default;
-    std::mt19937 m_mt19937{std::random_device{}()};
+    std::mt19937 m_mt19937{ std::random_device{}() };
 };
 
 template <typename T>

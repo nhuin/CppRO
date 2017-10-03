@@ -12,12 +12,12 @@ class LinkedMatrix {
         friend class LinkedMatrix;
 
       private:
-        Cell(int i, int j, const T& value, Cell* nextOnRow, Cell* nextOnCol)
+        Cell(int i, int j, T value, Cell* nextOnRow, Cell* nextOnCol)
             : i(i)
             , j(j)
             , nextOnRow(nextOnRow)
             , nextOnCol(nextOnCol)
-            , value(value) {}
+            , value(std::move(value)) {}
 
         ~Cell() = default;
 
@@ -33,10 +33,22 @@ class LinkedMatrix {
         Cell& operator=(const Cell&) = delete;
 
         T value;
-        int getRow() const { return i; }
-        int getColumn() const { return j; }
-        Cell* getNextOnCol() const { return nextOnCol; }
-        Cell* getNextOnRow() const { return nextOnRow; }
+        int getRow() const {
+            return i;
+        }
+
+        int getColumn() const {
+            return j;
+        }
+
+        Cell* getNextOnCol() const {
+            return nextOnCol;
+        }
+
+        Cell* getNextOnRow() const {
+            return nextOnRow;
+        }
+
     };
 
     LinkedMatrix(const int _nbRow, const int _nbCol)
@@ -69,6 +81,9 @@ class LinkedMatrix {
         }
     }
 
+    /**
+    * Copy assignment of LinkedMatrix
+    */
     LinkedMatrix& operator=(const LinkedMatrix& _lm) {
         // @TODO: Improve
         for (int s = 0; s < rowSize(); ++s) {
@@ -85,8 +100,14 @@ class LinkedMatrix {
         return *this;
     }
 
-    int rowSize() const { return m_rowHeads.size(); }
-    int columnSize() const { return m_colHeads.size(); }
+    int rowSize() const {
+        return m_rowHeads.size();
+    }
+
+    int columnSize() const {
+        return m_colHeads.size();
+    }
+
 
     Cell* find(const int i, const int j) {
         Cell* cell = m_rowHeads[i];
@@ -111,26 +132,28 @@ class LinkedMatrix {
     }
 
     void add(const int i, const int j, const T& value) {
-        assert(i < (int)m_rowHeads.size());
-        assert(j < (int)m_colHeads.size());
+        assert(i < static_cast<int>(m_rowHeads.size()));
+        assert(j < static_cast<int>(m_colHeads.size()));
         // Add on row
         Cell* newCell;
-        if (!m_rowHeads[i]) {
+        if (!m_rowHeads[i]) { // No Cell on this row, the new cell become the new head of the row
             newCell = m_rowHeads[i] = new Cell(i, j, value, nullptr, nullptr);
         } else {
+            // Search for the first available Cell position
             Cell* ptr = m_rowHeads[i];
             Cell* last = nullptr;
-            while (ptr && ptr->j < j) {
+            while (ptr != nullptr && ptr->j < j) {
                 last = ptr;
                 ptr = ptr->nextOnRow;
             }
-            if (ptr && ptr->j == j) {
+            // If there is already a Cell, change value of the cell
+            if (ptr != nullptr && ptr->j == j) {
                 ptr->value = value;
                 return;
             }
+            // 
             if (last == nullptr) {
-                newCell = new Cell(i, j, value, m_rowHeads[i], nullptr);
-                m_rowHeads[i] = newCell;
+                m_rowHeads[i] = newCell = new Cell(i, j, value, m_rowHeads[i], nullptr);
             } else {
                 newCell = new Cell(i, j, value, ptr, nullptr);
                 last->nextOnRow = newCell;
@@ -207,6 +230,10 @@ class LinkedMatrix {
         return m_colHeads[i];
     }
 
+    class iterator {
+    private:
+    public:
+    };
   private:
     std::vector<Cell*> m_rowHeads;
     std::vector<Cell*> m_colHeads;

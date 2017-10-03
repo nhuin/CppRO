@@ -8,7 +8,7 @@ class BinaryHeap {
 
   public:
     class Handle {
-        Handle(int i)
+        explicit Handle(const int i)
             : index(i){};
         int index;
         friend BinaryHeap;
@@ -28,12 +28,12 @@ class BinaryHeap {
     };
 
   public:
-    BinaryHeap(int _maxSize, Comparator _comparator = Comparator())
+    explicit BinaryHeap(int _maxSize, Comparator _comparator = Comparator())
         : m_maxSize(_maxSize)
-        , m_array((Node*)malloc(sizeof(Node) * m_maxSize))
-        , m_handle((Handle*)malloc(sizeof(Handle) * m_maxSize))
+        , m_array(static_cast<Node*>(malloc(sizeof(Node) * m_maxSize)))
+        , m_handle(static_cast<Handle*>(malloc(sizeof(Handle) * m_maxSize)))
         , m_nbElements(0)
-        , m_comparator(_comparator) {}
+        , m_comparator(std::move(_comparator)) {}
 
     ~BinaryHeap() {
         for (int i = 0; i < m_nbElements; ++i) {
@@ -49,8 +49,8 @@ class BinaryHeap {
     // Copy
     BinaryHeap(const BinaryHeap& _o)
         : m_maxSize(_o.m_maxSize)
-        , m_array((Node*)malloc(sizeof(Node) * m_maxSize))
-        , m_handle((Handle*)malloc(sizeof(Handle) * m_maxSize))
+        , m_array(static_cast<Node*>(malloc(sizeof(Node) * m_maxSize)))
+        , m_handle(static_cast<Handle*>(malloc(sizeof(Handle) * m_maxSize)))
         , m_nbElements(_o.m_nbElements)
         , m_comparator(_o.m_comparator) {
         for (int i = 0; i < m_maxSize; ++i) {
@@ -61,8 +61,8 @@ class BinaryHeap {
 
     BinaryHeap& operator=(const BinaryHeap& _o) {
         m_maxSize = _o.m_maxSize;
-        m_array = (Node*)realloc(m_array, sizeof(Node) * m_maxSize);
-        m_handle = (Handle*)realloc(m_handle, sizeof(Handle) * m_maxSize);
+        m_array = static_cast<Node*>(realloc(m_array, sizeof(Node) * m_maxSize));
+        m_handle = static_cast<Handle*>(realloc(m_handle, sizeof(Handle) * m_maxSize));
         m_nbElements = _o.m_nbElements;
         m_comparator = _o.m_comparator;
         for (int i = 0; i < m_maxSize; ++i) {
@@ -73,7 +73,7 @@ class BinaryHeap {
     }
 
     // Move
-    BinaryHeap(BinaryHeap&& _bh)
+    BinaryHeap(BinaryHeap&& _bh) noexcept
         : m_maxSize(std::move(_bh.m_maxSize))
         , m_array(std::move(_bh.m_array))
         , m_handle(std::move(_bh.m_handle))
@@ -83,7 +83,7 @@ class BinaryHeap {
         _bh.m_handle = nullptr;
     }
 
-    BinaryHeap& operator=(BinaryHeap&& _bh) {
+    BinaryHeap& operator=(BinaryHeap&& _bh) noexcept {
         std::swap(m_maxSize, _bh.m_maxSize);
         std::swap(m_handle, _bh.m_handle);
         std::swap(m_array, _bh.m_array);
@@ -97,7 +97,7 @@ class BinaryHeap {
     }
 
     bool empty() const {
-        return !m_nbElements;
+        return m_nbElements != 0;
     }
 
     Handle* push(const T& object) {
