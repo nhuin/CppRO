@@ -1,0 +1,24 @@
+{
+	"SublimeLinter":
+	{
+		"linters":
+		{
+			"clang":
+			{
+				"extra_flags": "-Wextra -Wall -Werror -ansi -std=c++14 -Weffc++ -Wfatal-errors -Wno-unused-parameter -DIL_STD",
+				"include_dirs":
+				[
+					".",
+					"/Volumes/nhuin/CPLEX/concert/include/",
+					"/Volumes/nhuin/CPLEX/cplex/include/"
+				]
+			}
+		}
+	},
+	"folders":
+	[
+		{
+			"path": "."
+		}
+	]
+}
