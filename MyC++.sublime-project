@@ -10,7 +10,7 @@
 				[
 					".",
 					"${CPLEX_DIR}/concert/include/",
-					"${CPLEX_DIR}/CPLEX/cplex/include/"
+					"${CPLEX_DIR}/cplex/include/"
 				]
 			}
 		}
