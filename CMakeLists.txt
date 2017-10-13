@@ -59,15 +59,26 @@ include_directories(../include)
 include_directories($ENV{MY_CPP_INCLUDE})
 
 # google benchmark
-include_directories(SYSTEM $ENV{HOME}/benchmark/include/)
-link_directories($ENV{HOME}/benchmark/src/)
+include_directories(SYSTEM $ENV{HOME}/Documents//benchmark/include/)
+link_directories($ENV{HOME}/Documents/benchmark/src/)
 
 # cplex stuffs
 include_directories(SYSTEM $ENV{CPLEX_DIR}cplex/include/ $ENV{CPLEX_DIR}concert/include/)
-link_directories($ENV{CPLEX_DIR}cplex/lib/x86-64_linux/static_pic $ENV{CPLEX_DIR}concert/lib/x86-64_linux/static_pic)
+# if(${APPLE})
+#     link_directories(${CPLEX_DIR}cplex/lib/x86-64_osx/static_pic ${CPLEX_DIR}concert/lib/x86-64_osx/static_pic)
+# elseif(${UNIX})
+#     link_directories(${CPLEX_DIR}cplex/lib/x86-64_linux/static_pic ${CPLEX_DIR}concert/lib/x86-64_linux/static_pic)
+# endif()
+find_library(CPLEX cplex HINTS $ENV{CPLEX_DIR})
 
 set(CMAKE_CXX_FLAGS "-Wextra -Wall -std=c++1z -Weffc++ -Wfatal-errors -Wno-unused-parameter -DIL_STD -march=native")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -g -Og")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -Ofast -DNDEBUG -DBOOST_UBLAS_NDEBUG")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS} -g -Og")
 SET(CMAKE_INCLUDE_SYSTEM_FLAG_CXX "-isystem ")
+
+project (bench_sort)
+
+add_executable(bench_sort ${PROJECT_SOURCE_DIR}/bench.cpp)
+# target_link_libraries(bench_sort m pthread)
+# target_link_libraries(bench_sort ilocplex concert cplex)

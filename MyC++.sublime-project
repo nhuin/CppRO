@@ -5,12 +5,13 @@
 		{
 			"clang":
 			{
-				"extra_flags": "-Wextra -Wall -Werror -ansi -std=c++14 -Weffc++ -Wfatal-errors -Wno-unused-parameter -DIL_STD",
+				"extra_flags": "-std=c++17 -Wall -Wextra -Wshadow -Wnon-virtual-dtor -pedantic -Wno-c++11-compat -DIL_STD -march=native",
 				"include_dirs":
 				[
 					".",
 					"${CPLEX_DIR}/concert/include/",
-					"${CPLEX_DIR}/cplex/include/"
+					"${CPLEX_DIR}/cplex/include/",
+					"${HOME}/Documents/benchmark/include/"
 				]
 			}
 		}
