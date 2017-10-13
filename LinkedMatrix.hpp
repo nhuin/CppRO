@@ -12,12 +12,12 @@ class LinkedMatrix {
         friend class LinkedMatrix;
 
       private:
-        Cell(int i, int j, T value, Cell* nextOnRow, Cell* nextOnCol)
-            : i(i)
-            , j(j)
-            , nextOnRow(nextOnRow)
-            , nextOnCol(nextOnCol)
-            , value(std::move(value)) {}
+        Cell(const int _i, const int _j, T _value, Cell* _nextOnRow, Cell* _nextOnCol)
+            : i(_i)
+            , j(_j)
+            , nextOnRow(_nextOnRow)
+            , nextOnCol(_nextOnCol)
+            , value(std::move(_value)) {}
 
         ~Cell() = default;
 

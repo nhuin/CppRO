@@ -14,8 +14,8 @@ class FibonacciHeap {
         T value;
 
       private:
-        explicit Node(const T& value)
-            : value(value) {}
+        explicit Node(const T& _value)
+            : value(_value) {}
         Node* next = nullptr;
         Node* prev = nullptr;
         Node* parent = nullptr;
@@ -285,7 +285,7 @@ class FibonacciHeap {
     }
 
     void consolidate() {
-        for (int i = 0; i < static_cast<int> m_nodesAtRank.size(); ++i) {
+        for (int i = 0; i < static_cast<int>(m_nodesAtRank.size()); ++i) {
             while (m_nodesAtRank[i] > 1) {
                 // Search first root at rank i
                 Node* r1 = m_heap;

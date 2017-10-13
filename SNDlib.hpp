@@ -142,7 +142,7 @@ std::vector<int> loadSDNs(const std::string& _filename, const int& nbSDNs, int _
         std::getline(ifs, line);
         if (line != "") {
             std::stringstream lineStream1(line);
-            for (int i = 0; i < _type; ++i) {
+            for (int j = 0; j < _type; ++j) {
                 lineStream1 >> u;
             }
             lineStream1 >> u;

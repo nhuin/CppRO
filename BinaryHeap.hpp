@@ -16,9 +16,9 @@ class BinaryHeap {
 
   private:
     struct Node {
-        Node(const T& object, Handle* index)
-            : object(object)
-            , handle(index){};
+        Node(const T& _object, Handle* _index)
+            : object(_object)
+            , handle(_index){};
         T object;
         Handle* handle;
 

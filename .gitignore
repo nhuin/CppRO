@@ -1,0 +1,12 @@
+.DS_Store
+CMakeCache.txt
+**/CMakeFiles
+Makefile
+*.sage.py
+*.log
+cmake_install.cmake
+compile_commands.json
+**/bin
+*.sublime-workspace
+clang-tidy.txt
+*.gch

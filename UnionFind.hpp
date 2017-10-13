@@ -2,20 +2,19 @@
 #define UNIONFIND_H
 
 #include <vector>
+#include <numeric>
 
 class UnionFind {
   public:
-    explicit UnionFind(const int _size)
+    explicit UnionFind(const std::vector<int>::size_type _size)
         : m_rank(_size, 0)
         , m_parent(_size) {
-        for (int i = 0; i < _size; ++i) {
-            m_parent[i] = i;
-        }
+        std::iota(m_parent.begin(), m_parent.end(), 0);
     }
 
-    void merge(const int _x, const int _y) {
-        int xRoot = this->find(_x),
-            yRoot = this->find(_y);
+    void merge(const unsigned long _x, const unsigned long _y) {
+        const auto xRoot = find(_x),
+            yRoot = find(_y);
 
         if (m_rank[xRoot] < m_rank[yRoot]) {
             m_parent[xRoot] = yRoot;
@@ -26,7 +25,7 @@ class UnionFind {
             ++m_rank[xRoot];
         }
     }
-    int find(int _x) {
+    unsigned long find(const unsigned long _x) {
         if (m_parent[_x] != _x) {
             m_parent[_x] = find(m_parent[_x]);
         }
@@ -35,7 +34,7 @@ class UnionFind {
 
   private:
     std::vector<int> m_rank;
-    std::vector<int> m_parent;
+    std::vector<unsigned long> m_parent;
 };
 
 #endif

@@ -26,8 +26,10 @@ class DiGraph : public Graph {
     ~DiGraph() override = default;
 
     void addEdge(const int u, const int v, const double w = 0.0) {
-        assert(u >= 0 && u < m_matrix.size1());
-        assert(v >= 0 && v < m_matrix.size2());
+        assert(u >= 0);
+        assert(u < m_matrix.size1());
+        assert(v >= 0);
+        assert(v < m_matrix.size2());
 
         if (!m_matrix(u, v).first) {
             ++m_size;
@@ -37,13 +39,10 @@ class DiGraph : public Graph {
         m_matrix(u, v).second = w;
     }
 
-    inline bool hasEdge(const int _u, const int _v) const override {
+    using Graph::hasEdge;
+    bool hasEdge(const int _u, const int _v) const override {
         return m_matrix(_u, _v).first;
-    }
-
-    inline bool hasEdge(const Graph::Edge& _edge) const {
-        return hasEdge(_edge.first, _edge.second);
-    }
+    }    
 
     void removeEdge(const int u, const int v) {
         if (m_matrix(u, v).first) {
@@ -57,12 +56,13 @@ class DiGraph : public Graph {
         removeEdge(_p.first, _p.second);
     }
 
-    double getEdgeWeight(const int u, const int v) const override {
+
+    double getEdgeWeight(const int u, const int v) const {
         return m_matrix(u, v).second;
     }
 
-    double getEdgeWeight(const Edge& _p) const {
-        return this->getEdgeWeight(_p.first, _p.second);
+    double getEdgeWeight(const Graph::Edge& _edge) const {
+        return getEdgeWeight(_edge.first, _edge.second);
     };
 
     inline void setEdgeWeight(const int _u, const int _v, const double _w) {
@@ -98,13 +98,13 @@ class DiGraph : public Graph {
                     changed = true;
                     topo.push_back(u);
                     inOrder[u] = true;
-                    for (auto v : getNeighbors(u)) {
+                    for (const auto& v : getNeighbors(u)) {
                         --inDegree[v];
                     }
                 }
             }
             if (!changed) {
-                return std::vector<int>();
+                return { };
             }
         }
         return topo;
@@ -246,6 +246,83 @@ class DiGraph : public Graph {
             ++i;
         }
         return std::tuple<DiGraph, int, int>(graph, nbServers, nbSwitches);
+    }
+
+    /**
+    * Return the set of SCCs using Tarjan's algorithm
+    * @TODO: Transform to iterative 
+    */
+    std::vector< std::vector<Graph::Node> > getStronglyConnectedComponent() const {
+        std::vector< std::vector<Graph::Node> > SCCs;
+        int index = 0;
+        std::vector<Node> S;
+        std::vector<int> indexes(m_order, -1),
+            lowLink(m_order);
+        std::vector<bool> onStack(m_order, false);
+
+        
+        const std::function<void(Node)> strongConnect = [&](const Node v) {
+            // Set the depth index for v to the smallest unused index
+            indexes[v] = lowLink[v] = index;
+            ++index;
+            S.push_back(v);
+            onStack[v] = true;
+            // Consider successors of v
+            for(const auto& w : getNeighbors(v)) {
+                if(indexes[w] == -1) {
+                    // Successor w has not yet been visited; recurse on it
+                    strongConnect(w);
+                    lowLink[v] = std::min(lowLink[v], lowLink[w]);
+                } else if(onStack[w]) {
+                    // Successor w is in stack S and hence in the current SCC
+                    // Note: The next line may look odd - but is correct.
+                    // It says w.index not w.lowlink; that is deliberate and from the original paper
+                    lowLink[v] = std::min(lowLink[v], indexes[w]);
+                }
+            }
+
+            // If v is a root node, pop the stack and generate an SCC
+            if(lowLink[v] == indexes[v]) {
+                SCCs.emplace_back();
+                Node w;
+                do {
+                    w = S.back();
+                    SCCs.back().push_back(w);
+                    onStack[w] = false;
+                    S.pop_back();
+                } while(w != v);
+            }
+        };
+
+        for(int v = 0; v < m_order; ++v) {
+            if(indexes[v] == -1) {
+                strongConnect(v);
+            }
+
+        }        
+        return SCCs;
+    }
+
+    std::vector< DiGraph > getStronglyConnectedSubGraph() const {
+        const auto SCCs = getStronglyConnectedComponent();
+        std::vector< DiGraph > subGraphs;
+        subGraphs.reserve(SCCs.size());
+
+        for(const auto& SCC : SCCs) {
+            subGraphs.emplace_back(SCC.size());
+            int u2 = 0;
+            for(const auto& u : SCC) {
+                int v2 = 0;
+                for(const auto& v : SCC) {
+                    if(u != v && hasEdge(u, v)) {
+                        subGraphs.back().addEdge(u2, v2);
+                    }
+                    ++v2;
+                }
+                ++u2;
+            }
+        }
+        return subGraphs;
     }
 
   private:

@@ -9,21 +9,21 @@ class MutableGraph {
         : m_matrix(_order, _order)
         , m_available_ids() {}
     MutableGraph(const MutableGraph&) = default;
-    MutableGraph operator=(const MutableGraph&) = default;
+    MutableGraph& operator=(const MutableGraph&) = default;
     MutableGraph(MutableGraph&&) = default;
-    MutableGraph operator=(MutableGraph&&) = default;
+    MutableGraph& operator=(MutableGraph&&) = default;
     ~MutableGraph() = default;
 
     int addVertex() {
         int id = -1;
-        if (m_available_ids.empty()) {
-            m_matrix.addRowAndColumn();
-            id = m.size1() - 1;
-        } else {
-            id = m_available_ids.back();
-            m_available_ids.pop_back();
-        }
-        assert(id != -1);
+        // if (m_available_ids.empty()) {
+        //     m_matrix.addRowAndColumn();
+        //     id = m.size1() - 1;
+        // } else {
+        //     id = m_available_ids.back();
+        //     m_available_ids.pop_back();
+        // }
+        // assert(id != -1);
         return id;
     }
 
@@ -36,7 +36,7 @@ class MutableGraph {
         m_available_ids.push_back(_id);
     }
 
-    void addEdge(int u, int v) {
+    void addEdge(const int _u, const int _v) {
         m_matrix(_u, _v) = true;
     }
 
