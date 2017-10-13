@@ -9,8 +9,8 @@
 				"include_dirs":
 				[
 					".",
-					"/Volumes/nhuin/CPLEX/concert/include/",
-					"/Volumes/nhuin/CPLEX/cplex/include/"
+					"${CPLEX_DIR}/concert/include/",
+					"${CPLEX_DIR}/CPLEX/cplex/include/"
 				]
 			}
 		}

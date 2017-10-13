@@ -30,13 +30,19 @@ endif()
 # Adding clang-tidy target if executable is found
 find_program(CLANG_TIDY "clang-tidy")
 if(CLANG_TIDY)
+    # add_custom_target(
+    #     clang-tidy
+    #     COMMAND echo 
+    #     ${ALL_CXX_SOURCE_FILES}
+    #     | 
+    #     xargs -d ' ' -L 1 -I {} -t
+    #     clang-tidy {} -config='' -- -std=c++14 -Wfatal-errors -Iinclude -I../include -I$ENV{MY_CPP_INCLUDE} -I$ENV{CPLEX_DIR}cplex/include/  -I$ENV{CPLEX_DIR}concert/include/ -DIL_STD
+    # )
     add_custom_target(
         clang-tidy
-        COMMAND echo 
-        ${ALL_CXX_SOURCE_FILES}
-        | 
-        xargs -d' ' -L 1 -I {} -t
-        clang-tidy {} -config='' -- -std=c++14 -Wfatal-errors -Iinclude -I../include -I$ENV{MY_CPP_INCLUDE} -I$ENV{CPLEX_DIR}cplex/include/  -I$ENV{CPLEX_DIR}concert/include/ -DIL_STD
+        $ENV{HOME}/Documents/MyPython/run-clang-tidy.py -header-filter='.*' 
+            -extra-arg="-std=c++17"
+            # -Wfatal-errors -Iinclude -I../include -I${MY_CPP_INCLUDE} -isystem${CPLEX_DIR}cplex/include/ -isystem${CPLEX_DIR}concert/include/ -DIL_STD"
     )
     add_custom_target(
         clang-tidy-file
@@ -65,16 +71,3 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -g -Og")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -Ofast -DNDEBUG -DBOOST_UBLAS_NDEBUG")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS} -g -Og")
 SET(CMAKE_INCLUDE_SYSTEM_FLAG_CXX "-isystem ")
-
-project (bench)
-
-add_executable(bench ${PROJECT_SOURCE_DIR}/bench.cpp)
-target_link_libraries(bench m pthread benchmark)
-
-project (test_sort)
-add_executable(test_sort ${PROJECT_SOURCE_DIR}/test_sort.cpp)
-target_link_libraries(test_sort m pthread benchmark)
-
-project (test_graph)
-add_executable(test_graph ${PROJECT_SOURCE_DIR}/test_graph.cpp)
-target_link_libraries(test_graph m pthread benchmark)
