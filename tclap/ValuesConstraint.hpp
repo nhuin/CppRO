@@ -65,7 +65,7 @@ class ValuesConstraint : public Constraint<T>
 		/**
 		 * Virtual destructor.
 		 */
-		~ValuesConstraint() override = default;;
+		~ValuesConstraint() override = default;
 
 		
 		ValuesConstraint(const ValuesConstraint&) = default;
