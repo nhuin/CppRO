@@ -13,23 +13,27 @@ class ShortestPath {
   public:
     explicit ShortestPath(const G& _graph)
         : m_graph(&_graph)
-        , m_distance(m_graph->getOrder(), std::numeric_limits<int>::max())
-        , m_parent(m_graph->getOrder(), -1)
-        , m_color(m_graph->getOrder(), 0)
-        , m_handles(m_graph->getOrder())
-        , m_heap(m_graph->getOrder(),
-              [=](const Graph::Node __u, const Graph::Node __v) {
+        , m_distance(_graph.getOrder(), std::numeric_limits<double>::max())
+        , m_parent(_graph.getOrder(), -1)
+        , m_color(_graph.getOrder(), 0)
+        , m_handles(_graph.getOrder())
+        , m_heap(_graph.getOrder(),
+              [=](const Graph::Node& __u, const Graph::Node& __v) {
                   return m_distance[__u] < m_distance[__v];
               }) {}
     // Copy
     ShortestPath(const ShortestPath& _other)
         : ShortestPath(*_other.m_graph) {}
 
+    bool compareDistance(const Graph::Node& __u, const Graph::Node& __v) {
+        return m_distance[__u] < m_distance[__v];
+    };
+
     ShortestPath& operator=(const ShortestPath& _other) {
         if (this != &_other) {
             m_graph = _other.m_graph;
             m_distance = std::vector<double>(m_graph->getOrder(),
-                std::numeric_limits<int>::max());
+                std::numeric_limits<double>::max());
             m_parent = std::vector<int>(m_graph->getOrder(), -1);
             m_color = std::vector<char>(m_graph->getOrder(), 0);
             m_handles = std::vector<typename BinaryHeap<
@@ -38,7 +42,7 @@ class ShortestPath {
             m_heap = BinaryHeap<
                 int, std::function<bool(const Graph::Node&, const Graph::Node&)>>(
                 m_graph->getOrder(),
-                [=](const Graph::Node __u, const Graph::Node __v) {
+                [=](const Graph::Node& __u, const Graph::Node& __v) {
                     return m_distance[__u] < m_distance[__v];
                 });
         }
@@ -53,7 +57,7 @@ class ShortestPath {
         , m_color(std::move(_other.m_color))
         , m_handles(m_graph->getOrder())
         , m_heap(m_graph->getOrder(),
-              [=](const Graph::Node __u, const Graph::Node __v) {
+              [=](const Graph::Node& __u, const Graph::Node& __v) {
                   return m_distance[__u] < m_distance[__v];
               }) {}
 
@@ -69,15 +73,18 @@ class ShortestPath {
             m_heap = BinaryHeap<
                 int, std::function<bool(const Graph::Node&, const Graph::Node&)>>(
                 m_graph->getOrder(),
-                [=](const Graph::Node __u, const Graph::Node __v) {
+                [=](const Graph::Node& __u, const Graph::Node& __v) {
                     return m_distance[__u] < m_distance[__v];
                 });
         }
         return *this;
     }
+
     ~ShortestPath() = default;
 
-    double getDistance(const Graph::Node _u) const { return m_distance[_u]; }
+    double getDistance(const Graph::Node& _u) const {
+        return m_distance[_u];
+    }
 
     void clear() {
         std::fill(m_parent.begin(), m_parent.end(), -1);
@@ -130,10 +137,7 @@ class ShortestPath {
         return path;
     }
 
-    Graph::Path getShortestPathNbArcs(const int _s, const int _t) {
-#if !defined(NDEBUG) && defined(LOG_LEVEL) && LOG_LEVEL <= 0
-        std::cout << "\ngetShortestPathNbArcs(" << _s << ", " << _t << ")\n";
-#endif
+    Graph::Path getShortestPathNbArcs(const Graph::Node& _s, const Graph::Node& _t) {
         m_parent[_s] = _s;
         m_distance[_s] = 0;
         m_handles[_s] = m_heap.push(_s);
@@ -147,18 +151,9 @@ class ShortestPath {
             const auto u = m_heap.top();
             m_heap.pop();
             m_color[u] = 2;
-#if !defined(NDEBUG) && defined(LOG_LEVEL) && LOG_LEVEL <= 0
-            std::cout << "Visiting " << u << '\n';
-#endif
 
             for (const auto& v : m_graph->getNeighbors(u)) {
-#if !defined(NDEBUG) && defined(LOG_LEVEL) && LOG_LEVEL <= 0
-                std::cout << "Considering " << v << " m_color: " << m_color[v] << '\t';
-#endif
                 if (m_color[v] != 2) {
-#if !defined(NDEBUG) && defined(LOG_LEVEL) && LOG_LEVEL <= 0
-                    std::cout << " -> " << (m_distance[u] + 1);
-#endif
                     auto distT = m_distance[u] + 1;
                     if (distT < m_distance[v]) {
                         m_distance[v] = distT;
@@ -171,14 +166,8 @@ class ShortestPath {
                         m_parent[v] = u;
                     }
                 }
-#if !defined(NDEBUG) && defined(LOG_LEVEL) && LOG_LEVEL <= 0
-                std::cout << "\n";
-#endif
             }
         }
-#if !defined(NDEBUG) && defined(LOG_LEVEL) && LOG_LEVEL <= 0
-        std::cout << m_parent << '\n';
-#endif
 
         /* Path is found, need to build it */
         Graph::Node node = _t;
@@ -192,9 +181,9 @@ class ShortestPath {
     }
 
     Graph::Path
-    getShortestPath(const int _s, const int _t,
-        const std::function<bool(int, int)>& _isNeighbor,
-        const std::function<double(int, int)>& _getWeight) {
+    getShortestPath(const Graph::Node& _s, const Graph::Node& _t,
+        const std::function<bool(const Graph::Node&, const Graph::Node&)>& _isNeighbor,
+        const std::function<double(const Graph::Node&, const Graph::Node&)>& _getWeight) {
         //   //std::cout<< "getShortestPath" << Graph::Edge(_s, _t) << '\n';
         m_parent[_s] = _s;
         m_distance[_s] = 0;
@@ -238,11 +227,8 @@ class ShortestPath {
     }
 
     Graph::Path
-    getShortestPathNbArcs(const int _s, const int _t,
-        const std::function<bool(int, int)>& _isNeighbor) {
-#if !defined(NDEBUG) && defined(LOG_LEVEL) && LOG_LEVEL <= 0
-        std::cout << "\ngetShortestPathNbArcs(" << _s << ", " << _t << ")\n";
-#endif
+    getShortestPathNbArcs(const Graph::Node& _s, const Graph::Node& _t,
+        const std::function<bool(const Graph::Node&, const Graph::Node&)>& _isNeighbor) {
         m_heap.clear();
 
         m_parent[_s] = _s;
@@ -258,18 +244,8 @@ class ShortestPath {
             const auto u = m_heap.top();
             m_heap.pop();
             m_color[u] = 2;
-#if !defined(NDEBUG) && defined(LOG_LEVEL) && LOG_LEVEL <= 0
-            std::cout << "Visiting " << u << '\n';
-#endif
             for (auto& v : m_graph->getNeighbors(u)) {
-#if !defined(NDEBUG) && defined(LOG_LEVEL) && LOG_LEVEL <= 0
-                std::cout << "Considering " << v << " m_color: " << m_color[v]
-                          << ", _isNeighbor: " << _isNeighbor(u, v) << '\t';
-#endif
                 if (m_color[v] != 2 && _isNeighbor(u, v)) {
-#if !defined(NDEBUG) && defined(LOG_LEVEL) && LOG_LEVEL <= 0
-                    std::cout << " -> " << (m_distance[u] + 1);
-#endif
                     auto distT = m_distance[u] + 1;
                     if (distT < m_distance[v]) {
                         m_distance[v] = distT;
@@ -282,9 +258,6 @@ class ShortestPath {
                         m_parent[v] = u;
                     }
                 }
-#if !defined(NDEBUG) && defined(LOG_LEVEL) && LOG_LEVEL <= 0
-                std::cout << "\n";
-#endif
             }
         }
 
@@ -311,40 +284,20 @@ class ShortestPath {
         // Initialize the heap to store the potential kth shortest path.
         std::list<Graph::Path> stack;
         for (int k = 1; k < _k; ++k) {
-#if !defined(NDEBUG) && defined(LOG_LEVEL) && LOG_LEVEL <= 0
-            std::cout << "Looking for " << (k + 1) << "th path" << '\n';
-#endif
             auto& lastPath = paths[k - 1];
             auto ite = lastPath.begin();
-#if !defined(NDEBUG) && defined(LOG_LEVEL) && LOG_LEVEL <= 0
-            std::cout << "lastPath: " << lastPath << '\n';
-#endif
             for (int i = 0; i < static_cast<int>(lastPath.size() - 1); ++i, ++ite) {
                 // Spur node is retrieved from the previous k-shortest path, k − 1.
                 int spurNode = *ite;
-#if !defined(NDEBUG) && defined(LOG_LEVEL) && LOG_LEVEL <= 0
-                std::cout << "spurNode: " << spurNode << '\n';
-#endif
                 // The sequence of nodes from the source to the spur node of the
                 // previous k-shortest path.
                 Graph::Path rootPath{lastPath.begin(), std::next(ite)};
-#if !defined(NDEBUG) && defined(LOG_LEVEL) && LOG_LEVEL <= 0
-                std::cout << "rootPath: " << rootPath << '\n';
-#endif
                 assert(rootPath.back() == spurNode);
 
                 G graphCopy = m_graph;
-#if !defined(NDEBUG) && defined(LOG_LEVEL) && LOG_LEVEL <= 0
-                std::cout << graphCopy.getEdges() << '\n';
-                std::cout << m_graph->getEdges() << '\n';
-#endif
 
                 for (int j = 0; j < k; ++j) {
                     auto p = paths[j];
-#if !defined(NDEBUG) && defined(LOG_LEVEL) && LOG_LEVEL <= 0
-                    std::cout << "paths[" << j << "]: " << p << '\n';
-#endif
-
                     bool same = true;
                     auto ite2 = p.begin();
                     for (auto ite1 = rootPath.begin(); ite1 != rootPath.end();
@@ -358,10 +311,6 @@ class ShortestPath {
                     if (same) {
 // Remove the links that are part of the previous shortest paths which share the
 // same root path.
-#if !defined(NDEBUG) && defined(LOG_LEVEL) && LOG_LEVEL <= 0
-                        std::cout << "removeEdge" << Graph::Edge(*std::prev(ite2), *ite2)
-                                  << '\n';
-#endif
                         graphCopy.removeEdge(*std::prev(ite2), *ite2);
                     }
                 }
@@ -384,9 +333,6 @@ class ShortestPath {
                     ShortestPath<G>(graphCopy).getShortestPathNbArcs(spurNode, _v);
                 if (!spurPath.empty()) {
                     assert(spurPath.front() == spurNode);
-#if !defined(NDEBUG) && defined(LOG_LEVEL) && LOG_LEVEL <= 0
-                    std::cout << "spurPath: " << spurPath << '\n';
-#endif
                     rootPath.insert(rootPath.end(), std::next(spurPath.begin()),
                         spurPath.end());
 
@@ -397,18 +343,9 @@ class ShortestPath {
                             break;
                         }
                     }
-#if !defined(NDEBUG) && defined(LOG_LEVEL) && LOG_LEVEL <= 0
-                    std::cout << "Inserting " << rootPath << '\n';
-#endif
                     stack.insert(iteStack, rootPath);
                 }
-#if !defined(NDEBUG) && defined(LOG_LEVEL) && LOG_LEVEL <= 0
-                std::cout << '\n';
-#endif
             }
-#if !defined(NDEBUG) && defined(LOG_LEVEL) && LOG_LEVEL <= 0
-            std::cout << "Paths in stack => " << stack << '\n';
-#endif
             if (stack.empty()) {
                 return paths;
             }

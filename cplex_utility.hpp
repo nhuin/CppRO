@@ -22,7 +22,7 @@ inline void displayValue(const IloCplex& _solver, const IloNumVar& _var) {
 }
 
 template <typename... Tr>
-int someProduct(std::tuple<int, Tr...>&& _pos, std::tuple<int, Tr...>&& _dim) {
+std::size_t someProduct(std::tuple<int, Tr...>&& _pos, std::tuple<int, Tr...>&& _dim) {
     return someProduct(std::make_tuple(std::get<Tr...>(_pos)),
                std::make_tuple(std::get<Tr...>(_dim)))
                * std::get<0>(_dim)
@@ -30,8 +30,8 @@ int someProduct(std::tuple<int, Tr...>&& _pos, std::tuple<int, Tr...>&& _dim) {
 }
 
 template <>
-int someProduct(std::tuple<int>&& _v1, std::tuple<int>&& /*_v2*/) {
-    return std::get<0>(_v1);
+std::size_t someProduct(std::tuple<int>&& _pos, std::tuple<int>&& /*_v2*/) {
+    return std::get<0>(_pos);
 }
 
 template <typename IloType, int nbDim>
@@ -57,7 +57,7 @@ class IloWrapper {
     operator const IloArray<IloType>&() const { return m_array; }
 
   private:
-    std::array<int, nbDim> m_dimSize;
+    std::array<std::size_t, nbDim> m_dimSize;
     IloArray<IloType> m_array;
 };
 

@@ -12,7 +12,7 @@
 
 class DiGraph : public Graph {
   public:
-    explicit DiGraph(const int _order)
+    explicit DiGraph(const std::size_t _order)
         : Graph(_order)
         , m_matrix(_order, _order, std::make_pair(false, 0))
         , m_neighbors(m_order) {
@@ -25,74 +25,74 @@ class DiGraph : public Graph {
     DiGraph(DiGraph&&) = default;
     ~DiGraph() override = default;
 
-    void addEdge(const int u, const int v, const double w = 0.0) {
-        assert(u >= 0);
-        assert(u < m_matrix.size1());
-        assert(v >= 0);
-        assert(v < m_matrix.size2());
+    void addEdge(const Graph::Node& _u, const Graph::Node& _v, const double& _w = double()) {
+        assert(_u >= 0);
+        assert(_u < m_matrix.size1());
+        assert(_v >= 0);
+        assert(_v < m_matrix.size2());
 
-        if (!m_matrix(u, v).first) {
-            ++m_size;
-            m_neighbors[u].push_back(v);
+        if (!m_matrix(_u, _v).first) {
+            ++m_size;            
+            m_neighbors[_u].push_back(_v);
         }
-        m_matrix(u, v).first = true;
-        m_matrix(u, v).second = w;
-    }
-
-    using Graph::hasEdge;
-    bool hasEdge(const int _u, const int _v) const override {
-        return m_matrix(_u, _v).first;
-    }
-
-    void removeEdge(const int u, const int v) {
-        if (m_matrix(u, v).first) {
-            m_matrix(u, v).first = false;
-            --m_size;
-            m_neighbors[u].erase(
-                std::remove(m_neighbors[u].begin(), m_neighbors[u].end(), v),
-                m_neighbors[u].end());
-        }
-    }
-
-    void removeEdge(const Edge& _p) { removeEdge(_p.first, _p.second); }
-
-    double getEdgeWeight(const int u, const int v) const {
-        return m_matrix(u, v).second;
-    }
-
-    double getEdgeWeight(const Graph::Edge& _edge) const {
-        return getEdgeWeight(_edge.first, _edge.second);
-    };
-
-    inline void setEdgeWeight(const int _u, const int _v, const double _w) {
+        m_matrix(_u, _v).first = true;
         m_matrix(_u, _v).second = _w;
     }
 
-    inline void setEdgeWeight(const Graph::Edge& _e, const double _w) {
+    using Graph::hasEdge;
+    bool hasEdge(const Graph::Node& _u, const Graph::Node& _v) const override {
+        return m_matrix(_u, _v).first;
+    }
+
+    void removeEdge(const Graph::Node& _u, const Graph::Node& _v) {
+        if (m_matrix(_u, _v).first) {
+            m_matrix(_u, _v).first = false;
+            --m_size;
+            m_neighbors[_u].erase(
+                std::remove(m_neighbors[_u].begin(), m_neighbors[_u].end(), _v),
+                m_neighbors[_u].end());
+        }
+    }
+
+    void removeEdge(const Graph::Edge& _p) { removeEdge(_p.first, _p.second); }
+
+    const double& getEdgeWeight(const Graph::Node& _u, const Graph::Node& _v) const {
+        return m_matrix(_u, _v).second;
+    }
+
+    const double& getEdgeWeight(const Graph::Edge& _edge) const {
+        return getEdgeWeight(_edge.first, _edge.second);
+    }
+
+    inline void setEdgeWeight(const Graph::Node& _u, const Graph::Node& _v, const double& _w) {
+        m_matrix(_u, _v).second = _w;
+    }
+
+    inline void setEdgeWeight(const Graph::Edge& _e, const double& _w) {
         setEdgeWeight(_e.first, _e.second, _w);
     }
 
-    inline void addEdgeWeight(const int _u, const int _v, const double _w) {
+    inline void addEdgeWeight(const Graph::Node& _u, const Graph::Node& _v, const double& _w) {
         m_matrix(_u, _v).second += _w;
     }
 
-    inline void addEdgeWeight(const Graph::Edge& _e, const double _w) {
+    inline void addEdgeWeight(const Graph::Edge& _e, const double& _w) {
         addEdgeWeight(_e.first, _e.second, _w);
     }
 
-    std::vector<int> getTopologicalOrder() const {
-        std::vector<int> topo;
+    std::vector<Graph::Node> getTopologicalOrder() const {
+        std::vector<Graph::Node> topo;
 
-        std::vector<int> inDegree(m_order);
+        std::vector<std::size_t> inDegree(m_order);
         std::vector<bool> inOrder(m_order, false);
-        for (int u = 0; u < m_order; ++u) {
+        for (std::size_t u = 0; u < m_order; ++u) {
             inDegree[u] = getInDegree(u);
         }
 
         bool changed;
-        while (static_cast<int>(topo.size()) < m_order) {
+        while (topo.size() < m_order) {
             changed = false;
-            for (int u = 0; u < static_cast<int>(inDegree.size()); ++u) {
+            for( std::size_t u = 0; u < inDegree.size(); ++u) {
                 if (inDegree[u] == 0 && !inOrder[u]) {
                     changed = true;
                     topo.push_back(u);
@@ -123,10 +123,10 @@ class DiGraph : public Graph {
         return reverse;
     }
 
-    std::vector<int>
-    getNeighborsIf(const int _u, const std::function<bool(int)>& take_if) const {
-        std::vector<int> neighbors;
-        for (auto& n : m_neighbors[_u]) {
+    std::vector<Graph::Node>
+    getNeighborsIf(const Graph::Node& _u, const std::function<bool(const Graph::Node)>& take_if) const {
+        std::vector<Graph::Node> neighbors;
+        for (const auto& n : m_neighbors[_u]) {
             if (take_if(n)) {
                 neighbors.push_back(n);
             }
@@ -134,12 +134,12 @@ class DiGraph : public Graph {
         return neighbors;
     }
 
-    const std::vector<int>& getNeighbors(const int _u) const override {
+    const std::vector<Graph::Node>& getNeighbors(const Graph::Node& _u) const override {        
         return m_neighbors[_u];
     }
 
-    std::vector<int> getInNeighbors(const int _u) const {
-        std::vector<int> inNeighbors;
+    std::vector<Graph::Node> getInNeighbors(const Graph::Node& _u) const {
+        std::vector<Graph::Node> inNeighbors;
         for (Graph::Node v = 0; v < m_order; ++v) {
             if (m_matrix(v, _u).first) {
                 inNeighbors.push_back(v);
@@ -149,7 +149,7 @@ class DiGraph : public Graph {
     }
 
     // Remove all adjacent edges to _u
-    void isolate(const Graph::Node _u) {
+    void isolate(const Graph::Node& _u) {
         for (Graph::Node v = 0; v < m_order; ++v) {
             if (m_matrix(_u, v).first) {
                 m_matrix(_u, v).first = false;
@@ -172,19 +172,21 @@ class DiGraph : public Graph {
         return edges;
     }
 
-    int getOutDegree(const int _u) const { return m_neighbors[_u].size(); }
+    std::size_t getOutDegree(const Graph::Node& _u) const {
+        return m_neighbors[_u].size(); 
+    }
 
-    std::vector<int> getOutDegree() const {
-        std::vector<int> outDegrees(m_order);
+    std::vector<std::size_t> getOutDegrees() const {
+        std::vector<std::size_t> outDegrees(m_order);
         for (Graph::Node u = 0; u < m_order; ++u) {
             outDegrees[u] = m_neighbors[u].size();
         }
         return outDegrees;
     }
 
-    int getInDegree(const int _u) const {
-        int indegree = 0;
-        for (int v = 0; v < m_order; ++v) {
+    std::size_t getInDegree(const Graph::Node& _u) const {
+        std::size_t indegree = 0;
+        for( std::size_t v = 0; v < m_order; ++v) {
             if (m_matrix(v, _u).first) {
                 ++indegree;
             }
@@ -192,10 +194,10 @@ class DiGraph : public Graph {
         return indegree;
     }
 
-    std::vector<int> getInDegrees() const {
-        std::vector<int> inDegrees(m_order);
+    std::vector<std::size_t> getInDegrees() const {
+        std::vector<std::size_t> inDegrees(m_order);
         for (Graph::Node u = 0; u < m_order; ++u) {
-            for (int v = 0; v < m_order; ++v) {
+            for( std::size_t v = 0; v < m_order; ++v) {
                 if (m_matrix(v, u).first) {
                     ++inDegrees[u];
                 }
@@ -216,7 +218,7 @@ class DiGraph : public Graph {
         ofs << "}";
     }
 
-    static std::tuple<DiGraph, int, int>
+    static std::tuple<DiGraph, int, int> 
     loadFromFile(const std::string& _filename) {
         std::ifstream ifs(_filename, std::ifstream::in);
         if (!ifs) {
@@ -229,13 +231,14 @@ class DiGraph : public Graph {
         int vertexNumber = 0;
         int nbServers = 0;
         int nbSwitches = 0;
+
         std::stringstream(line) >> vertexNumber >> nbServers >> nbSwitches;
 
         DiGraph graph(vertexNumber);
 
         int i = 0;
 
-        int u, v;
+        Graph::Node u, v;
         double w;
         while (ifs.good()) {
             std::getline(ifs, line, '\n');
@@ -245,12 +248,12 @@ class DiGraph : public Graph {
             graph.addEdge(v, u, w);
             ++i;
         }
-        return std::tuple<DiGraph, int, int>(graph, nbServers, nbSwitches);
+        return std::make_tuple(graph, nbServers, nbSwitches);
     }
 
     /**
    * Return the set of SCCs using Tarjan's algorithm
-   * @TODO: Transform to iterative
+   * \todo{Transform to iterative}
    */
     std::vector<std::vector<Graph::Node>> getStronglyConnectedComponent() const {
         std::vector<std::vector<Graph::Node>> SCCs;
@@ -293,7 +296,7 @@ class DiGraph : public Graph {
             }
         };
 
-        for (int v = 0; v < m_order; ++v) {
+        for( std::size_t v = 0; v < m_order; ++v) {
             if (indexes[v] == -1) {
                 strongConnect(v);
             }
@@ -325,7 +328,7 @@ class DiGraph : public Graph {
 
   private:
     Matrix<std::pair<bool, double>> m_matrix;
-    std::vector<std::vector<int>> m_neighbors;
+    std::vector<std::vector<Graph::Node>> m_neighbors;
 };
 
 inline bool operator==(const DiGraph& _g1, const DiGraph& _g2) {

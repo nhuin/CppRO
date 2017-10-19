@@ -5,7 +5,7 @@
 		{
 			"clang":
 			{
-				"extra_flags": "-std=c++17 -Wall -Wextra -Wshadow -Wnon-virtual-dtor -pedantic -Wno-c++11-compat -DIL_STD -march=native",
+				"extra_flags": "-std=c++17 -Wall -Wextra -Wshadow -Wnon-virtual-dtor -pedantic -Wno-c++11-compat -DIL_STD -march=native -Weverything -Wno-c++98-compat -Wno-c++98-compat-pedantic",
 				"include_dirs":
 				[
 					".",

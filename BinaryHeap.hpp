@@ -8,9 +8,9 @@ class BinaryHeap {
 
   public:
     class Handle {
-        explicit Handle(const int i)
+        explicit Handle(const std::size_t i)
             : index(i){};
-        int index;
+        std::size_t index;
         friend BinaryHeap;
     };
 
@@ -21,23 +21,22 @@ class BinaryHeap {
             , handle(_index){};
         T object;
         Handle* handle;
-
-        void changeIndex(int index) { handle->index = index; }
+        void changeIndex(const std::size_t index) { handle->index = index; }
     };
 
   public:
-    explicit BinaryHeap(int _maxSize, Comparator _comparator = Comparator())
+    explicit BinaryHeap(std::size_t _maxSize, Comparator _comparator = Comparator())
         : m_maxSize(_maxSize)
-        , m_array(static_cast<Node*>(malloc(sizeof(Node) * m_maxSize)))
-        , m_handle(static_cast<Handle*>(malloc(sizeof(Handle) * m_maxSize)))
+        , m_array(static_cast<Node*>(malloc(sizeof(Node) * _maxSize)))
+        , m_handle(static_cast<Handle*>(malloc(sizeof(Handle) * _maxSize)))
         , m_nbElements(0)
         , m_comparator(std::move(_comparator)) {}
 
     ~BinaryHeap() {
-        for (int i = 0; i < m_nbElements; ++i) {
+        for (std::size_t i = 0; i < m_nbElements; ++i) {
             m_array[i].~Node();
         }
-        for (int i = 0; i < m_maxSize; ++i) {
+        for (std::size_t i = 0; i < m_maxSize; ++i) {
             m_handle[i].~Handle();
         }
         free(m_array);
@@ -51,7 +50,7 @@ class BinaryHeap {
         , m_handle(static_cast<Handle*>(malloc(sizeof(Handle) * m_maxSize)))
         , m_nbElements(_o.m_nbElements)
         , m_comparator(_o.m_comparator) {
-        for (int i = 0; i < m_maxSize; ++i) {
+        for (std::size_t i = 0; i < m_maxSize; ++i) {
             new (m_array + i) Node(_o.m_array[i]);
             new (m_handle + i) Handle(_o.m_handle[i]);
         }
@@ -64,7 +63,7 @@ class BinaryHeap {
             static_cast<Handle*>(realloc(m_handle, sizeof(Handle) * m_maxSize));
         m_nbElements = _o.m_nbElements;
         m_comparator = _o.m_comparator;
-        for (int i = 0; i < m_maxSize; ++i) {
+        for (std::size_t i = 0; i < m_maxSize; ++i) {
             new (m_array + i) Node(_o.m_array[i]);
             new (m_handle + i) Handle(_o.m_handle[i]);
         }
@@ -103,8 +102,8 @@ class BinaryHeap {
         new (n) Node(object, m_handle + m_nbElements);
 
         if (m_nbElements > 0) {
-            int obj = m_nbElements;
-            int parent = (obj - 1) / 2;
+            std::size_t obj = m_nbElements;
+            std::size_t parent = (obj - 1) / 2;
             while (obj != 0 && m_comparator(m_array[obj].object, m_array[parent].object)) {
                 std::swap(m_array[obj], m_array[parent]);
                 m_array[obj].handle->index = obj;
@@ -124,11 +123,11 @@ class BinaryHeap {
             std::swap(m_array[0], m_array[--m_nbElements]);
             m_array[0].handle->index = 0;
 
-            int obj = 0;
-            int firstChild = 2 * obj + 1;
-            int secondChild = firstChild + 1;
+            std::size_t obj = 0;
+            std::size_t firstChild = 2 * obj + 1;
+            std::size_t secondChild = firstChild + 1;
             while (firstChild < m_nbElements) {
-                int child = secondChild < m_nbElements
+                std::size_t child = secondChild < m_nbElements
                                 ? (m_comparator(m_array[firstChild].object,
                                        m_array[secondChild].object)
                                           ? firstChild
@@ -150,8 +149,8 @@ class BinaryHeap {
     }
 
     void decrease(Handle* h) {
-        int obj = h->index;
-        int parent = (obj - 1) / 2;
+        std::size_t obj = h->index;
+        std::size_t parent = (obj - 1) / 2;
         while (obj != 0 && m_comparator(m_array[obj].object, m_array[parent].object)) {
             std::swap(m_array[obj], m_array[parent]);
             m_array[obj].handle->index = obj;
@@ -161,18 +160,18 @@ class BinaryHeap {
         }
     }
 
-    void decrease(Handle* h, const T& obj) {
+    void decrease(Handle const* h, const T& obj) {
         m_array[h->index].object = obj;
         decrease(h);
     }
 
-    void increase(Handle* h) {
-        int obj = h->index;
-        int firstChild = 2 * obj + 1;
-        int secondChild = firstChild + 1;
+    void increase(Handle const* h) {
+        auto obj = h->index;
+        auto firstChild = 2 * obj + 1;
+        auto secondChild = firstChild + 1;
         while (firstChild < m_nbElements) {
             // Swap with biggest child
-            int child = secondChild < m_nbElements
+            std::size_t child = secondChild < m_nbElements
                             ? (m_comparator(m_array[firstChild].object,
                                    m_array[secondChild].object)
                                       ? firstChild
@@ -197,10 +196,10 @@ class BinaryHeap {
     }
 
   private:
-    int m_maxSize;
+    std::size_t m_maxSize;
     Node* m_array;
     Handle* m_handle;
-    int m_nbElements;
+    std::size_t m_nbElements;
     Comparator m_comparator;
 };
 #endif

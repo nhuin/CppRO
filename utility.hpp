@@ -33,6 +33,9 @@ std::ostream& operator<<(std::ostream& _out, const std::deque<T>& _d);
 template <typename T, int SIZE>
 std::ostream& operator<<(std::ostream& _out, const std::array<T, SIZE>& _a);
 
+struct unused {};
+std::ostream& operator<<(std::ostream& _o, const unused& /*unused*/);
+
 template <typename T>
 inline std::ostream& operator<<(std::ostream& _out, const std::list<T>& _list) {
     if (_list.empty()) {
@@ -112,8 +115,8 @@ int getMaxSetBit(T _v) {
 }
 
 template <typename T>
-int getMaxSetByte(T _v) {
-    int ret = 0;
+std::size_t getMaxSetByte(T _v) {
+    std::size_t ret = 0;
     while (_v >>= 8) {
         ++ret;
     }
@@ -162,21 +165,20 @@ inline std::string toString(const T& _obj) {
     return sstr.str();
 }
 
-int binomialCoeff(const int n, int k) {
-    int res = 1;
+template<typename T>
+T binomialCoeff(const T& n, T k) {
+    T res = 1;
     // Since C(n, k) = C(n, n-k)
     if (k > n - k) {
         k = n - k;
     }
 
-    for (int i = 0; i < k; ++i) {
+    for (T i = 0; i < k; ++i) {
         res *= (n - i);
         res /= (i + 1);
     }
     return res;
 }
-
-struct unused {};
 
 std::ostream& operator<<(std::ostream& _o, const unused& /*unused*/) {
     return _o;

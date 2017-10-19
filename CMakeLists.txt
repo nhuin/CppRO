@@ -15,40 +15,7 @@ file(GLOB
     *.[chi]pp
 )
 
-# Adding clang-format target if executable is found
-find_program(CLANG_FORMAT "clang-format")
-if(CLANG_FORMAT)
-  add_custom_target(
-    clang-format
-    COMMAND clang-format
-    -i
-    -style=file
-    ${ALL_CXX_SOURCE_FILES}
-  )
-endif()
-
-# Adding clang-tidy target if executable is found
-find_program(CLANG_TIDY "clang-tidy")
-if(CLANG_TIDY)
-    # add_custom_target(
-    #     clang-tidy
-    #     COMMAND echo 
-    #     ${ALL_CXX_SOURCE_FILES}
-    #     | 
-    #     xargs -d ' ' -L 1 -I {} -t
-    #     clang-tidy {} -config='' -- -std=c++14 -Wfatal-errors -Iinclude -I../include -I$ENV{MY_CPP_INCLUDE} -I$ENV{CPLEX_DIR}cplex/include/  -I$ENV{CPLEX_DIR}concert/include/ -DIL_STD
-    # )
-    add_custom_target(
-        clang-tidy
-        $ENV{HOME}/Documents/MyPython/run-clang-tidy.py -header-filter='.*' 
-            -extra-arg="-std=c++17"
-            # -Wfatal-errors -Iinclude -I../include -I${MY_CPP_INCLUDE} -isystem${CPLEX_DIR}cplex/include/ -isystem${CPLEX_DIR}concert/include/ -DIL_STD"
-    )
-    add_custom_target(
-        clang-tidy-file
-        COMMAND clang-tidy "$(TIDY-FILE)" -header-filter=.* -config='' -- -std=c++14 -Wfatal-errors -Iinclude -I../include -I$ENV{MY_CPP_INCLUDE} -isystem$ENV{CPLEX_DIR}cplex/include/  -isystem$ENV{CPLEX_DIR}concert/include/ -DIL_STD
-    )
-endif()
+include(clang-extra-tools.cmake)
 
 set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/bin)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
@@ -64,17 +31,18 @@ link_directories($ENV{HOME}/Documents/benchmark/src/)
 
 # cplex stuffs
 include_directories(SYSTEM $ENV{CPLEX_DIR}cplex/include/ $ENV{CPLEX_DIR}concert/include/)
-# if(${APPLE})
-#     link_directories(${CPLEX_DIR}cplex/lib/x86-64_osx/static_pic ${CPLEX_DIR}concert/lib/x86-64_osx/static_pic)
-# elseif(${UNIX})
-#     link_directories(${CPLEX_DIR}cplex/lib/x86-64_linux/static_pic ${CPLEX_DIR}concert/lib/x86-64_linux/static_pic)
-# endif()
-find_library(CPLEX cplex HINTS $ENV{CPLEX_DIR})
+if(${APPLE})
+    link_directories(${CPLEX_DIR}cplex/lib/x86-64_osx/static_pic ${CPLEX_DIR}concert/lib/x86-64_osx/static_pic)
+elseif(${UNIX})
+    link_directories(${CPLEX_DIR}cplex/lib/x86-64_linux/static_pic ${CPLEX_DIR}concert/lib/x86-64_linux/static_pic)
+endif()
 
-set(CMAKE_CXX_FLAGS "-Wextra -Wall -std=c++1z -Weffc++ -Wfatal-errors -Wno-unused-parameter -DIL_STD -march=native")
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -g -Og")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -Ofast -DNDEBUG -DBOOST_UBLAS_NDEBUG")
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS} -g -Og")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -Wall -Wextra -Wshadow -Wnon-virtual-dtor \
+    -pedantic -Wno-c++11-compat -DIL_STD -march=native -Weverything \
+    -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-sign-conversion")
+set(CMAKE_CXX_FLAGS_DEBUG "-g -Og")
+set(CMAKE_CXX_FLAGS_RELEASE " -Ofast -DNDEBUG -DBOOST_UBLAS_NDEBUG")
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO " -g -Og")
 SET(CMAKE_INCLUDE_SYSTEM_FLAG_CXX "-isystem ")
 
 project (bench_sort)

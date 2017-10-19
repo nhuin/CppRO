@@ -8,6 +8,7 @@
 #include <ostream>
 #include <type_traits>
 #include <vector>
+#include <iterator>
 
 #include "utility.hpp"
 
@@ -24,12 +25,12 @@ class LSDRadixSort {
 
     template <typename InputIterator>
     static void sort(InputIterator _begin, InputIterator _end) {
-        constexpr int base = 1 << 8;
-        constexpr int baseModulo = base - 1;
+        constexpr uint16_t base = 1 << 8;
+        constexpr uint16_t baseModulo = base - 1;
 
         std::array<std::vector<T>, base> buckets;
-        for (int i = 0;
-             i < static_cast<int>(getMaxSetByte(*std::max_element(_begin, _end)));
+        for(std::size_t i = 0;
+             i < getMaxSetByte(*std::max_element(_begin, _end));
              ++i) {
             for (auto& b : buckets) {
                 b.clear();
@@ -63,11 +64,11 @@ class MSDRadixSort {
 
     template <typename RandomIterator>
     static void sort(RandomIterator _begin, RandomIterator _end) {
-        constexpr int base = 1 << 8;
-        constexpr int baseModulo = base - 1;
+        constexpr uint16_t base = 1 << 8;
+        constexpr uint16_t baseModulo = base - 1;
 
         std::array<std::vector<T>, base> buckets;
-        std::vector<std::tuple<RandomIterator, RandomIterator, int>> stack = {
+        std::vector<std::tuple<RandomIterator, RandomIterator, std::size_t>> stack = {
             std::make_tuple(_begin, _end,
                 getMaxSetByte(*std::max_element(_begin, _end)))};
         while (!stack.empty()) {
@@ -75,7 +76,7 @@ class MSDRadixSort {
             // std::copy(begin, end, std::ostream_iterator<T>(std::cout, ", "));
             // std::cout << ", " << i << '\n';
             stack.pop_back();
-            const int power = 8 * i;
+            const uint64_t power = 8 * i;
             for (auto& b : buckets) {
                 b.clear();
             };
@@ -93,6 +94,7 @@ class MSDRadixSort {
                 }
                 auto sub_end = ite;
                 if (std::distance(sub_begin, sub_end) > 1) {
+                    assert(i > 0);
                     stack.emplace_back(sub_begin, sub_end, i - 1);
                 }
             }
@@ -115,15 +117,15 @@ class CountingLSDRadixSort {
 
     template <typename RandomIterator>
     static void sort(const RandomIterator _begin, const RandomIterator _end) {
-        constexpr int base = 1 << 8;
-        constexpr int baseModulo = base - 1;
-        // std::vector<T> bucketPlace(std::distance(_begin, _end));
-        std::array<int, base> nbValue;
-        std::array<int, base> bucketIndices;
+        constexpr uint16_t base = 1 << 8;
+        constexpr uint16_t baseModulo = base - 1;
+
+        std::array<uint64_t, base> nbValue;
+        std::array<uint64_t, base> bucketIndices;
         std::vector<char> inRightPlace(std::distance(_begin, _end));
 
-        for (int i = 0; i < static_cast<int>(sizeof(T)); ++i) {
-            const int power = 8 * i;
+        for(std::size_t i = 0; i < sizeof(T); ++i) {
+            const uint64_t power = 8 * i;
             std::fill(nbValue.begin(), nbValue.end(), 0);
             std::fill(inRightPlace.begin(), inRightPlace.end(), 0);
             for (auto ite = _begin; ite != _end; ++ite) {
@@ -131,18 +133,18 @@ class CountingLSDRadixSort {
             }
 
             bucketIndices[0] = 0;
-            for (int b = 1; b < base; ++b) {
+            for(std::size_t b = 1; b < base; ++b) {
                 bucketIndices[b] = bucketIndices[b - 1] + nbValue[b - 1];
             }
 
             T buffer = *_begin;
-            int bufferIndex = (buffer >> power) & baseModulo;
+            std::size_t bufferIndex = (buffer >> power) & baseModulo;
             auto cycleStart = _begin;
             auto ite = _begin + bucketIndices[(buffer >> power) & baseModulo];
             auto itePlace =
                 inRightPlace.begin() + bucketIndices[(buffer >> power) & baseModulo];
 
-            for (int j = 0; j < static_cast<int>(std::distance(_begin, _end)); ++j) {
+            for(std::size_t j = 0; j < std::distance(_begin, _end); ++j) {
                 bucketIndices[bufferIndex]++;
                 std::swap(buffer, *ite);
                 *itePlace = 1;
@@ -163,14 +165,14 @@ class CountingLSDRadixSort {
     }
 
     static void sort(std::vector<T>& _vect) {
-        constexpr int base = 1 << 8;
-        constexpr int baseModulo = base - 1;
-        std::array<int, base> nbValue;
-        std::array<int, base> bucketIndices;
+        constexpr uint16_t base = 1 << 8;
+        constexpr uint16_t baseModulo = base - 1;
+        std::array<std::size_t, base> nbValue;
+        std::array<std::size_t, base> bucketIndices;
         std::vector<char> inRightPlace(_vect.size());
 
-        for (int i = 0; i < static_cast<int>(sizeof(T)); ++i) {
-            const int power = 8 * i;
+        for(std::size_t i = 0; i < sizeof(T); ++i) {
+            const uint64_t power = 8 * i;
             std::fill(nbValue.begin(), nbValue.end(), 0);
             std::fill(inRightPlace.begin(), inRightPlace.end(), 0);
             for (const T v : _vect) {
@@ -178,16 +180,16 @@ class CountingLSDRadixSort {
             }
 
             bucketIndices[0] = 0;
-            for (int b = 1; b < base; ++b) {
+            for(std::size_t b = 1; b < base; ++b) {
                 bucketIndices[b] = bucketIndices[b - 1] + nbValue[b - 1];
             }
 
             T buffer = _vect[0];
-            int bufferIndex = (buffer >> power) & baseModulo;
-            int cycleStart = 0;
-            int ind = bucketIndices[(buffer >> power) & baseModulo];
+            std::size_t bufferIndex = (buffer >> power) & baseModulo;
+            std::size_t cycleStart = 0;
+            std::size_t ind = bucketIndices[(buffer >> power) & baseModulo];
 
-            for (int j = 0; j < static_cast<int>(_vect.size()); ++j) {
+            for(std::size_t j = 0; j < _vect.size(); ++j) {
                 bucketIndices[bufferIndex]++;
                 std::swap(buffer, _vect[ind]);
                 inRightPlace[ind] = 1;
@@ -219,18 +221,18 @@ class CountingMSDRadixSort {
 
     template <typename RandomIterator>
     static void sort(const RandomIterator _begin, const RandomIterator _end) {
-        constexpr int base = 1 << 8;
-        constexpr int baseModulo = base - 1;
+        constexpr uint16_t base = 1 << 8;
+        constexpr uint16_t baseModulo = base - 1;
         // std::vector<T> bucketPlace(std::distance(_begin, _end));
-        std::array<int, base> nbValue;
-        std::array<int, base> bucketIndices;
+        std::array<std::size_t, base> nbValue;
+        std::array<std::size_t, base> bucketIndices;
 
-        std::vector<std::tuple<RandomIterator, RandomIterator, int>> stack = {
+        std::vector<std::tuple<RandomIterator, RandomIterator, std::size_t>> stack = {
             std::make_tuple(_begin, _end, sizeof(T) - 1)};
         while (!stack.empty()) {
             auto[begin, end, i] = stack.back();
             stack.pop_back();
-            const int power = 8 * i;
+            const uint64_t power = 8 * i;
             std::fill(nbValue.begin(), nbValue.end(), 0);
 
             // Count number of element for each digit
@@ -239,12 +241,12 @@ class CountingMSDRadixSort {
             }
             // And there emplacement
             bucketIndices[0] = 0;
-            for (int b = 1; b < base; ++b) {
+            for(std::size_t b = 1; b < base; ++b) {
                 bucketIndices[b] = bucketIndices[b - 1] + nbValue[b - 1];
             }
 
             // Add subsection to stack
-            for (int b = 0; b < base - 1; ++b) {
+            for(std::size_t b = 0; b < base - 1; ++b) {
                 if (nbValue[b] > 1) {
                     stack.emplace_back(begin + bucketIndices[b],
                         begin + bucketIndices[b + 1], i - 1);
@@ -256,11 +258,11 @@ class CountingMSDRadixSort {
 
             std::vector<char> inRightPlace(std::distance(begin, end), 0);
             T buffer = *begin;
-            int bufferIndex;
+            std::size_t bufferIndex;
             RandomIterator cycleStart;
             RandomIterator ite;
             std::vector<char>::iterator itePlace;
-            for (int j = 0; j < static_cast<int>(std::distance(begin, end)); ++j) {
+            for(std::size_t j = 0; j < std::distance(begin, end); ++j) {
                 if (ite == cycleStart) { // Permutation cycle ended
                     ite = begin;
                     itePlace = inRightPlace.begin(); // Searching for new cycle
@@ -283,14 +285,14 @@ class CountingMSDRadixSort {
     }
 
     static void sort(std::vector<T>& _vect) {
-        constexpr int base = 1 << 8;
-        constexpr int baseModulo = base - 1;
-        std::array<int, base> nbValue;
-        std::array<int, base> bucketIndices;
+        constexpr uint16_t base = 1 << 8;
+        constexpr uint16_t baseModulo = base - 1;
+        std::array<std::size_t, base> nbValue;
+        std::array<std::size_t, base> bucketIndices;
         std::vector<char> inRightPlace(_vect.size());
 
-        for (int i = 0; i < static_cast<int>(sizeof(T)); ++i) {
-            const int power = 8 * i;
+        for(std::size_t i = 0; i < sizeof(T); ++i) {
+            const uint64_t power = 8 * i;
             std::fill(nbValue.begin(), nbValue.end(), 0);
             std::fill(inRightPlace.begin(), inRightPlace.end(), 0);
             for (const T v : _vect) {
@@ -298,16 +300,16 @@ class CountingMSDRadixSort {
             }
 
             bucketIndices[0] = 0;
-            for (int b = 1; b < base; ++b) {
+            for(std::size_t b = 1; b < base; ++b) {
                 bucketIndices[b] = bucketIndices[b - 1] + nbValue[b - 1];
             }
 
             T buffer = _vect[0];
-            int bufferIndex = (buffer >> power) & baseModulo;
-            int cycleStart = 0;
-            int ind = bucketIndices[(buffer >> power) & baseModulo];
+            std::size_t bufferIndex = (buffer >> power) & baseModulo;
+            std::size_t cycleStart = 0;
+            std::size_t ind = bucketIndices[(buffer >> power) & baseModulo];
 
-            for (int j = 0; j < static_cast<int>(_vect.size()); ++j) {
+            for(std::size_t j = 0; j < _vect.size(); ++j) {
                 bucketIndices[bufferIndex]++;
                 std::swap(buffer, _vect[ind]);
                 inRightPlace[ind] = 1;

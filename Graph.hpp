@@ -18,12 +18,12 @@
  */
 class Graph {
   public:
-    using Node = int;
-    using Path = std::vector<int>;
-    using Edge = std::pair<int, int>;
+    using Node = std::size_t;
+    using Path = std::vector<Graph::Node>;
+    using Edge = std::pair<Graph::Node, Graph::Node>;
 
     // Constructor
-    explicit Graph(const int _order)
+    explicit Graph(const std::size_t _order)
         : m_order(_order) {}
 
     Graph& operator=(const Graph&) = default;
@@ -32,17 +32,17 @@ class Graph {
     Graph(Graph&&) noexcept = default;
     virtual ~Graph() = default;
 
-    int getOrder() const { return m_order; }
+    std::size_t getOrder() const { return m_order; }
 
-    int size() const { return m_size; }
+    std::size_t size() const { return m_size; }
 
     /*
-   * Return the set of neighbors for the node u
-   */
-    virtual const std::vector<int>& getNeighbors(Graph::Node _u) const = 0;
+    * Return the set of neighbors for the node u
+    */
+    virtual const std::vector<Graph::Node>& getNeighbors(const Graph::Node& _u) const = 0;
 
-    virtual std::vector<Edge> getEdges() const = 0;
-    virtual bool hasEdge(Graph::Node _u, Graph::Node _v) const = 0;
+    virtual std::vector<Graph::Edge> getEdges() const = 0;
+    virtual bool hasEdge(const Graph::Node& _u, const Graph::Node& _v) const = 0;
     bool hasEdge(const Graph::Edge& _edge) const {
         return hasEdge(_edge.first, _edge.second);
     }
@@ -61,8 +61,8 @@ class Graph {
     }
 
   protected:
-    int m_order;
-    int m_size = {0};
+    std::size_t m_order;
+    std::size_t m_size = 0;
 };
 
 #endif

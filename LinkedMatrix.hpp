@@ -12,7 +12,7 @@ class LinkedMatrix {
         friend class LinkedMatrix;
 
       private:
-        Cell(const int _i, const int _j, T _value, Cell* _nextOnRow,
+        Cell(const std::size_t _i, const std::size_t _j, T _value, Cell* _nextOnRow,
             Cell* _nextOnCol)
             : i(_i)
             , j(_j)
@@ -22,8 +22,8 @@ class LinkedMatrix {
 
         ~Cell() = default;
 
-        int i;
-        int j;
+        std::size_t i;
+        std::size_t j;
         Cell* nextOnRow;
         Cell* nextOnCol;
 
@@ -34,21 +34,29 @@ class LinkedMatrix {
         Cell& operator=(const Cell&) = delete;
 
         T value;
-        int getRow() const { return i; }
+        std::size_t getRow() const {
+            return i;
+        }
 
-        int getColumn() const { return j; }
+        std::size_t getColumn() const {
+            return j;
+        }
 
-        Cell* getNextOnCol() const { return nextOnCol; }
+        Cell* getNextOnCol() const {
+            return nextOnCol;
+        }
 
-        Cell* getNextOnRow() const { return nextOnRow; }
+        Cell* getNextOnRow() const {
+            return nextOnRow;
+        }
     };
 
-    LinkedMatrix(const int _nbRow, const int _nbCol)
+    LinkedMatrix(const std::size_t _nbRow, const std::size_t _nbCol)
         : m_rowHeads(_nbRow, nullptr)
         , m_colHeads(_nbCol, nullptr) {}
 
     ~LinkedMatrix() {
-        for (int i = 0; i < static_cast<int>(m_rowHeads.size()); ++i) {
+        for (std::size_t i = 0; i < m_rowHeads.size(); ++i) {
             Cell* nextCell = m_rowHeads[i];
             Cell* toDel;
             while (nextCell) {
@@ -66,7 +74,7 @@ class LinkedMatrix {
         : m_rowHeads(_lm.m_rowHeads.size(), nullptr)
         , m_colHeads(_lm.m_colHeads.size(), nullptr) {
         // @TODO: Improve
-        for (int s = 0; s < _lm.rowSize(); ++s) {
+        for (std::size_t s = 0; s < _lm.rowSize(); ++s) {
             for (auto cell = _lm.m_rowHeads[s]; cell; cell = cell->nextOnRow) {
                 this->add(s, cell->getColumn(), cell->value);
             }
@@ -78,13 +86,13 @@ class LinkedMatrix {
    */
     LinkedMatrix& operator=(const LinkedMatrix& _lm) {
         // @TODO: Improve
-        for (int s = 0; s < rowSize(); ++s) {
+        for (std::size_t s = 0; s < rowSize(); ++s) {
             while (m_rowHeads[s]) {
                 this->remove(m_rowHeads[s]->getRow(), m_rowHeads[s]->getColumn());
             }
         }
 
-        for (int s = 0; s < _lm.rowSize(); ++s) {
+        for (std::size_t s = 0; s < _lm.rowSize(); ++s) {
             for (auto cell = _lm.m_rowHeads[s]; cell; cell = cell->nextOnRow) {
                 this->add(s, cell->getColumn(), cell->value);
             }
@@ -92,11 +100,15 @@ class LinkedMatrix {
         return *this;
     }
 
-    int rowSize() const { return m_rowHeads.size(); }
+    std::size_t rowSize() const {
+        return m_rowHeads.size(); 
+    }
 
-    int columnSize() const { return m_colHeads.size(); }
+    std::size_t columnSize() const {
+        return m_colHeads.size();
+    }
 
-    Cell* find(const int i, const int j) {
+    Cell* find(const std::size_t i, const std::size_t j) {
         Cell* cell = m_rowHeads[i];
         while (cell && cell->j <= j) {
             if (cell->j == j) {
@@ -107,7 +119,7 @@ class LinkedMatrix {
         return nullptr;
     }
 
-    const Cell* find(const int i, const int j) const {
+    const Cell* find(const std::size_t i, const std::size_t j) const {
         Cell* cell = m_rowHeads[i];
         while (cell && cell->j <= j) {
             if (cell->j == j) {
@@ -118,9 +130,9 @@ class LinkedMatrix {
         return nullptr;
     }
 
-    void add(const int i, const int j, const T& value) {
-        assert(i < static_cast<int>(m_rowHeads.size()));
-        assert(j < static_cast<int>(m_colHeads.size()));
+    void add(const std::size_t i, const std::size_t j, const T& value) {
+        assert(i < m_rowHeads.size());
+        assert(j < m_colHeads.size());
         // Add on row
         Cell* newCell;
         if (!m_rowHeads[i]) { // No Cell on this row, the new cell become the new
@@ -169,9 +181,9 @@ class LinkedMatrix {
         }
     }
 
-    void remove(const int i, const int j) {
-        assert(i < (int)m_rowHeads.size());
-        assert(j < (int)m_colHeads.size());
+    void remove(const std::size_t i, const std::size_t j) {
+        assert(i < m_rowHeads.size());
+        assert(j < m_colHeads.size());
 
         Cell* ptr = m_rowHeads[i];
         Cell* last = nullptr;
@@ -202,13 +214,21 @@ class LinkedMatrix {
         delete ptr;
     }
 
-    Cell* begin_row(const int i) { return m_rowHeads[i]; }
+    Cell* begin_row(const std::size_t i) {
+        return m_rowHeads[i];
+    }
 
-    const Cell* begin_row(const int i) const { return m_rowHeads[i]; }
+    const Cell* begin_row(const std::size_t i) const {
+        return m_rowHeads[i];
+    }
 
-    Cell* begin_column(const int i) { return m_colHeads[i]; }
+    Cell* begin_column(const std::size_t i) {
+        return m_colHeads[i];
+    }
 
-    const Cell* begin_column(const int i) const { return m_colHeads[i]; }
+    const Cell* begin_column(const std::size_t i) const {
+        return m_colHeads[i];
+    }
 
     class iterator {
       private:
@@ -225,7 +245,7 @@ class LinkedMatrix {
 
 template <typename T>
 std::ostream& operator<<(std::ostream& _out, const LinkedMatrix<T>& _lm) {
-    for (int i = 0; i < _lm.rowSize(); ++i) {
+    for (std::size_t i = 0; i < _lm.rowSize(); ++i) {
         if (_lm.begin_row(i)) {
             _out << "Row " << i << ":";
         }

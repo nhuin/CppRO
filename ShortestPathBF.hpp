@@ -16,12 +16,14 @@ class ShortestPathBellmanFord {
 
     explicit ShortestPathBellmanFord(const G& _graph)
         : m_graph(&_graph)
-        , m_distance(m_graph->getOrder(), std::numeric_limits<int>::max())
+        , m_distance(m_graph->getOrder(), std::numeric_limits<double>::max())
         , m_parent(m_graph->getOrder(), -1)
         , m_inQueue(m_graph->getOrder(), false)
         , m_count(m_graph->getOrder(), 0)
 
-    {}
+    {
+        assert(_graph.getOrder() > 1);
+    }
 
     ShortestPathBellmanFord(const ShortestPathBellmanFord& _other) = default;
     ShortestPathBellmanFord(ShortestPathBellmanFord&& _other) noexcept = default;
@@ -39,13 +41,13 @@ class ShortestPathBellmanFord {
         std::fill(m_count.begin(), m_count.end(), 0);
     }
 
-    inline Graph::Path getShortestPath(const int _s, const int _t) {
+    inline Graph::Path getShortestPath(const Graph::Node& _s, const Graph::Node& _t) {
         return getShortestPath_v2(_s, _t);
     }
 
     double getDistance(const Graph::Node _u) const { return m_distance[_u]; }
 
-    Graph::Path getShortestPath_v1(const int _s, const int _t) {
+    Graph::Path getShortestPath_v1(const Graph::Node& _s, const Graph::Node& _t) {
         clear();
         m_parent[_s] = _s;
         m_distance[_s] = 0;
@@ -63,7 +65,9 @@ class ShortestPathBellmanFord {
 
         for (const auto& edge : m_graph->getEdges()) {
             if (m_distance[edge.first] + m_graph->getEdgeWeight(edge) < m_distance[edge.second]) {
-                throw NegativeCycleException{toString(edge)};
+                throw NegativeCycleException{
+                    toString(edge)
+                };
             }
         }
 
@@ -80,7 +84,7 @@ class ShortestPathBellmanFord {
         return path;
     }
 
-    Graph::Path getShortestPath_v2(const int _s, const int _t) {
+    Graph::Path getShortestPath_v2(const Graph::Node& _s, const Graph::Node& _t) {
         clear();
         m_parent[_s] = _s;
         m_distance[_s] = 0;
@@ -118,7 +122,7 @@ class ShortestPathBellmanFord {
         return path;
     }
 
-    Graph::Path getShortestPath_v3(const int _s, const int _t) {
+    Graph::Path getShortestPath_v3(const Graph::Node& _s, const Graph::Node& _t) {
         clear();
         m_parent[_s] = _s;
         m_distance[_s] = 0;
@@ -171,18 +175,18 @@ class ShortestPathBellmanFord {
         return path;
     }
 
-    Graph::Path getShortestPath_YenFirst(const int _s, const int _t) {
+    Graph::Path getShortestPath_YenFirst(const Graph::Node& _s, const Graph::Node& _t) {
         clear();
         m_parent[_s] = _s;
         m_distance[_s] = 0;
         const auto edges = m_graph->getEdges();
         bool anyChanges = true;
-        std::vector<int> nbOutEdgeChange(m_graph->getOrder(), 0.0);
+        std::vector<std::size_t> nbOutEdgeChange(m_graph->getOrder(), 0.0);
         std::vector<char> edgeToRelax(m_graph->size(), true);
 
-        for (int i = 0; i < m_graph->getOrder() - 1 && anyChanges == true; ++i) {
+        for (std::size_t i = 0; i < m_graph->getOrder() - 1 && anyChanges == true; ++i) {
             anyChanges = false;
-            int e = 0;
+            std::size_t e = 0;
             for (const auto& edge : edges) {
                 if (edgeToRelax[e]) {
                     const double dist =
@@ -225,17 +229,17 @@ class ShortestPathBellmanFord {
         return path;
     }
 
-    Graph::Path getShortestPath_YenFirst_doublevector(const int _s,
-        const int _t) {
+    Graph::Path getShortestPath_YenFirst_doublevector(const Graph::Node& _s,
+        const Graph::Node& _t) {
         clear();
         m_parent[_s] = _s;
         m_distance[_s] = 0;
         auto edges = m_graph->getEdges();
         const auto allEdges = m_graph->getEdges();
         bool anyChanges = true;
-        std::vector<int> nbOutEdgeChange(m_graph->getOrder(), 0.0);
+        std::vector<std::size_t> nbOutEdgeChange(m_graph->getOrder(), 0.0);
 
-        for (int i = 0; i < m_graph->getOrder() - 1 && anyChanges == true; ++i) {
+        for (std::size_t i = 0; i < m_graph->getOrder() - 1 && anyChanges == true; ++i) {
             anyChanges = false;
             // std::fill(nbOutEdgeChange.begin(), nbOutEdgeChange.end(), 0.0);
             for (const auto& edge : edges) {
@@ -276,16 +280,16 @@ class ShortestPathBellmanFord {
         return path;
     }
 
-    Graph::Path getShortestPath_YenFirst_partition(const int _s, const int _t) {
+    Graph::Path getShortestPath_YenFirst_partition(const Graph::Node& _s, const Graph::Node& _t) {
         clear();
         m_parent[_s] = _s;
         m_distance[_s] = 0;
         auto edges = m_graph->getEdges();
         bool anyChanges = true;
-        std::vector<int> nbOutEdgeChange(m_graph->getOrder(), 0.0);
+        std::vector<std::size_t> nbOutEdgeChange(m_graph->getOrder(), 0.0);
         auto iteEnd = edges.end();
 
-        for (int i = 0; i < m_graph->getOrder() - 1 && anyChanges == true; ++i) {
+        for (std::size_t i = 0; i < m_graph->getOrder() - 1 && anyChanges == true; ++i) {
             anyChanges = false;
             for (auto ite = edges.begin(); ite != iteEnd; ++ite) {
                 const double dist =
@@ -322,7 +326,7 @@ class ShortestPathBellmanFord {
         return path;
     }
 
-    Graph::Path getShortestPath_YenSecond_partition(const int _s, const int _t) {
+    Graph::Path getShortestPath_YenSecond_partition(const Graph::Node& _s, const Graph::Node& _t) {
         clear();
         m_parent[_s] = _s;
         m_distance[_s] = 0;
@@ -333,9 +337,9 @@ class ShortestPathBellmanFord {
         auto iteFirstEnd = iteSecondBegin;
         auto iteSecondEnd = edges.end();
 
-        std::vector<int> nbOutEdgeChange(m_graph->getOrder(), 0.0);
+        std::vector<std::size_t> nbOutEdgeChange(m_graph->getOrder(), 0.0);
         bool anyChanges = true;
-        for (int i = 0; i < m_graph->getOrder() - 1 && anyChanges == true; ++i) {
+        for (std::size_t i = 0; i < m_graph->getOrder() - 1 && anyChanges == true; ++i) {
             anyChanges = false;
             for (auto ite = edges.begin(); ite != iteFirstEnd; ++ite) {
                 const double dist =
@@ -393,7 +397,7 @@ class ShortestPathBellmanFord {
     std::vector<double> m_distance;
     std::vector<int> m_parent;
     std::vector<char> m_inQueue;
-    std::vector<int> m_count;
+    std::vector<std::size_t> m_count;
 };
 
 #endif
