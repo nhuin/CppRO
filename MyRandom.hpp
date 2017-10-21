@@ -19,7 +19,7 @@ class MyRandom {
 
     template <typename T>
     inline T getIntUniform(T _a, T _b);
-    
+
     template <typename T>
     inline T getRealUniform(T _a, T _b);
 

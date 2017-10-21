@@ -309,8 +309,8 @@ class ShortestPath {
                     }
                     // std::cout<< p << " <=> " << rootPath << ": " << same << '\n';
                     if (same) {
-// Remove the links that are part of the previous shortest paths which share the
-// same root path.
+                        // Remove the links that are part of the previous shortest paths which share the
+                        // same root path.
                         graphCopy.removeEdge(*std::prev(ite2), *ite2);
                     }
                 }

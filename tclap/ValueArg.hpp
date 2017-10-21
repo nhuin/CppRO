@@ -351,15 +351,14 @@ bool ValueArg<T>::processArg(int *i, std::vector<std::string>& args) {
         if ( _alreadySet ) {
             if ( _xorSet ) {
                 throw( CmdLineParseException("Mutually exclusive argument already set!", toString()) );
-            } else {
-                throw( CmdLineParseException("Argument already set!", toString()) );
             }
+            throw( CmdLineParseException("Argument already set!", toString()) );
         }
 
-        if ( Arg::delimiter() != ' ' && value == "" ){
+        if ( Arg::delimiter() != ' ' && value.empty() ){
             throw( ArgParseException( "Couldn't find delimiter for this argument!", toString()) );
         }
-        if ( value == "" ) {
+        if ( value.empty() ) {
             (*i)++;
             if ( static_cast<unsigned int>(*i) < args.size() ) {
                 _extractValue( args[*i] );

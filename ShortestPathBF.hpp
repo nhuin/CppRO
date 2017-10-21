@@ -11,7 +11,7 @@ template <typename G>
 class ShortestPathBellmanFord {
   public:
     struct NegativeCycleException {
-        std::string message;
+        Graph::Edge message;
     };
 
     explicit ShortestPathBellmanFord(const G& _graph)
@@ -21,9 +21,7 @@ class ShortestPathBellmanFord {
         , m_inQueue(m_graph->getOrder(), false)
         , m_count(m_graph->getOrder(), 0)
 
-    {
-        assert(_graph.getOrder() > 1);
-    }
+    {}
 
     ShortestPathBellmanFord(const ShortestPathBellmanFord& _other) = default;
     ShortestPathBellmanFord(ShortestPathBellmanFord&& _other) noexcept = default;
@@ -41,18 +39,20 @@ class ShortestPathBellmanFord {
         std::fill(m_count.begin(), m_count.end(), 0);
     }
 
-    inline Graph::Path getShortestPath(const Graph::Node& _s, const Graph::Node& _t) {
+    inline Graph::Path getShortestPath(const Graph::Node _s, const Graph::Node _t) {
         return getShortestPath_v2(_s, _t);
     }
 
-    double getDistance(const Graph::Node _u) const { return m_distance[_u]; }
+    double getDistance(const Graph::Node _u) const {
+        return m_distance[_u];
+    }
 
-    Graph::Path getShortestPath_v1(const Graph::Node& _s, const Graph::Node& _t) {
+    Graph::Path getShortestPath_v1(const Graph::Node _s, const Graph::Node _t) {
         clear();
         m_parent[_s] = _s;
         m_distance[_s] = 0;
         const auto edges = m_graph->getEdges();
-        for (int i = 0; i < m_graph->getOrder() - 1; ++i) {
+        for (std::size_t i = 0; i < m_graph->getOrder() - 1; ++i) {
             for (const auto& edge : edges) {
                 const double dist =
                     m_distance[edge.first] + m_graph->getEdgeWeight(edge);
@@ -65,9 +65,7 @@ class ShortestPathBellmanFord {
 
         for (const auto& edge : m_graph->getEdges()) {
             if (m_distance[edge.first] + m_graph->getEdgeWeight(edge) < m_distance[edge.second]) {
-                throw NegativeCycleException{
-                    toString(edge)
-                };
+                throw NegativeCycleException{edge};
             }
         }
 
@@ -84,13 +82,13 @@ class ShortestPathBellmanFord {
         return path;
     }
 
-    Graph::Path getShortestPath_v2(const Graph::Node& _s, const Graph::Node& _t) {
+    Graph::Path getShortestPath_v2(const Graph::Node _s, const Graph::Node _t) {
         clear();
         m_parent[_s] = _s;
         m_distance[_s] = 0;
         const auto edges = m_graph->getEdges();
         bool anyChanges = true;
-        for (int i = 0; i < m_graph->getOrder() - 1 && anyChanges == true; ++i) {
+        for (std::size_t i = 0; i < m_graph->getOrder() - 1 && anyChanges == true; ++i) {
             anyChanges = false;
             for (const auto& edge : edges) {
                 const double dist =
@@ -105,7 +103,7 @@ class ShortestPathBellmanFord {
 
         for (const auto& edge : m_graph->getEdges()) {
             if (m_distance[edge.first] + m_graph->getEdgeWeight(edge) < m_distance[edge.second]) {
-                throw NegativeCycleException{toString(edge)};
+                throw NegativeCycleException{edge};
             }
         }
 
@@ -122,7 +120,7 @@ class ShortestPathBellmanFord {
         return path;
     }
 
-    Graph::Path getShortestPath_v3(const Graph::Node& _s, const Graph::Node& _t) {
+    Graph::Path getShortestPath_v3(const Graph::Node _s, const Graph::Node _t) {
         clear();
         m_parent[_s] = _s;
         m_distance[_s] = 0;
@@ -158,7 +156,7 @@ class ShortestPathBellmanFord {
 
         for (const auto& edge : m_graph->getEdges()) {
             if (m_distance[edge.first] + m_graph->getEdgeWeight(edge) < m_distance[edge.second]) {
-                throw NegativeCycleException{toString(edge)};
+                throw NegativeCycleException{edge};
             }
         }
 
@@ -175,7 +173,7 @@ class ShortestPathBellmanFord {
         return path;
     }
 
-    Graph::Path getShortestPath_YenFirst(const Graph::Node& _s, const Graph::Node& _t) {
+    Graph::Path getShortestPath_YenFirst(const Graph::Node _s, const Graph::Node _t) {
         clear();
         m_parent[_s] = _s;
         m_distance[_s] = 0;
@@ -212,7 +210,7 @@ class ShortestPathBellmanFord {
         }
         for (const auto& edge : m_graph->getEdges()) {
             if (m_distance[edge.first] + m_graph->getEdgeWeight(edge) < m_distance[edge.second]) {
-                throw NegativeCycleException{toString(edge)};
+                throw NegativeCycleException{edge};
             }
         }
 
@@ -229,8 +227,8 @@ class ShortestPathBellmanFord {
         return path;
     }
 
-    Graph::Path getShortestPath_YenFirst_doublevector(const Graph::Node& _s,
-        const Graph::Node& _t) {
+    Graph::Path getShortestPath_YenFirst_doublevector(const Graph::Node _s,
+        const Graph::Node _t) {
         clear();
         m_parent[_s] = _s;
         m_distance[_s] = 0;
@@ -263,7 +261,7 @@ class ShortestPathBellmanFord {
         }
         for (const auto& edge : m_graph->getEdges()) {
             if (m_distance[edge.first] + m_graph->getEdgeWeight(edge) < m_distance[edge.second]) {
-                throw NegativeCycleException{toString(edge)};
+                throw NegativeCycleException{edge};
             }
         }
 
@@ -280,7 +278,7 @@ class ShortestPathBellmanFord {
         return path;
     }
 
-    Graph::Path getShortestPath_YenFirst_partition(const Graph::Node& _s, const Graph::Node& _t) {
+    Graph::Path getShortestPath_YenFirst_partition(const Graph::Node _s, const Graph::Node _t) {
         clear();
         m_parent[_s] = _s;
         m_distance[_s] = 0;
@@ -309,7 +307,7 @@ class ShortestPathBellmanFord {
         }
         for (const auto& edge : m_graph->getEdges()) {
             if (m_distance[edge.first] + m_graph->getEdgeWeight(edge) < m_distance[edge.second]) {
-                throw NegativeCycleException{toString(edge)};
+                throw NegativeCycleException{edge};
             }
         }
 
@@ -326,14 +324,16 @@ class ShortestPathBellmanFord {
         return path;
     }
 
-    Graph::Path getShortestPath_YenSecond_partition(const Graph::Node& _s, const Graph::Node& _t) {
+    Graph::Path getShortestPath_YenSecond_partition(const Graph::Node _s, const Graph::Node _t) {
         clear();
         m_parent[_s] = _s;
         m_distance[_s] = 0;
         auto edges = m_graph->getEdges();
         const auto iteSecondBegin = std::partition(
             edges.begin(), edges.end(),
-            [&](const Graph::Edge& _edge) { return _edge.first < _edge.second; });
+            [&](const Graph::Edge& _edge) {
+                return _edge.first < _edge.second;
+            });
         auto iteFirstEnd = iteSecondBegin;
         auto iteSecondEnd = edges.end();
 
@@ -375,7 +375,7 @@ class ShortestPathBellmanFord {
 
         for (const auto& edge : m_graph->getEdges()) {
             if (m_distance[edge.first] + m_graph->getEdgeWeight(edge) < m_distance[edge.second]) {
-                throw NegativeCycleException{toString(edge)};
+                throw NegativeCycleException{edge};
             }
         }
 

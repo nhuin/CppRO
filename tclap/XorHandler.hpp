@@ -42,14 +42,14 @@ class XorHandler
 		/**
 		 * The list of of lists of Arg's to be or'd together.
 		 */
-		std::vector< std::vector<Arg*> > _orList;
+		std::vector< std::vector<Arg*> > _orList = std::vector< std::vector<Arg*> >();
 
 	public:
 
 		/**
 		 * Constructor.  Does nothing.
 		 */
-		XorHandler( ) : _orList(std::vector< std::vector<Arg*> >()) {}
+		XorHandler( ) = default;
 
 		/**
 		 * Add a list of Arg*'s that will be orred together.

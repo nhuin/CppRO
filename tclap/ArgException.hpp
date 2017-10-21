@@ -55,7 +55,7 @@ class ArgException : public std::exception
 		/**
 		 * Destructor.
 		 */
-		~ArgException() throw() override = default;
+		~ArgException() noexcept override = default;
 
 		ArgException(const ArgException&) = default;
 		ArgException& operator=(const ArgException&) = default;
@@ -81,7 +81,7 @@ class ArgException : public std::exception
 		/**
 		 * Returns the arg id and error text. 
 		 */
-		const char* what() const throw() override
+		const char* what() const noexcept override
 		{
 			static std::string ex; 
 			ex = _argId + " -- " + _errorText;
@@ -201,4 +201,3 @@ private:
 } // namespace TCLAP
 
 #endif
-

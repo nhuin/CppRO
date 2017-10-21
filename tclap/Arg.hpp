@@ -512,7 +512,7 @@ inline void Arg::checkParams() {
 inline std::string Arg::shortID( const std::string& valueId ) const {
 	std::string id;
 
-	if ( _flag != "" ) {
+	if ( !_flag.empty() ) {
 		id = Arg::flagStartString() + _flag;
 	} else {
 		id = Arg::nameStartString() + _name;
@@ -532,7 +532,7 @@ inline std::string Arg::shortID( const std::string& valueId ) const {
 inline std::string Arg::longID( const std::string& valueId ) const {
 	std::string id;
 
-	if ( _flag != "" )
+	if ( !_flag.empty() )
 	{
 		id += Arg::flagStartString() + _flag;
 
@@ -554,7 +554,7 @@ inline std::string Arg::longID( const std::string& valueId ) const {
 }
 
 inline bool Arg::operator==(const Arg& a) const {
-	return ( _flag != "" && _flag == a._flag ) 
+	return ( !_flag.empty() && _flag == a._flag ) 
 			|| _name == a._name;
 }
 
@@ -590,14 +590,14 @@ inline void Arg::setRequireLabel( const std::string& s) {
 }
 
 inline bool Arg::argMatches( const std::string& argFlag ) const {
-	return ( argFlag == Arg::flagStartString() + _flag && _flag != "" ) ||
+	return ( argFlag == Arg::flagStartString() + _flag && !_flag.empty() ) ||
 	       argFlag == Arg::nameStartString() + _name;
 }
 
 inline std::string Arg::toString() const {
 	std::string s;
 
-	if ( _flag != "" ) {
+	if ( !_flag.empty() ) {
 		s += Arg::flagStartString() + _flag + ' ';
 	}
 
@@ -679,4 +679,3 @@ inline void Arg::reset() {
 } //namespace TCLAP
 
 #endif
-

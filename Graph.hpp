@@ -11,8 +11,6 @@
 #include <string>
 #include <vector>
 
-// #include "UnionFind.hpp"
-
 /**
  * Interface for graph classes
  */
@@ -32,17 +30,21 @@ class Graph {
     Graph(Graph&&) noexcept = default;
     virtual ~Graph() = default;
 
-    std::size_t getOrder() const { return m_order; }
+    std::size_t getOrder() const {
+        return m_order;
+    }
 
-    std::size_t size() const { return m_size; }
+    std::size_t size() const {
+        return m_size;
+    }
 
     /*
     * Return the set of neighbors for the node u
     */
-    virtual const std::vector<Graph::Node>& getNeighbors(const Graph::Node& _u) const = 0;
+    virtual const std::vector<Graph::Node>& getNeighbors(Graph::Node _u) const = 0;
 
     virtual std::vector<Graph::Edge> getEdges() const = 0;
-    virtual bool hasEdge(const Graph::Node& _u, const Graph::Node& _v) const = 0;
+    virtual bool hasEdge(Graph::Node _u, Graph::Node _v) const = 0;
     bool hasEdge(const Graph::Edge& _edge) const {
         return hasEdge(_edge.first, _edge.second);
     }

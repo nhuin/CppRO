@@ -215,19 +215,14 @@ inline void SwitchArg::commonProcessing()
 	if ( _xorSet ) {
 		throw(CmdLineParseException(
 		      "Mutually exclusive argument already set!", toString()));
-}
+	}
 
 	if ( _alreadySet ) { 
 		throw(CmdLineParseException("Argument already set!", toString()));
-}
+	}
 
 	_alreadySet = true;
-
-	if ( _value == true ) {
-		_value = false;
-	} else {
-		_value = true;
-}
+	_value = !_value;
 
 	_checkWithVisitor();
 }

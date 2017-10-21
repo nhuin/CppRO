@@ -1,6 +1,6 @@
 #include <algorithm>
+#include <array>
 #include <string>
-#include <vector>
 
 #include "DiGraph.hpp"
 #include "MyRandom.hpp"
@@ -8,9 +8,8 @@
 #include "ShortestPathBF.hpp"
 
 #include "benchmark/benchmark.h"
- 
+
 using Integer = unsigned long;
-const std::vector<std::string> networks {"germany50", "zib54", "ta2"};
 
 static void BM_std_sort(benchmark::State& state) {
     while (state.KeepRunning()) {
@@ -33,8 +32,8 @@ static void BM_LSD_radix_sort(benchmark::State& state) {
         std::generate(tab.begin(), tab.end(), [] {
             return MyRandom::getInstance().getIntUniform<Integer>(
                 std::numeric_limits<Integer>::min(),
-                std::numeric_limits<Integer>::max()); 
-        }); 
+                std::numeric_limits<Integer>::max());
+        });
         state.ResumeTiming();
         LSDRadixSort<Integer>::sort(tab.begin(), tab.end());
     }
@@ -97,8 +96,9 @@ static void BM_counting_LSD_radix_sort_no_ite(benchmark::State& state) {
 }
 
 static void BM_bellmanford_v1(benchmark::State& state) {
-    auto [graph, nbServers, nbSwitches] = DiGraph::loadFromFile("./instances/" + networks[state.range(0)] + "_topo.txt");
-    ShortestPathBellmanFord sh_path(graph);
+    const std::array<std::string, 3> networks{{"germany50", "zib54", "ta2"}};
+    auto[graph, nbServers, nbSwitches] = DiGraph::loadFromFile("./instances/" + networks[state.range(0)] + "_topo.txt");
+    ShortestPathBellmanFord<DiGraph> sh_path(graph);
     while (state.KeepRunning()) {
         Graph::Path path = sh_path.getShortestPath_v1(
             MyRandom::getInstance().getIntUniform<Integer>(
@@ -109,8 +109,9 @@ static void BM_bellmanford_v1(benchmark::State& state) {
 }
 
 static void BM_bellmanford_v2(benchmark::State& state) {
-    auto [graph, nbServers, nbSwitches] = DiGraph::loadFromFile("./instances/" + networks[state.range(0)] + "_topo.txt");
-    ShortestPathBellmanFord sh_path(graph);
+    const std::array<std::string, 3> networks{{"germany50", "zib54", "ta2"}};
+    auto[graph, nbServers, nbSwitches] = DiGraph::loadFromFile("./instances/" + networks[state.range(0)] + "_topo.txt");
+    ShortestPathBellmanFord<DiGraph> sh_path(graph);
     while (state.KeepRunning()) {
         Graph::Path path = sh_path.getShortestPath_v2(
             MyRandom::getInstance().getIntUniform<Integer>(
@@ -121,8 +122,9 @@ static void BM_bellmanford_v2(benchmark::State& state) {
 }
 
 static void BM_bellmanford_YenFirst(benchmark::State& state) {
-    auto [graph, nbServers, nbSwitches] = DiGraph::loadFromFile("./instances/" + networks[state.range(0)] + "_topo.txt");
-    ShortestPathBellmanFord sh_path(graph);
+    const std::array<std::string, 3> networks{{"germany50", "zib54", "ta2"}};
+    auto[graph, nbServers, nbSwitches] = DiGraph::loadFromFile("./instances/" + networks[state.range(0)] + "_topo.txt");
+    ShortestPathBellmanFord<DiGraph> sh_path(graph);
     while (state.KeepRunning()) {
         Graph::Path path = sh_path.getShortestPath_YenFirst(
             MyRandom::getInstance().getIntUniform<Integer>(
@@ -133,8 +135,9 @@ static void BM_bellmanford_YenFirst(benchmark::State& state) {
 }
 
 static void BM_bellmanford_YenFirst_doublevector(benchmark::State& state) {
-    auto [graph, nbServers, nbSwitches] = DiGraph::loadFromFile("./instances/" + networks[state.range(0)] + "_topo.txt");
-    ShortestPathBellmanFord sh_path(graph);
+    const std::array<std::string, 3> networks{{"germany50", "zib54", "ta2"}};
+    auto[graph, nbServers, nbSwitches] = DiGraph::loadFromFile("./instances/" + networks[state.range(0)] + "_topo.txt");
+    ShortestPathBellmanFord<DiGraph> sh_path(graph);
     while (state.KeepRunning()) {
         Graph::Path path = sh_path.getShortestPath_YenFirst_doublevector(
             MyRandom::getInstance().getIntUniform<Integer>(
@@ -145,8 +148,9 @@ static void BM_bellmanford_YenFirst_doublevector(benchmark::State& state) {
 }
 
 static void BM_bellmanford_YenFirst_partition(benchmark::State& state) {
-    auto [graph, nbServers, nbSwitches] = DiGraph::loadFromFile("./instances/" + networks[state.range(0)] + "_topo.txt");
-    ShortestPathBellmanFord sh_path(graph);
+    const std::array<std::string, 3> networks{{"germany50", "zib54", "ta2"}};
+    auto[graph, nbServers, nbSwitches] = DiGraph::loadFromFile("./instances/" + networks[state.range(0)] + "_topo.txt");
+    ShortestPathBellmanFord<DiGraph> sh_path(graph);
     while (state.KeepRunning()) {
         Graph::Path path = sh_path.getShortestPath_YenFirst_partition(
             MyRandom::getInstance().getIntUniform<Integer>(
@@ -157,8 +161,9 @@ static void BM_bellmanford_YenFirst_partition(benchmark::State& state) {
 }
 
 static void BM_bellmanford_YenSecond_partition(benchmark::State& state) {
-    auto [graph, nbServers, nbSwitches] = DiGraph::loadFromFile("./instances/" + networks[state.range(0)] + "_topo.txt");
-    ShortestPathBellmanFord sh_path(graph);
+    const std::array<std::string, 3> networks{{"germany50", "zib54", "ta2"}};
+    auto[graph, nbServers, nbSwitches] = DiGraph::loadFromFile("./instances/" + networks[state.range(0)] + "_topo.txt");
+    ShortestPathBellmanFord<DiGraph> sh_path(graph);
     while (state.KeepRunning()) {
         Graph::Path path = sh_path.getShortestPath_YenSecond_partition(
             MyRandom::getInstance().getIntUniform<Integer>(
@@ -169,8 +174,9 @@ static void BM_bellmanford_YenSecond_partition(benchmark::State& state) {
 }
 
 static void BM_bellmanford_v3(benchmark::State& state) {
-    auto [graph, nbServers, nbSwitches] = DiGraph::loadFromFile("./instances/" + networks[state.range(0)] + "_topo.txt");
-    ShortestPathBellmanFord sh_path(graph);
+    const std::array<std::string, 3> networks{{"germany50", "zib54", "ta2"}};
+    auto[graph, nbServers, nbSwitches] = DiGraph::loadFromFile("./instances/" + networks[state.range(0)] + "_topo.txt");
+    ShortestPathBellmanFord<DiGraph> sh_path(graph);
     while (state.KeepRunning()) {
         Graph::Path path = sh_path.getShortestPath_v3(
             MyRandom::getInstance().getIntUniform<Integer>(
@@ -179,20 +185,14 @@ static void BM_bellmanford_v3(benchmark::State& state) {
                 0, graph.getOrder() - 1));
     }
 }
-// BENCHMARK(BM_std_sort)->RangeMultiplier(10)->Range(1000000,
-// 100000000)->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_std_sort)->RangeMultiplier(10)->Range(1000000, 100000000)->Unit(benchmark::kMillisecond);
 
-// BENCHMARK(BM_LSD_radix_sort)->RangeMultiplier(10)->Range(1000000,
-// 100000000)->Unit(benchmark::kMillisecond);
-// BENCHMARK(BM_counting_LSD_radix_sort)->RangeMultiplier(10)->Range(1000000,
-// 100000000)->Unit(benchmark::kMillisecond);
-// BENCHMARK(BM_counting_LSD_radix_sort_no_ite)->RangeMultiplier(10)->Range(1000000,
-// 100000000)->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_LSD_radix_sort)->RangeMultiplier(10)->Range(1000000, 100000000)->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_counting_LSD_radix_sort)->RangeMultiplier(10)->Range(1000000, 100000000)->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_counting_LSD_radix_sort_no_ite)->RangeMultiplier(10)->Range(1000000, 100000000)->Unit(benchmark::kMillisecond);
 
-// BENCHMARK(BM_MSD_radix_sort)->RangeMultiplier(10)->Range(1000000,
-// 100000000)->Unit(benchmark::kMillisecond);
-// BENCHMARK(BM_counting_MSD_radix_sort)->RangeMultiplier(10)->Range(1000000,
-// 100000000)->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_MSD_radix_sort)->RangeMultiplier(10)->Range(1000000, 100000000)->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_counting_MSD_radix_sort)->RangeMultiplier(10)->Range(1000000, 100000000)->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_bellmanford_v1)->Range(0, 2);
 BENCHMARK(BM_bellmanford_v2)->Range(0, 2);
 BENCHMARK(BM_bellmanford_v3)->Range(0, 2);

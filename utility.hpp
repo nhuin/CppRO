@@ -123,39 +123,19 @@ std::size_t getMaxSetByte(T _v) {
     return ret;
 }
 
-namespace aux {
-template <std::size_t...>
-struct seq {};
-
-template <std::size_t N, std::size_t... Is>
-struct gen_seq : gen_seq<N - 1, N - 1, Is...> {};
-
-template <std::size_t... Is>
-struct gen_seq<0, Is...> : seq<Is...> {};
-
 template <class Ch, class Tr, class Tuple, std::size_t... Is>
-void print_tuple(std::basic_ostream<Ch, Tr>& os, Tuple const& t,
-    seq<Is...> /*unused*/) {
-    using swallow = int[];
-    (void)swallow{0,
-        (void(os << (Is == 0 ? "" : ", ") << std::get<Is>(t)), 0)...};
+void print_tuple_impl(std::basic_ostream<Ch, Tr>& os,
+    const Tuple& t,
+    std::index_sequence<Is...> /*unused*/) {
+    ((os << (Is == 0 ? "" : ", ") << std::get<Is>(t)), ...);
 }
-} // namespace aux
 
 template <class Ch, class Tr, class... Args>
-inline auto operator<<(std::basic_ostream<Ch, Tr>& os,
-    std::tuple<Args...> const& t)
-    -> std::basic_ostream<Ch, Tr>& {
-    os << "(";
-    aux::print_tuple(os, t, aux::gen_seq<sizeof...(Args)>());
-    return os << ")";
-}
-
-template <class... Args>
-inline std::string to_string(std::tuple<Args...> const& t) {
-    std::stringstream sstr;
-    aux::print_tuple(sstr, t, aux::gen_seq<sizeof...(Args)>());
-    return sstr.str();
+decltype(auto) operator<<(std::basic_ostream<Ch, Tr>& os,
+    const std::tuple<Args...>& t) {
+    os << '(';
+    print_tuple_impl(os, t, std::index_sequence_for<Args...>{});
+    return os << ')';
 }
 
 template <typename T>
@@ -165,7 +145,7 @@ inline std::string toString(const T& _obj) {
     return sstr.str();
 }
 
-template<typename T>
+template <typename T>
 T binomialCoeff(const T& n, T k) {
     T res = 1;
     // Since C(n, k) = C(n, n-k)
@@ -184,68 +164,26 @@ std::ostream& operator<<(std::ostream& _o, const unused& /*unused*/) {
     return _o;
 }
 
-    // class CombinationIterator
-    // {
-    // public:
-    //     CombinationIterator(const int _k, const int _n) :
-    //         m_n(_n),
-    //         m_k(_k),
-    //         m_combination(m_n),
-    //         m_v([&](){
-    //             std::vector<bool> v(m_n);
-    //             std::fill(v.end() - m_k, v.end(), true);
-    //             return v;
-    //         }())
-    //     {
-    //     }
+template <typename Ite, typename T>
+std::pair<Ite, Ite> find_consecutive_common_value(Ite _first1, const Ite& _last1,
+    Ite _first2, const Ite& _last2,
+    T _value, std::size_t _size) {
+    std::size_t counter = 0;
+    for (; _first1 != _last1 && _first2 != _last2;
+         ++_first1, ++_first2) {
+        if (*_first1 == _value && *_first2 == _value) {
+            if (++counter == _size) {
+                break;
+            }
+        } else {
+            counter = 0;
+        }
+    }
+    return {_first1, _first2};
+}
 
-    //     ~CombinationIterator() {}
-
-    //     const std::vector<int>& operator++() {
-    //         std::next_permutation(m_v.begin(), m_v.end());
-    //         for(int i = 0, j = 0; i < m_n; ++i) {
-    //             if(m_v[i]) {
-    //                 m_combination[j] = i;
-    //                 ++j;
-    //             }
-    //         }
-    //         return m_combination;
-    //     }
-
-    //     std::vector<int> operator++(int /*unused*/) {
-    //         auto copy = m_combination;
-    //         std::next_permutation(m_v.begin(), m_v.end());
-    //         for(int i = 0, j = 0; i < m_n; ++i) {
-    //             if(m_v[i]) {
-    //                 m_combination[j] = i;
-    //                 ++j;
-    //             }
-    //         }
-    //         return copy;
-    //     }
-
-    //     const std::vector<int>&  operator*(){
-    //         return m_combination;
-    //     }
-
-    // private:
-    //     int m_n;
-    //     int m_k;
-    //     std::vector<int> m_combination;
-    //     bool end = false;
-    //     std::vector<bool> m_v;
-    // };
-
-    // std::vector<int> combination(const int k, const int n) {
-
-    //     do {
-    //         for (int i = 0; i < n; ++i) {
-    //             if (v[i]) {
-    //                 std::cout << (i + 1) << " ";
-    //             }
-    //         }
-    //         std::cout << "\n";
-    //     } while (std::next_permutation(v.begin(), v.end()));
-    // }
-
+template <typename T, typename... Args>
+auto product(T _val, Args... _args) {
+    return _val * product(_args...);
+}
 #endif

@@ -326,14 +326,14 @@ bool MultiArg<T>::processArg(int *i, std::vector<std::string>& args)
 
    	if ( argMatches( flag ) )
    	{
-   		if ( Arg::delimiter() != ' ' && value == "" ) {
+   		if ( Arg::delimiter() != ' ' && value.empty() ) {
 			throw( ArgParseException( 
 			           "Couldn't find delimiter for this argument!",
 					   toString() ) );
 }
 
 		// always take the first one, regardless of start string
-		if ( value == "" )
+		if ( value.empty() )
 		{
 			(*i)++;
 			if ( static_cast<unsigned int>(*i) < args.size() ) {

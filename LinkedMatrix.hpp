@@ -101,7 +101,7 @@ class LinkedMatrix {
     }
 
     std::size_t rowSize() const {
-        return m_rowHeads.size(); 
+        return m_rowHeads.size();
     }
 
     std::size_t columnSize() const {

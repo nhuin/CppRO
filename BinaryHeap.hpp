@@ -128,11 +128,11 @@ class BinaryHeap {
             std::size_t secondChild = firstChild + 1;
             while (firstChild < m_nbElements) {
                 std::size_t child = secondChild < m_nbElements
-                                ? (m_comparator(m_array[firstChild].object,
-                                       m_array[secondChild].object)
-                                          ? firstChild
-                                          : secondChild)
-                                : firstChild;
+                                        ? (m_comparator(m_array[firstChild].object,
+                                               m_array[secondChild].object)
+                                                  ? firstChild
+                                                  : secondChild)
+                                        : firstChild;
                 if (m_comparator(m_array[child].object, m_array[obj].object)) {
                     std::swap(m_array[child], m_array[obj]);
                     m_array[obj].handle->index = obj;
@@ -172,11 +172,11 @@ class BinaryHeap {
         while (firstChild < m_nbElements) {
             // Swap with biggest child
             std::size_t child = secondChild < m_nbElements
-                            ? (m_comparator(m_array[firstChild].object,
-                                   m_array[secondChild].object)
-                                      ? firstChild
-                                      : secondChild)
-                            : firstChild;
+                                    ? (m_comparator(m_array[firstChild].object,
+                                           m_array[secondChild].object)
+                                              ? firstChild
+                                              : secondChild)
+                                    : firstChild;
             if (m_comparator(m_array[child].object, m_array[obj].object)) {
                 std::swap(m_array[child], m_array[obj]);
                 m_array[obj].handle->index = obj;

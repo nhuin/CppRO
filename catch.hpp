@@ -2256,17 +2256,17 @@ struct IRunner {
 // macros.
 // This can potentially cause false negative, if the test code catches
 // the exception before it propagates back up to the runner.
-#define INTERNAL_CATCH_TEST_NO_TRY(macroName, resultDisposition, expr)            \
-    do {                                                                          \
-        Catch::ResultBuilder __catchResult(macroName, CATCH_INTERNAL_LINEINFO,    \
-            #expr, resultDisposition);                                            \
-        __catchResult.setExceptionGuard();                                        \
-        CATCH_INTERNAL_SUPPRESS_PARENTHESES_WARNINGS(__catchResult <= expr)       \
-            .endExpression();                                                     \
-        CATCH_INTERNAL_UNSUPPRESS_PARENTHESES_WARNINGS                            \
-        __catchResult.unsetExceptionGuard();                                      \
-        INTERNAL_CATCH_REACT(__catchResult)                                       \
-    } while (Catch::isTrue(                                                       \
+#define INTERNAL_CATCH_TEST_NO_TRY(macroName, resultDisposition, expr)         \
+    do {                                                                       \
+        Catch::ResultBuilder __catchResult(macroName, CATCH_INTERNAL_LINEINFO, \
+            #expr, resultDisposition);                                         \
+        __catchResult.setExceptionGuard();                                     \
+        CATCH_INTERNAL_SUPPRESS_PARENTHESES_WARNINGS(__catchResult <= expr)    \
+            .endExpression();                                                  \
+        CATCH_INTERNAL_UNSUPPRESS_PARENTHESES_WARNINGS                         \
+        __catchResult.unsetExceptionGuard();                                   \
+        INTERNAL_CATCH_REACT(__catchResult)                                    \
+    } while (Catch::isTrue(                                                    \
         false && static_cast<bool>(!!(expr)))) // expr here is never evaluated at \
                                                // runtime but it forces the       \
                                                // compiler to give it a look
@@ -2296,19 +2296,19 @@ struct IRunner {
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
-#define INTERNAL_CATCH_TEST(macroName, resultDisposition, expr)                   \
-    do {                                                                          \
-        Catch::ResultBuilder __catchResult(macroName, CATCH_INTERNAL_LINEINFO,    \
-            #expr, resultDisposition);                                            \
-        try {                                                                     \
-            CATCH_INTERNAL_SUPPRESS_PARENTHESES_WARNINGS(__catchResult <= expr)   \
-                .endExpression();                                                 \
-            CATCH_INTERNAL_UNSUPPRESS_PARENTHESES_WARNINGS                        \
-        } catch (...) {                                                           \
-            __catchResult.useActiveException(resultDisposition);                  \
-        }                                                                         \
-        INTERNAL_CATCH_REACT(__catchResult)                                       \
-    } while (Catch::isTrue(                                                       \
+#define INTERNAL_CATCH_TEST(macroName, resultDisposition, expr)                 \
+    do {                                                                        \
+        Catch::ResultBuilder __catchResult(macroName, CATCH_INTERNAL_LINEINFO,  \
+            #expr, resultDisposition);                                          \
+        try {                                                                   \
+            CATCH_INTERNAL_SUPPRESS_PARENTHESES_WARNINGS(__catchResult <= expr) \
+                .endExpression();                                               \
+            CATCH_INTERNAL_UNSUPPRESS_PARENTHESES_WARNINGS                      \
+        } catch (...) {                                                         \
+            __catchResult.useActiveException(resultDisposition);                \
+        }                                                                       \
+        INTERNAL_CATCH_REACT(__catchResult)                                     \
+    } while (Catch::isTrue(                                                     \
         false && static_cast<bool>(!!(expr)))) // expr here is never evaluated at \
                                                // runtime but it forces the       \
                                                // compiler to give it a look

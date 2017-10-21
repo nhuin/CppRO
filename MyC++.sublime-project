@@ -1,25 +1,31 @@
 {
-	"SublimeLinter":
-	{
-		"linters":
-		{
-			"clang":
-			{
-				"extra_flags": "-std=c++17 -Wall -Wextra -Wshadow -Wnon-virtual-dtor -pedantic -Wno-c++11-compat -DIL_STD -march=native -Weverything -Wno-c++98-compat -Wno-c++98-compat-pedantic",
-				"include_dirs":
-				[
-					".",
-					"${CPLEX_DIR}/concert/include/",
-					"${CPLEX_DIR}/cplex/include/",
-					"${HOME}/Documents/benchmark/include/"
-				]
-			}
-		}
-	},
-	"folders":
-	[
-		{
-			"path": "."
-		}
-	]
+    "SublimeLinter":
+    {
+        "linters":
+        {
+            "clang":
+            {
+                "extra_flags": "-std=c++17 -Wall -Wextra -Wshadow -Wnon-virtual-dtor -pedantic -Wno-c++11-compat -DIL_STD -march=native",
+                "include_dirs":
+                [
+                    ".",
+                    "${MY_CPP_INCLUDE}/MyC++/",
+                    "${CPLEX_DIR}/concert/include/",
+                    "${CPLEX_DIR}/cplex/include/",
+                    "/usr/local/include/"
+                ]
+            },
+            "pylint":
+            {
+                "rcfile": "/Users/nhuin/.pylintrc"
+            }
+
+        }
+    },
+    "folders":
+    [
+        {
+            "path": "."
+        }
+    ]
 }

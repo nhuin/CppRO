@@ -377,7 +377,7 @@ inline void CmdLine::add( Arg* a ) {
 }
 
 
-inline void CmdLine::parse(int argc, const char * const * argv) {
+inline void CmdLine::parse(int argc, const char* const * argv) {
 		// this step is necessary so that we have easy access to
 		// mutable strings.
 		std::vector<std::string> args;
