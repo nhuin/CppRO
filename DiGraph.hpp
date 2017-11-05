@@ -247,7 +247,7 @@ class DiGraph : public Graph {
             graph.addEdge(v, u, w);
             ++i;
         }
-        return {graph, nbServers, nbSwitches};
+        return std::make_tuple(graph, nbServers, nbSwitches);
     }
 
     /**

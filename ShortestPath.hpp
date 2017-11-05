@@ -34,13 +34,13 @@ class ShortestPath {
             m_graph = _other.m_graph;
             m_distance = std::vector<double>(m_graph->getOrder(),
                 std::numeric_limits<double>::max());
-            m_parent = std::vector<int>(m_graph->getOrder(), -1);
+            m_parent = std::vector<std::size_t>(m_graph->getOrder(), -1);
             m_color = std::vector<char>(m_graph->getOrder(), 0);
             m_handles = std::vector<typename BinaryHeap<
-                int, std::function<bool(const Graph::Node&, const Graph::Node&)>>::
+                std::size_t, std::function<bool(const Graph::Node&, const Graph::Node&)>>::
                     Handle*>(m_graph->getOrder());
             m_heap = BinaryHeap<
-                int, std::function<bool(const Graph::Node&, const Graph::Node&)>>(
+                std::size_t, std::function<bool(const Graph::Node&, const Graph::Node&)>>(
                 m_graph->getOrder(),
                 [=](const Graph::Node& __u, const Graph::Node& __v) {
                     return m_distance[__u] < m_distance[__v];
@@ -68,10 +68,10 @@ class ShortestPath {
             m_parent = std::move(_other.m_parent);
             m_color = std::move(_other.m_color);
             m_handles = std::vector<typename BinaryHeap<
-                int, std::function<bool(const Graph::Node&, const Graph::Node&)>>::
+                std::size_t, std::function<bool(const Graph::Node&, const Graph::Node&)>>::
                     Handle*>(m_graph->getOrder());
             m_heap = BinaryHeap<
-                int, std::function<bool(const Graph::Node&, const Graph::Node&)>>(
+                std::size_t, std::function<bool(const Graph::Node&, const Graph::Node&)>>(
                 m_graph->getOrder(),
                 [=](const Graph::Node& __u, const Graph::Node& __v) {
                     return m_distance[__u] < m_distance[__v];
@@ -94,7 +94,7 @@ class ShortestPath {
         m_heap.clear();
     }
 
-    Graph::Path getShortestPath(const int _s, const int _t) {
+    Graph::Path getShortestPath(const Graph::Node _s, const Graph::Node _t) {
         m_parent[_s] = _s;
         m_distance[_s] = 0;
         m_handles[_s] = m_heap.push(_s);
@@ -272,8 +272,8 @@ class ShortestPath {
         return path;
     }
 
-    std::vector<Graph::Path> getKShortestPath(const int _u, const int _v,
-        const int _k) {
+    std::vector<Graph::Path> getKShortestPath(const Graph::Node _u, const Graph::Node _v,
+        const std::size_t _k) {
         std::vector<Graph::Path> paths;
         if (_k == 0) {
             return paths;
@@ -283,12 +283,12 @@ class ShortestPath {
         paths.push_back(this->getShortestPathNbArcs(_u, _v));
         // Initialize the heap to store the potential kth shortest path.
         std::list<Graph::Path> stack;
-        for (int k = 1; k < _k; ++k) {
+        for (std::size_t k = 1; k < _k; ++k) {
             auto& lastPath = paths[k - 1];
             auto ite = lastPath.begin();
-            for (int i = 0; i < static_cast<int>(lastPath.size() - 1); ++i, ++ite) {
+            for (std::size_t i = 0; i < lastPath.size() - 1; ++i, ++ite) {
                 // Spur node is retrieved from the previous k-shortest path, k − 1.
-                int spurNode = *ite;
+                Graph::Node spurNode = *ite;
                 // The sequence of nodes from the source to the spur node of the
                 // previous k-shortest path.
                 Graph::Path rootPath{lastPath.begin(), std::next(ite)};
@@ -296,7 +296,7 @@ class ShortestPath {
 
                 G graphCopy = m_graph;
 
-                for (int j = 0; j < k; ++j) {
+                for (std::size_t j = 0; j < k; ++j) {
                     auto p = paths[j];
                     bool same = true;
                     auto ite2 = p.begin();
@@ -359,13 +359,13 @@ class ShortestPath {
   private:
     G const* m_graph;
     std::vector<double> m_distance;
-    std::vector<int> m_parent;
+    std::vector<Graph::Node> m_parent;
     std::vector<char> m_color;
     std::vector<typename BinaryHeap<
-        int,
+        Graph::Node,
         std::function<bool(const Graph::Node&, const Graph::Node&)>>::Handle*>
         m_handles;
-    BinaryHeap<int, std::function<bool(const Graph::Node&, const Graph::Node&)>>
+    BinaryHeap<Graph::Node, std::function<bool(const Graph::Node&, const Graph::Node&)>>
         m_heap;
 };
 

@@ -15,8 +15,10 @@ TEST_CASE( "Factorials are computed", "[factorial]" ) {
 			for(std::size_t k = 0; k < 3; ++k) {
 				if(std::make_tuple(i, j, k) != std::make_tuple(0, 1, 2)) {
 					REQUIRE(m(i, j, k) == 5);
+					REQUIRE(m({i, j, k}) == 5);
 				} else {
 					REQUIRE(m(0, 1, 2) == 1);
+					REQUIRE(m({0, 1, 2}) == 1);
 				}
 			}
 		}

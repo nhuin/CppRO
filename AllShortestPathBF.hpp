@@ -14,7 +14,7 @@ class AllShortestPathBellmanFord {
         : m_graph(_graph)
         , m_distance([&]() {
             Matrix<double> distance(m_graph.getOrder(), m_graph.getOrder(),
-                std::numeric_limits<int>::max());
+                std::numeric_limits<double>::max());
             for (Graph::Node u = 0; u < m_graph.getOrder(); ++u) {
                 distance(u, u) = 0.0;
             }
@@ -40,7 +40,7 @@ class AllShortestPathBellmanFord {
     void getAllShortestPaths() {
         const auto edges = m_graph.getEdges();
         for (Graph::Node s = 0; s < m_graph.getOrder(); ++s) {
-            for (int i = 0; i < m_graph.getOrder(); ++i) {
+            for (std::size_t i = 0; i < m_graph.getOrder(); ++i) {
                 for (const auto& edge : edges) {
                     const double dist =
                         m_distance(s, edge.first) + m_graph.getEdgeWeight(edge);

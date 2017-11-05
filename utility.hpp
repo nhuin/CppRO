@@ -160,7 +160,7 @@ T binomialCoeff(const T& n, T k) {
     return res;
 }
 
-std::ostream& operator<<(std::ostream& _o, const unused& /*unused*/) {
+inline std::ostream& operator<<(std::ostream& _o, const unused& /*unused*/) {
     return _o;
 }
 

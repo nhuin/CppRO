@@ -3,8 +3,8 @@
 
 static void BM_init_list_access(benchmark::State& state) {
 	const std::size_t x = state.range(0), 
-		y = state.range(0),
-		z = state.range(0);
+		y = state.range(1),
+		z = state.range(2);
 	while (state.KeepRunning()) {
 		MultiDimArray<int, 3> m({{x, y, z}});
 		for(std::size_t i = 0; i < x; ++i) {
@@ -33,7 +33,7 @@ static void BM_variadic_access(benchmark::State& state) {
 	}
 }
 
-BENCHMARK(BM_init_list_access)->Range(1, 100);
-BENCHMARK(BM_variadic_access)->Range(1, 100);
+// BENCHMARK(BM_init_list_access)->Range(1, 1);
+BENCHMARK(BM_variadic_access)->Args({3, 3, 3});
 
 BENCHMARK_MAIN();
