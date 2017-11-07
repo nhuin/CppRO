@@ -22,7 +22,7 @@ inline void displayValue(const IloCplex& _solver, const IloNumVar& _var) {
 }
 
 template <typename... Tr>
-std::size_t someProduct(std::tuple<int, Tr...>&& _pos, std::tuple<int, Tr...>&& _dim) {
+inline std::size_t someProduct(std::tuple<int, Tr...>&& _pos, std::tuple<int, Tr...>&& _dim) {
     return someProduct(std::make_tuple(std::get<Tr...>(_pos)),
                std::make_tuple(std::get<Tr...>(_dim)))
                * std::get<0>(_dim)
@@ -30,7 +30,7 @@ std::size_t someProduct(std::tuple<int, Tr...>&& _pos, std::tuple<int, Tr...>&& 
 }
 
 template <>
-std::size_t someProduct(std::tuple<int>&& _pos, std::tuple<int>&& /*_v2*/) {
+inline std::size_t someProduct(std::tuple<int>&& _pos, std::tuple<int>&& /*_v2*/) {
     return std::get<0>(_pos);
 }
 

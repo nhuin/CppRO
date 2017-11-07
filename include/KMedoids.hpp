@@ -12,7 +12,7 @@ std::vector<std::size_t> getKMedoids(const std::size_t _k, const Matrix<double>&
     assert(_dist.size1() == _dist.size2());
     assert(_dist.size1() > 0);
     assert(_dist.size2() > 0);
-    std::vector<std::vector<int>> clusters(_k);
+    std::vector<std::vector<std::size_t>> clusters(_k);
     // Init medoids
     std::vector<std::size_t> medoids =
         MyRandom::getInstance().getKShuffled<std::size_t>(_k, 0u, _dist.size2() - 1);
@@ -25,7 +25,7 @@ std::vector<std::size_t> getKMedoids(const std::size_t _k, const Matrix<double>&
         // For each elements, find the closest medoid and assign the element to the
         // cluster of the corresponding medoid
         for (std::size_t i = 0; i < _dist.size1(); ++i) {
-            int minInd = 0;
+            std::size_t minInd = 0;
             for (std::size_t j = 1; j < medoids.size(); ++j) {
                 if (_dist(i, medoids[j]) < _dist(i, medoids[minInd])) {
                     minInd = j;
@@ -36,10 +36,10 @@ std::vector<std::size_t> getKMedoids(const std::size_t _k, const Matrix<double>&
         // Search medoid for each cluster
         for (std::size_t c = 0; c < clusters.size(); ++c) {
             // Compute distance between all elements of the cluster
-            int minDistInd = 0;
+            std::size_t minDistInd = 0;
             double minDist =
                 std::accumulate(clusters[c].begin(), clusters[c].end(), 0.0,
-                    [&](const double __tmpDist, const int __elj) {
+                    [&](const double __tmpDist, const std::size_t __elj) {
                         return __tmpDist + _dist(clusters[c][0], __elj);
                     });
             for (std::size_t i = 1; i < clusters[c].size(); ++i) {
@@ -63,15 +63,15 @@ std::vector<std::size_t> getKMedoids(const std::size_t _k, const Matrix<double>&
     return medoids;
 }
 
-std::vector<int> getKMedoids(const int _k, const Matrix<double>& _dist,
-    const std::vector<int>& _capas,
+std::vector<std::size_t> getKMedoids(const std::size_t _k, const Matrix<double>& _dist,
+    const std::vector<std::size_t>& _capas,
     const std::vector<double>& _charge,
-    const int _tMax = 100) {
+    const std::size_t _tMax = 100) {
     assert(_capas.size() == _dist.size1());
     assert(_charge.size() == _dist.size1());
     assert(_dist.size1() == _dist.size2());
 
-    std::vector<std::vector<int>> clusters(_k);
+    std::vector<std::vector<std::size_t>> clusters(_k);
     // Init medoids
     std::vector<std::size_t> medoids =
         MyRandom::getInstance().getKShuffled<std::size_t>(_k, 0, _dist.size2() - 1);
@@ -86,7 +86,7 @@ std::vector<int> getKMedoids(const int _k, const Matrix<double>& _dist,
         // For each element, find the closest medoid and assign the element to the
         // cluster of the corresponding medoid
         for (std::size_t i = 0; i < _dist.size1(); ++i) {
-            int minInd = 0;
+            std::size_t minInd = 0;
             for (std::size_t j = 1; j < medoids.size(); ++j) {
                 if (_dist(i, medoids[j]) < _dist(i, medoids[minInd]) && // Update closest medoid if
                                                                         // distance is smaller..
@@ -100,10 +100,10 @@ std::vector<int> getKMedoids(const int _k, const Matrix<double>& _dist,
         // Search medoid for each cluster
         for (std::size_t c = 0; c < clusters.size(); ++c) {
             // Compute distance between all elements of the cluster
-            int minDistInd = 0;
+            std::size_t minDistInd = 0;
             double minDist =
                 std::accumulate(clusters[c].begin(), clusters[c].end(), 0.0,
-                    [&](const double __tmpDist, const int __elj) {
+                    [&](const double __tmpDist, const std::size_t __elj) {
                         return __tmpDist + _dist(clusters[c][0], __elj);
                     });
             for (std::size_t i = 1; i < clusters[c].size(); ++i) {

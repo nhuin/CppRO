@@ -10,7 +10,7 @@ static void MINE_init_list_access(benchmark::State& state) {
     MultiDimArray<int, 3> m({{x, y, z}});
     while (state.KeepRunning()) {
         m({x, y, z}) = 1;
-    }
+  }
 }
 
 static void MINE_variadic_access(benchmark::State& state) {

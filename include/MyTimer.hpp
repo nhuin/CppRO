@@ -32,8 +32,7 @@ class Time {
         std::cout
             << std::fixed << std::setprecision(2)
             << "CPU time used: " << 1000.0 * timeDifference / CLOCKS_PER_SEC
-            << " ms\n"
-            << "Wall clock time passed: "
+            << " ms\nWall clock time passed: "
             << std::chrono::duration<double, std::milli>(t_end - m_tStart).count()
             << " ms\n";
         return {

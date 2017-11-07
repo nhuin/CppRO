@@ -17,8 +17,8 @@ include_directories($ENV{MY_CPP_INCLUDE})
 include_directories(/usr/local/include/)
 
 # google benchmark
-include_directories(SYSTEM $ENV{HOME}/Documents//benchmark/include/)
-link_directories($ENV{HOME}/Documents/benchmark/src/)
+include_directories(SYSTEM $ENV{BENCHMARK_ROOT}/include/)
+link_directories($ENV{HOME}/lib/)
 
 # cplex stuffs
 # include_directories(SYSTEM $ENV{CPLEX_DIR}cplex/include/ $ENV{CPLEX_DIR}concert/include/)
