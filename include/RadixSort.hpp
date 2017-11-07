@@ -75,7 +75,7 @@ class MSDRadixSort {
             // std::copy(begin, end, std::ostream_iterator<T>(std::cout, ", "));
             // std::cout << ", " << i << '\n';
             stack.pop_back();
-            const uint64_t power = 8 * i;
+            const auto power = 8 * i;
             for (auto& b : buckets) {
                 b.clear();
             };
@@ -124,7 +124,7 @@ class CountingLSDRadixSort {
         std::vector<char> inRightPlace(std::distance(_begin, _end));
 
         for (std::size_t i = 0; i < sizeof(T); ++i) {
-            const uint64_t power = 8 * i;
+            const auto power = 8 * i;
             std::fill(nbValue.begin(), nbValue.end(), 0);
             std::fill(inRightPlace.begin(), inRightPlace.end(), 0);
             for (auto ite = _begin; ite != _end; ++ite) {
@@ -171,7 +171,7 @@ class CountingLSDRadixSort {
         std::vector<char> inRightPlace(_vect.size());
 
         for (std::size_t i = 0; i < sizeof(T); ++i) {
-            const uint64_t power = 8 * i;
+            const auto power = 8 * i;
             std::fill(nbValue.begin(), nbValue.end(), 0);
             std::fill(inRightPlace.begin(), inRightPlace.end(), 0);
             for (const T v : _vect) {
@@ -231,7 +231,7 @@ class CountingMSDRadixSort {
         while (!stack.empty()) {
             auto[begin, end, i] = stack.back();
             stack.pop_back();
-            const uint64_t power = 8 * i;
+            const auto power = 8 * i;
             std::fill(nbValue.begin(), nbValue.end(), 0);
 
             // Count number of element for each digit
@@ -291,7 +291,7 @@ class CountingMSDRadixSort {
         std::vector<char> inRightPlace(_vect.size());
 
         for (std::size_t i = 0; i < sizeof(T); ++i) {
-            const uint64_t power = 8 * i;
+            const auto power = 8 * i;
             std::fill(nbValue.begin(), nbValue.end(), 0);
             std::fill(inRightPlace.begin(), inRightPlace.end(), 0);
             for (const T v : _vect) {

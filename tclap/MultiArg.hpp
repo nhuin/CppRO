@@ -19,7 +19,6 @@
  *  
  *****************************************************************************/
 
-
 #ifndef TCLAP_MULTIPLE_ARGUMENT_H
 #define TCLAP_MULTIPLE_ARGUMENT_H
 
@@ -36,47 +35,44 @@ namespace TCLAP {
  * similar to a ValueArg, except a vector of values will be returned
  * instead of just one.
  */
-template<class T>
-class MultiArg : public Arg
-{
-public:
-	using container_type = std::vector<T>;	
-	using iterator = typename container_type::iterator;
-	using const_iterator = typename container_type::const_iterator;
+template <class T>
+class MultiArg : public Arg {
+  public:
+    using container_type = std::vector<T>;
+    using iterator = typename container_type::iterator;
+    using const_iterator = typename container_type::const_iterator;
 
-protected:
-
-	/**
+  protected:
+    /**
 	 * The list of values parsed from the CmdLine.
 	 */
-	std::vector<T> _values;
+    std::vector<T> _values;
 
-	/**
+    /**
 	 * The description of type T to be used in the usage.
 	 */
-	std::string _typeDesc;
+    std::string _typeDesc;
 
-	/**
+    /**
 	 * A list of constraint on this Arg. 
 	 */
-	Constraint<T>* _constraint;
+    Constraint<T>* _constraint;
 
-	/**
+    /**
 	 * Extracts the value from the string.
 	 * Attempts to parse string as type T, if this fails an exception
 	 * is thrown.
 	 * \param val - The string to be read.
 	 */
-	void _extractValue( const std::string& val );
+    void _extractValue(const std::string& val);
 
-	/**
+    /**
 	 * Used by XorHandler to decide whether to keep parsing for this arg.
 	 */
-	bool _allowMore;
+    bool _allowMore;
 
-public:
-
-	/**
+  public:
+    /**
 	 * Constructor.
 	 * \param flag - The one character flag that identifies this
 	 * argument on the command line.
@@ -93,14 +89,14 @@ public:
 	 * \param v - An optional visitor.  You probably should not
 	 * use this unless you have a very good reason.
 	 */
-	MultiArg( const std::string& flag,
-                  const std::string& name,
-                  const std::string& desc,
-                  bool req,
-                  std::string  typeDesc,
-                  Visitor* v = nullptr);
+    MultiArg(const std::string& flag,
+        const std::string& name,
+        const std::string& desc,
+        bool req,
+        std::string typeDesc,
+        Visitor* v = nullptr);
 
-	/**
+    /**
 	 * Constructor.
 	 * \param flag - The one character flag that identifies this
 	 * argument on the command line.
@@ -118,15 +114,15 @@ public:
 	 * \param v - An optional visitor.  You probably should not
 	 * use this unless you have a very good reason.
 	 */
-	MultiArg( const std::string& flag, 
-                  const std::string& name,
-                  const std::string& desc,
-                  bool req,
-                  std::string  typeDesc,
-                  CmdLineInterface& parser,
-                  Visitor* v = nullptr );
+    MultiArg(const std::string& flag,
+        const std::string& name,
+        const std::string& desc,
+        bool req,
+        std::string typeDesc,
+        CmdLineInterface& parser,
+        Visitor* v = nullptr);
 
-	/**
+    /**
 	 * Constructor.
 	 * \param flag - The one character flag that identifies this
 	 * argument on the command line.
@@ -141,14 +137,14 @@ public:
 	 * \param v - An optional visitor.  You probably should not
 	 * use this unless you have a very good reason.
 	 */
-	MultiArg( const std::string& flag,
-                  const std::string& name,
-                  const std::string& desc,
-                  bool req,
-                  Constraint<T>* constraint,
-                  Visitor* v = nullptr );
-		  
-	/**
+    MultiArg(const std::string& flag,
+        const std::string& name,
+        const std::string& desc,
+        bool req,
+        Constraint<T>* constraint,
+        Visitor* v = nullptr);
+
+    /**
 	 * Constructor.
 	 * \param flag - The one character flag that identifies this
 	 * argument on the command line.
@@ -164,21 +160,21 @@ public:
 	 * \param v - An optional visitor.  You probably should not
 	 * use this unless you have a very good reason.
 	 */
-	MultiArg( const std::string& flag, 
-                  const std::string& name,
-                  const std::string& desc,
-                  bool req,
-                  Constraint<T>* constraint,
-                  CmdLineInterface& parser,
-                  Visitor* v = nullptr );
-		
-	MultiArg(const MultiArg&) = delete;
-	MultiArg& operator=(const MultiArg&) = delete;
-	MultiArg(MultiArg&&) noexcept = default;
-	MultiArg& operator=(MultiArg&&) noexcept = default;
-	~MultiArg() override = default;
+    MultiArg(const std::string& flag,
+        const std::string& name,
+        const std::string& desc,
+        bool req,
+        Constraint<T>* constraint,
+        CmdLineInterface& parser,
+        Visitor* v = nullptr);
 
-	/**
+    MultiArg(const MultiArg&) = delete;
+    MultiArg& operator=(const MultiArg&) = delete;
+    MultiArg(MultiArg&&) noexcept = default;
+    MultiArg& operator=(MultiArg&&) noexcept = default;
+    ~MultiArg() override = default;
+
+    /**
 	 * Handles the processing of the argument.
 	 * This re-implements the Arg version of this method to set the
 	 * _value of the argument appropriately.  It knows the difference
@@ -186,168 +182,159 @@ public:
 	 * \param i - Pointer the the current argument in the list.
 	 * \param args - Mutable list of strings. Passed from main().
 	 */
-	bool processArg(int* i, std::vector<std::string>& args) override; 
+    bool processArg(std::size_t& i, std::vector<std::string>& args) override;
 
-	/**
+    /**
 	 * Returns a vector of type T containing the values parsed from
 	 * the command line.
 	 */
-	const std::vector<T>& getValue();
+    const std::vector<T>& getValue();
 
-	/**
+    /**
 	 * Returns an iterator over the values parsed from the command
 	 * line.
 	 */
-	const_iterator begin() const { return _values.begin(); }
+    const_iterator begin() const { return _values.begin(); }
 
-	/**
+    /**
 	 * Returns the end of the values parsed from the command
 	 * line.
 	 */
-	const_iterator end() const { return _values.end(); }
+    const_iterator end() const { return _values.end(); }
 
-	/**
+    /**
 	 * Returns the a short id string.  Used in the usage. 
 	 * \param val - value to be used.
 	 */
-	std::string shortID(const std::string& val) const override;
+    std::string shortID(const std::string& val) const override;
 
-	/**
+    /**
 	 * Returns the a long id string.  Used in the usage. 
 	 * \param val - value to be used.
 	 */
-	std::string longID(const std::string& val) const override;
+    std::string longID(const std::string& val) const override;
 
-	/**
+    /**
 	 * Once we've matched the first value, then the arg is no longer
 	 * required.
 	 */
-	bool isRequired() const override;
+    bool isRequired() const override;
 
-	bool allowMore() override;
-	
-	void reset() override;
+    bool allowMore() override;
 
+    void reset() override;
 };
 
-template<class T>
-MultiArg<T>::MultiArg(const std::string& flag, 
-                      const std::string& name,
-                      const std::string& desc,
-                      bool req,
-                      std::string  typeDesc,
-                      Visitor* v) :
-   Arg( flag, name, desc, req, true, v ),
-  _values(std::vector<T>()),
-  _typeDesc(std::move( typeDesc )),
-  _constraint( NULL ),
-  _allowMore(false)
-{ 
-	Arg::checkParams();
-	_acceptsMultipleValues = true;
+template <class T>
+MultiArg<T>::MultiArg(const std::string& flag,
+    const std::string& name,
+    const std::string& desc,
+    bool req,
+    std::string typeDesc,
+    Visitor* v)
+    : Arg(flag, name, desc, req, true, v)
+    , _values(std::vector<T>())
+    , _typeDesc(std::move(typeDesc))
+    , _constraint(NULL)
+    , _allowMore(false) {
+    Arg::checkParams();
+    _acceptsMultipleValues = true;
 }
 
-template<class T>
-MultiArg<T>::MultiArg(const std::string& flag, 
-                      const std::string& name,
-                      const std::string& desc,
-                      bool req,
-                      std::string  typeDesc,
-                      CmdLineInterface& parser,
-                      Visitor* v)
-: Arg( flag, name, desc, req, true, v ),
-  _values(std::vector<T>()),
-  _typeDesc(std::move( typeDesc )),
-  _constraint( NULL ),
-  _allowMore(false)
-{ 
-	Arg::checkParams();
-	parser.add( this );
-	_acceptsMultipleValues = true;
+template <class T>
+MultiArg<T>::MultiArg(const std::string& flag,
+    const std::string& name,
+    const std::string& desc,
+    bool req,
+    std::string typeDesc,
+    CmdLineInterface& parser,
+    Visitor* v)
+    : Arg(flag, name, desc, req, true, v)
+    , _values(std::vector<T>())
+    , _typeDesc(std::move(typeDesc))
+    , _constraint(NULL)
+    , _allowMore(false) {
+    Arg::checkParams();
+    parser.add(this);
+    _acceptsMultipleValues = true;
 }
 
 /**
  *
  */
-template<class T>
-MultiArg<T>::MultiArg(const std::string& flag, 
-                      const std::string& name,
-                      const std::string& desc,
-                      bool req,
-                      Constraint<T>* constraint,
-                      Visitor* v)
-: Arg( flag, name, desc, req, true, v ),
-  _values(std::vector<T>()),
-  _typeDesc( constraint->shortID() ),
-  _constraint( constraint ),
-  _allowMore(false)
-{ 
-	Arg::checkParams();
-	_acceptsMultipleValues = true;
+template <class T>
+MultiArg<T>::MultiArg(const std::string& flag,
+    const std::string& name,
+    const std::string& desc,
+    bool req,
+    Constraint<T>* constraint,
+    Visitor* v)
+    : Arg(flag, name, desc, req, true, v)
+    , _values(std::vector<T>())
+    , _typeDesc(constraint->shortID())
+    , _constraint(constraint)
+    , _allowMore(false) {
+    Arg::checkParams();
+    _acceptsMultipleValues = true;
 }
 
-template<class T>
-MultiArg<T>::MultiArg(const std::string& flag, 
-                      const std::string& name,
-                      const std::string& desc,
-                      bool req,
-                      Constraint<T>* constraint,
-                      CmdLineInterface& parser,
-                      Visitor* v)
-: Arg( flag, name, desc, req, true, v ),
-  _values(std::vector<T>()),
-  _typeDesc( constraint->shortID() ),
-  _constraint( constraint ),
-  _allowMore(false)
-{ 
-	Arg::checkParams();
-	parser.add( this );
-	_acceptsMultipleValues = true;
+template <class T>
+MultiArg<T>::MultiArg(const std::string& flag,
+    const std::string& name,
+    const std::string& desc,
+    bool req,
+    Constraint<T>* constraint,
+    CmdLineInterface& parser,
+    Visitor* v)
+    : Arg(flag, name, desc, req, true, v)
+    , _values(std::vector<T>())
+    , _typeDesc(constraint->shortID())
+    , _constraint(constraint)
+    , _allowMore(false) {
+    Arg::checkParams();
+    parser.add(this);
+    _acceptsMultipleValues = true;
 }
 
-template<class T>
+template <class T>
 const std::vector<T>& MultiArg<T>::getValue() { return _values; }
 
-template<class T>
-bool MultiArg<T>::processArg(int *i, std::vector<std::string>& args) 
-{
- 	if ( _ignoreable && Arg::ignoreRest() ) {
-		return false;
-}
+template <class T>
+bool MultiArg<T>::processArg(std::size_t& i, std::vector<std::string>& args) {
+    if (_ignoreable && Arg::ignoreRest()) {
+        return false;
+    }
 
-	if ( _hasBlanks( args[*i] ) ) {
-		return false;
-}
+    if (_hasBlanks(args[i])) {
+        return false;
+    }
 
-	std::string flag = args[*i];
-	std::string value;
+    std::string flag = args[i];
+    std::string value;
 
-   	trimFlag( flag, value );
+    trimFlag(flag, value);
 
-   	if ( argMatches( flag ) )
-   	{
-   		if ( Arg::delimiter() != ' ' && value.empty() ) {
-			throw( ArgParseException( 
-			           "Couldn't find delimiter for this argument!",
-					   toString() ) );
-}
+    if (argMatches(flag)) {
+        if (Arg::delimiter() != ' ' && value.empty()) {
+            throw(ArgParseException(
+                "Couldn't find delimiter for this argument!",
+                toString()));
+        }
 
-		// always take the first one, regardless of start string
-		if ( value.empty() )
-		{
-			(*i)++;
-			if ( static_cast<unsigned int>(*i) < args.size() ) {
-				_extractValue( args[*i] );
-			} else {
-				throw( ArgParseException("Missing a value for this argument!",
-                                         toString() ) );
-}
-		} 
-		else {
-			_extractValue( value );
-}
+        // always take the first one, regardless of start string
+        if (value.empty()) {
+            i++;
+            if (i < args.size()) {
+                _extractValue(args[i]);
+            } else {
+                throw(ArgParseException("Missing a value for this argument!",
+                    toString()));
+            }
+        } else {
+            _extractValue(value);
+        }
 
-		/*
+        /*
 		// continuing taking the args until we hit one with a start string 
 		while ( (unsigned int)(*i)+1 < args.size() &&
 				args[(*i)+1].find_first_of( Arg::flagStartString() ) != 0 &&
@@ -355,87 +342,77 @@ bool MultiArg<T>::processArg(int *i, std::vector<std::string>& args)
 				_extractValue( args[++(*i)] );
 		*/
 
-		_alreadySet = true;
-		_checkWithVisitor();
+        _alreadySet = true;
+        _checkWithVisitor();
 
-		return true;
-	}
-	 {
-		return false;
-}
-}
-
-/**
- *
- */
-template<class T>
-std::string MultiArg<T>::shortID(const std::string& val) const
-{
-	static_cast<void>(val); // Ignore input, don't warn
-	return Arg::shortID(_typeDesc) + " ... ";
+        return true;
+    }
+    {
+        return false;
+    }
 }
 
 /**
  *
  */
-template<class T>
-std::string MultiArg<T>::longID(const std::string& val) const
-{
-	static_cast<void>(val); // Ignore input, don't warn
-	return Arg::longID(_typeDesc) + "  (accepted multiple times)";
+template <class T>
+std::string MultiArg<T>::shortID(const std::string& /*unused*/) const {
+    return Arg::shortID(_typeDesc) + " ... ";
+}
+
+/**
+ *
+ */
+template <class T>
+std::string MultiArg<T>::longID(const std::string& /*unused*/) const {
+    return Arg::longID(_typeDesc) + "  (accepted multiple times)";
 }
 
 /**
  * Once we've matched the first value, then the arg is no longer
  * required.
  */
-template<class T>
-bool MultiArg<T>::isRequired() const
-{
-	return _required && _values.empty();
-	// if ( _required ) {
-	// 	if ( _values.size() > 1 ) {
-	// 		return false;
-	// 	}
-	// 	return true;
- //   	}
-	// return false;
+template <class T>
+bool MultiArg<T>::isRequired() const {
+    return _required && _values.empty();
+    // if ( _required ) {
+    // 	if ( _values.size() > 1 ) {
+    // 		return false;
+    // 	}
+    // 	return true;
+    //   	}
+    // return false;
 }
 
-template<class T>
-void MultiArg<T>::_extractValue( const std::string& val ) 
-{
+template <class T>
+void MultiArg<T>::_extractValue(const std::string& val) {
     try {
-	T tmp;
-	ExtractValue(tmp, val, typename ArgTraits<T>::ValueCategory());
-	_values.push_back(tmp);
-    } catch( ArgParseException &e) {
-	throw ArgParseException(e.error(), toString());
+        T tmp;
+        ExtractValue(tmp, val, typename ArgTraits<T>::ValueCategory());
+        _values.push_back(tmp);
+    } catch (ArgParseException& e) {
+        throw ArgParseException(e.error(), toString());
     }
 
-    if ( _constraint != NULL ) {
-	if ( ! _constraint->check( _values.back() ) ) {
-	    throw( CmdLineParseException( "Value '" + val +
-					  "' does not meet constraint: " +
-					  _constraint->description(), 
-					  toString() ) );
-}
-}
-}
-		
-template<class T>
-bool MultiArg<T>::allowMore()
-{
-	bool am = _allowMore;
-	_allowMore = true;
-	return am;
+    if (_constraint != NULL) {
+        if (!_constraint->check(_values.back())) {
+            throw(CmdLineParseException("Value '" + val + "' does not meet constraint: " + _constraint->description(),
+                toString()));
+        }
+    }
 }
 
-template<class T>
-void MultiArg<T>::reset()
-{
-	Arg::reset();
-	_values.clear();
+template <class T>
+bool MultiArg<T>::allowMore() {
+    bool am = _allowMore;
+    _allowMore = true;
+    return am;
+}
+
+template <class T>
+void MultiArg<T>::reset() {
+    Arg::reset();
+    _values.clear();
 }
 
 } // namespace TCLAP

@@ -18,7 +18,7 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
  *  DEALINGS IN THE SOFTWARE.  
  *  
- *****************************************************************************/ 
+ *****************************************************************************/
 
 #ifndef TCLAP_COMMANDLINE_INTERFACE_H
 #define TCLAP_COMMANDLINE_INTERFACE_H
@@ -28,9 +28,8 @@
 #include <string>
 #include <vector>
 
-
 namespace TCLAP {
-     
+
 class Arg;
 class CmdLineOutput;
 class XorHandler;
@@ -40,104 +39,103 @@ class XorHandler;
  * along the parsing to the appropriate Arg classes.
  */
 class CmdLineInterface {
-	public:
-		CmdLineInterface() = default;
-		CmdLineInterface(const CmdLineInterface&) = default;
-		CmdLineInterface& operator=(const CmdLineInterface&) = default;
-		CmdLineInterface(CmdLineInterface&&) = default;
-		CmdLineInterface& operator=(CmdLineInterface&&) = default;
-		virtual ~CmdLineInterface() = default;
+  public:
+    CmdLineInterface() = default;
+    CmdLineInterface(const CmdLineInterface&) = default;
+    CmdLineInterface& operator=(const CmdLineInterface&) = default;
+    CmdLineInterface(CmdLineInterface&&) = default;
+    CmdLineInterface& operator=(CmdLineInterface&&) = default;
+    virtual ~CmdLineInterface() = default;
 
-		/**
+    /**
 		 * An alternative add.  Functionally identical.
 		 * \param a - Argument to be added. 
 		 */
-		virtual void add( Arg* a ) = 0;
+    virtual void add(Arg* a) = 0;
 
-		/**
+    /**
 		 * Add two Args that will be xor'd.  
 		 * If this method is used, add does
 		 * not need to be called.
 		 * \param a - Argument to be added and xor'd. 
 		 * \param b - Argument to be added and xor'd. 
 		 */
-		virtual void xorAdd( Arg* a, Arg* b )=0;
+    virtual void xorAdd(Arg* a, Arg* b) = 0;
 
-		/**
+    /**
 		 * Add a list of Args that will be xor'd.  If this method is used, 
 		 * add does not need to be called.
 		 * \param xors - List of Args to be added and xor'd. 
 		 */
-		virtual void xorAdd( const std::vector<Arg*>& xors )=0;
+    virtual void xorAdd(const std::vector<Arg*>& xors) = 0;
 
-		/**
+    /**
 		 * Parses the command line.
 		 * \param argc - Number of arguments.
 		 * \param argv - Array of arguments.
 		 */
-		virtual void parse(int argc, const char * const * argv) = 0;
+    virtual void parse(int argc, const char* const* argv) = 0;
 
-        /**
+    /**
          * Parses the command line.
          * \param args - A vector of strings representing the args. 
          * args[0] is still the program name.
          */
-        void parse(std::vector<std::string>& args);
+    void parse(std::vector<std::string>& args);
 
-		/**
+    /**
 		 * Returns the CmdLineOutput object.
 		 */
-		virtual const CmdLineOutput& getOutput() const = 0;
+    virtual const CmdLineOutput& getOutput() const = 0;
 
-		/**
+    /**
 		 * \param co - CmdLineOutput object that we want to use instead. 
 		 */
-		virtual void setOutput(CmdLineOutput* co) = 0;
+    virtual void setOutput(CmdLineOutput* co) = 0;
 
-		/**
+    /**
 		 * Returns the version string.
 		 */
-		virtual const std::string& getVersion() const = 0;
+    virtual const std::string& getVersion() const = 0;
 
-		/**
+    /**
 		 * Returns the program name string.
 		 */
-		virtual const std::string& getProgramName() const = 0;
+    virtual const std::string& getProgramName() const = 0;
 
-		/**
+    /**
 		 * Returns the argList. 
 		 */
-		virtual const std::vector<Arg*>& getArgList() const = 0;
+    virtual const std::vector<Arg*>& getArgList() const = 0;
 
-		/**
+    /**
 		 * Returns the XorHandler. 
 		 */
-		virtual const XorHandler& getXorHandler() const = 0;
+    virtual const XorHandler& getXorHandler() const = 0;
 
-		/**
+    /**
 		 * Returns the delimiter string.
 		 */
-		virtual char getDelimiter() const = 0;
+    virtual char getDelimiter() const = 0;
 
-		/**
+    /**
 		 * Returns the message string.
 		 */
-		virtual const std::string& getMessage() const = 0;
+    virtual const std::string& getMessage() const = 0;
 
-		/**
+    /**
 		 * Indicates whether or not the help and version switches were created
 		 * automatically.
 		 */
-		virtual bool hasHelpAndVersion() const = 0 ;
+    virtual bool hasHelpAndVersion() const = 0;
 
-		/** 
+    /** 
 		 * Resets the instance as if it had just been constructed so that the
 		 * instance can be reused. 
 		 */
-		virtual void reset()=0;
+    virtual void reset() = 0;
 };
 
 } // namespace TCLAP
 
-
-#endif 
+#endif

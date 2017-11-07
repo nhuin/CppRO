@@ -17,8 +17,7 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
  *  DEALINGS IN THE SOFTWARE.  
  *  
- *****************************************************************************/ 
-
+ *****************************************************************************/
 
 #ifndef TCLAP_IGNORE_REST_VISITOR_H
 #define TCLAP_IGNORE_REST_VISITOR_H
@@ -32,26 +31,26 @@ namespace TCLAP {
  * A Vistor that tells the CmdLine to begin ignoring arguments after
  * this one is parsed.
  */
-class IgnoreRestVisitor: public Visitor
-{
-	public:
-
-		/**
+class IgnoreRestVisitor : public Visitor {
+  public:
+    /**
 		 * Constructor.
 		 */
-		IgnoreRestVisitor()  = default;
-		IgnoreRestVisitor(const IgnoreRestVisitor&) = default;
-		IgnoreRestVisitor& operator=(const IgnoreRestVisitor&) = default;
-		IgnoreRestVisitor(IgnoreRestVisitor&&) = default;
-		IgnoreRestVisitor& operator=(IgnoreRestVisitor&&) = default;
-		~IgnoreRestVisitor()  override = default;
+    IgnoreRestVisitor() = default;
+    IgnoreRestVisitor(const IgnoreRestVisitor&) = default;
+    IgnoreRestVisitor& operator=(const IgnoreRestVisitor&) = default;
+    IgnoreRestVisitor(IgnoreRestVisitor&&) = default;
+    IgnoreRestVisitor& operator=(IgnoreRestVisitor&&) = default;
+    ~IgnoreRestVisitor() override = default;
 
-		/**
+    /**
 		 * Sets Arg::_ignoreRest.
 		 */
-		void visit() override { Arg::beginIgnoring();  }
+    void visit() override {
+        Arg::beginIgnoring();
+    }
 };
 
-}  // namespace TCLAP
+} // namespace TCLAP
 
 #endif

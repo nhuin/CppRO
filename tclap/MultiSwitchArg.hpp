@@ -21,7 +21,6 @@
 *
 *****************************************************************************/
 
-
 #ifndef TCLAP_MULTI_SWITCH_ARG_H
 #define TCLAP_MULTI_SWITCH_ARG_H
 
@@ -36,24 +35,21 @@ namespace TCLAP {
 * A multiple switch argument.  If the switch is set on the command line, then
 * the getValue method will return the number of times the switch appears.
 */
-class MultiSwitchArg : public SwitchArg
-{
-	protected:
-
-		/**
+class MultiSwitchArg : public SwitchArg {
+  protected:
+    /**
 		 * The value of the switch.
 		 */
-		int _value;
+    int _multiValue;
 
-		/**
+    /**
 		 * Used to support the reset() method so that ValueArg can be
 		 * reset to their constructed value.
 		 */
-		int _default;
+    int _multiDefault;
 
-	public:
-
-		/**
+  public:
+    /**
 		 * MultiSwitchArg constructor.
 		 * \param flag - The one character flag that identifies this
 		 * argument on the command line.
@@ -66,14 +62,13 @@ class MultiSwitchArg : public SwitchArg
 		 * \param v - An optional visitor.  You probably should not
 		 * use this unless you have a very good reason.
 		 */
-		MultiSwitchArg(const std::string& flag, 
-				const std::string& name,
-				const std::string& desc,
-				int init = 0,
-				Visitor* v = nullptr);
+    MultiSwitchArg(const std::string& flag,
+        const std::string& name,
+        const std::string& desc,
+        int init = 0,
+        Visitor* v = nullptr);
 
-
-		/**
+    /**
 		 * MultiSwitchArg constructor.
 		 * \param flag - The one character flag that identifies this
 		 * argument on the command line.
@@ -87,130 +82,118 @@ class MultiSwitchArg : public SwitchArg
 		 * \param v - An optional visitor.  You probably should not
 		 * use this unless you have a very good reason.
 		 */
-		MultiSwitchArg(const std::string& flag, 
-				const std::string& name,
-				const std::string& desc,
-				CmdLineInterface& parser,
-				int init = 0,
-				Visitor* v = nullptr);
+    MultiSwitchArg(const std::string& flag,
+        const std::string& name,
+        const std::string& desc,
+        CmdLineInterface& parser,
+        int init = 0,
+        Visitor* v = nullptr);
 
-
-		/**
+    /**
 		 * Handles the processing of the argument.
 		 * This re-implements the SwitchArg version of this method to set the
-		 * _value of the argument appropriately.
+		 * _multiValue of the argument appropriately.
 		 * \param i - Pointer the the current argument in the list.
 		 * \param args - Mutable list of strings. Passed
 		 * in from main().
 		 */
-		bool processArg(int* i, std::vector<std::string>& args) override; 
+    bool processArg(std::size_t& i, std::vector<std::string>& args) override;
 
-		/**
+    /**
 		 * Returns int, the number of times the switch has been set.
 		 */
-		int getValue();
+    int getValue();
 
-		/**
+    /**
 		 * Returns the shortID for this Arg.
 		 */
-		std::string shortID(const std::string& val) const override;
+    std::string shortID(const std::string& val) const override;
 
-		/**
+    /**
 		 * Returns the longID for this Arg.
 		 */
-		std::string longID(const std::string& val) const override;
-		
-		void reset() override;
+    std::string longID(const std::string& val) const override;
 
+    void reset() override;
 };
 
 //////////////////////////////////////////////////////////////////////
 //BEGIN MultiSwitchArg.cpp
 //////////////////////////////////////////////////////////////////////
 MultiSwitchArg::MultiSwitchArg(const std::string& flag,
-					const std::string& name,
-					const std::string& desc,
-					int init,
-					Visitor* v ) : 
-	SwitchArg(flag, name, desc, false, v),
-	_value( init ),
-	_default( init )
-{
-	Arg::checkParams();
+    const std::string& name,
+    const std::string& desc,
+    int init,
+    Visitor* v)
+    : SwitchArg(flag, name, desc, false, v)
+    , _multiValue(init)
+    , _multiDefault(init) {
+    Arg::checkParams();
 }
 
 MultiSwitchArg::MultiSwitchArg(const std::string& flag,
-					const std::string& name, 
-					const std::string& desc, 
-					CmdLineInterface& parser,
-					int init,
-					Visitor* v )
-: SwitchArg(flag, name, desc, false, v),
-_value( init ),
-_default( init )
-{ 
-	Arg::checkParams();
-	parser.add( this );
+    const std::string& name,
+    const std::string& desc,
+    CmdLineInterface& parser,
+    int init,
+    Visitor* v)
+    : SwitchArg(flag, name, desc, false, v)
+    , _multiValue(init)
+    , _multiDefault(init) {
+    Arg::checkParams();
+    parser.add(this);
 }
 
-int MultiSwitchArg::getValue() { return _value; }
+int MultiSwitchArg::getValue() { return _multiValue; }
 
-bool MultiSwitchArg::processArg(int *i, std::vector<std::string>& args)
-{
-	if ( _ignoreable && Arg::ignoreRest() ) {
-		return false;
+bool MultiSwitchArg::processArg(std::size_t& i, std::vector<std::string>& args) {
+    if (_ignoreable && Arg::ignoreRest()) {
+        return false;
+    }
+
+    if (argMatches(args[i])) {
+        // so the isSet() method will work
+        _alreadySet = true;
+
+        // Matched argument: increment value.
+        ++_multiValue;
+
+        _checkWithVisitor();
+
+        return true;
+    }
+    if (combinedSwitchesMatch(args[i])) {
+        // so the isSet() method will work
+        _alreadySet = true;
+
+        // Matched argument: increment value.
+        ++_multiValue;
+
+        // Check for more in argument and increment value.
+        while (combinedSwitchesMatch(args[i])) {
+            ++_multiValue;
+        }
+
+        _checkWithVisitor();
+
+        return false;
+    }
+
+    return false;
 }
 
-	if ( argMatches( args[*i] ))
-	{
-		// so the isSet() method will work
-		_alreadySet = true;
-
-		// Matched argument: increment value.
-		++_value;
-
-		_checkWithVisitor();
-
-		return true;
-	}
-	if ( combinedSwitchesMatch( args[*i] ) )
-	{
-		// so the isSet() method will work
-		_alreadySet = true;
-
-		// Matched argument: increment value.
-		++_value;
-
-		// Check for more in argument and increment value.
-		while ( combinedSwitchesMatch( args[*i] ) ) { 
-			++_value;
+std::string
+MultiSwitchArg::shortID(const std::string& val) const {
+    return Arg::shortID(val) + " ... ";
 }
 
-		_checkWithVisitor();
-
-		return false;
-	}
-	
-		return false;
-
+std::string
+MultiSwitchArg::longID(const std::string& val) const {
+    return Arg::longID(val) + "  (accepted multiple times)";
 }
 
-std::string 
-MultiSwitchArg::shortID(const std::string& val) const
-{
-	return Arg::shortID(val) + " ... ";
-}
-
-std::string 
-MultiSwitchArg::longID(const std::string& val) const
-{
-	return Arg::longID(val) + "  (accepted multiple times)";
-}
-
-void
-MultiSwitchArg::reset()
-{
-	MultiSwitchArg::_value = MultiSwitchArg::_default;
+void MultiSwitchArg::reset() {
+    MultiSwitchArg::_multiValue = MultiSwitchArg::_multiDefault;
 }
 
 //////////////////////////////////////////////////////////////////////

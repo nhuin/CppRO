@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.4)
-
+project(MyC++ LANGUAGES CXX)
 # Get include directories 
 # get_property(dirs DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES)
 # foreach(dir ${dirs})
@@ -11,7 +11,7 @@ set(CMAKE_FIND_LIBRARY_SUFFIXES "")
 
 # Additional targets to perform clang-format/clang-tidy
 
-include_directories(include)
+include_directories(./include)
 include_directories(../include)
 include_directories($ENV{MY_CPP_INCLUDE})
 include_directories(/usr/local/include/)
@@ -37,7 +37,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -Wall -Wextra -Wshadow -Wnon-
     -pedantic -Wno-c++11-compat -DIL_STD -march=native -Weverything \
     -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-sign-conversion")
 set(CMAKE_CXX_FLAGS_DEBUG "-Og -fsanitize=address")
-set(CMAKE_CXX_FLAGS_RELEASE " -Ofast -DNDEBUG -DBOOST_UBLAS_NDEBUG")
+set(CMAKE_CXX_FLAGS_RELEASE " -Ofast -DNDEBUG -DBOOST_DISABLE_ASSERTS -DBOOST_UBLAS_NDEBUG")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO " -g -Og")
 SET(CMAKE_INCLUDE_SYSTEM_FLAG_CXX "-isystem ")
 

@@ -34,31 +34,8 @@ std::size_t someProduct(std::tuple<int>&& _pos, std::tuple<int>&& /*_v2*/) {
     return std::get<0>(_pos);
 }
 
-template <typename IloType, int nbDim>
-class IloWrapper {
-  public:
-    template <typename... T>
-    IloWrapper(IloEnv _env, IloType&& _val, T&&... args)
-        : m_dimSize({args...})
-        , m_array(_env,
-              std::accumulate(m_dimSize.begin(), m_dimSize.end(), 1,
-                  std::multiplies<int>()),
-              _val) {
-        static_assert(nbDim == sizeof...(T));
-    }
-
-    template <typename... T>
-    IloType& operator[](std::tuple<T...>&& _tuple) {
-        return someProduct(_tuple, m_dimSize);
-    }
-
-    operator IloArray<IloType>&() { return m_array; }
-
-    operator const IloArray<IloType>&() const { return m_array; }
-
-  private:
-    std::array<std::size_t, nbDim> m_dimSize;
-    IloArray<IloType> m_array;
+template <typename IloType>
+class IloArrayWrapper {
 };
 
 #endif
