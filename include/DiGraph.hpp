@@ -12,6 +12,8 @@
 
 template<typename DG>
 std::vector<Graph::Node> getTopologicalOrder(const DG& _g);
+template<typename DG>
+std::vector<std::size_t> getInDegrees(const DG& _g);
 
 class DiGraph {
   public:
@@ -88,7 +90,7 @@ class DiGraph {
     }
 
     [[deprecated]] std::vector<Graph::Node> getTopologicalOrder() const {
-        return getTopologicalOrder(*this)
+        return ::getTopologicalOrder(*this);
     }
 
     DiGraph getReversedGraph() const {
@@ -116,7 +118,7 @@ class DiGraph {
         return neighbors;
     }
 
-    const std::vector<Graph::Node>& getNeighbors(const Graph::Node _u) const override {
+    const std::vector<Graph::Node>& getNeighbors(const Graph::Node _u) const {
         return m_neighbors[_u];
     }
 
@@ -146,10 +148,18 @@ class DiGraph {
                 --m_size;
             }
         }
+    }	
+
+    std::size_t getOrder() const {
+    	return m_order;
     }
 
-    std::vector<Edge> getEdges() const override {
-        std::vector<Edge> edges;
+    std::size_t size() const {
+    	return m_size;
+    }
+
+    std::vector<Graph::Edge> getEdges() const {
+        std::vector<Graph::Edge> edges;
 
         for (Graph::Node u = 0; u < m_order; ++u) {
             for (Graph::Node v = 0; v < m_order; ++v) {
@@ -244,11 +254,11 @@ class DiGraph {
     [[deprecated]] std::vector<std::vector<Graph::Node>> getStronglyConnectedComponent() const {
         std::vector<std::vector<Graph::Node>> SCCs;
         int index = 0;
-        std::vector<Node> S;
+        std::vector<Graph::Node> S;
         std::vector<int> indexes(m_order, -1), lowLink(m_order);
         std::vector<bool> onStack(m_order, false);
 
-        const std::function<void(Node)> strongConnect = [&](const Node v) {
+        const std::function<void(Graph::Node)> strongConnect = [&](const Graph::Node v) {
             // Set the depth index for v to the smallest unused index
             indexes[v] = lowLink[v] = index;
             ++index;
@@ -272,7 +282,7 @@ class DiGraph {
             // If v is a root node, pop the stack and generate an SCC
             if (lowLink[v] == indexes[v]) {
                 SCCs.emplace_back();
-                Node w;
+                Graph::Node w;
                 do {
                     w = S.back();
                     SCCs.back().push_back(w);
@@ -328,7 +338,7 @@ class DiGraph {
 * \retval false If the the graps are different
 */
 template<typename DG>
-bool operator==(const DG& _g1, const DG& _g2) {
+inline bool operator==(const DG& _g1, const DG& _g2) {
     // First, check size and order of both digraph
     if (_g1.getOrder() == _g2.getOrder() && _g1.size() == _g2.size()) {
         // Second, check that all edge in _g1 belong to _g2
@@ -346,10 +356,10 @@ bool operator==(const DG& _g1, const DG& _g2) {
 * Otherwise, return an empty vector
 */
 template<typename DG>
-std::vector<Graph::Node> getTopologicalOrder(const DG& _g) {
+inline std::vector<Graph::Node> getTopologicalOrder(const DG& _g) {
     std::vector<Graph::Node> topo;
 
-    std::vector<std::size_t> inDegrees = getInDegrees(_g);
+    std::vector<std::size_t> inDegrees = ::getInDegrees(_g);
 
     std::vector<bool> inOrder(_g.getOrder(), false);
     bool foundNullInDegree = false;
@@ -373,7 +383,7 @@ std::vector<Graph::Node> getTopologicalOrder(const DG& _g) {
 }
 
 template<typename DG>
-std::vector<DiGraph> getStronglyConnectedSubGraph(const DG& _g) {
+inline std::vector<DiGraph> getStronglyConnectedSubGraph(const DG& _g) {
     const auto SCCs = getStronglyConnectedComponent(_g);
     std::vector<DiGraph> subGraphs;
     subGraphs.reserve(SCCs.size());
@@ -396,7 +406,7 @@ std::vector<DiGraph> getStronglyConnectedSubGraph(const DG& _g) {
 }
 
 template<typename DG>
-std::vector<std::size_t> getInDegrees(const DG&& _g) {
+inline std::vector<std::size_t> getInDegrees(const DG& _g) {
     std::vector<std::size_t> inDegrees(_g.getOrder(), 0);
     for(const auto& edge : _g.getEdges()) {
         ++inDegrees[edge.first];
@@ -408,7 +418,7 @@ std::vector<std::size_t> getInDegrees(const DG&& _g) {
 * \todo{Transform to iterative}
 */
 template<typename DG>
-std::vector<std::vector<Graph::Node>> getStronglyConnectedComponent(const DG& _g) {
+inline std::vector<std::vector<Graph::Node>> getStronglyConnectedComponent(const DG& _g) {
     std::vector<std::vector<Graph::Node>> SCCs;
     int index = 0;
     std::vector<Graph::Node> S;
