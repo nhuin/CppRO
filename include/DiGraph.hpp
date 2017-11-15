@@ -337,8 +337,7 @@ class DiGraph {
 * \retval true If the graphs are equal
 * \retval false If the the graps are different
 */
-template<typename DG>
-inline bool operator==(const DG& _g1, const DG& _g2) {
+inline bool operator==(const DiGraph& _g1, const DiGraph& _g2) {
     // First, check size and order of both digraph
     if (_g1.getOrder() == _g2.getOrder() && _g1.size() == _g2.size()) {
         // Second, check that all edge in _g1 belong to _g2
