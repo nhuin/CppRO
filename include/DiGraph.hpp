@@ -81,10 +81,16 @@ class DiGraph {
         setEdgeWeight(_e.first, _e.second, _w);
     }
 
+    /**
+    * \brief Add _w to the weight of the edge (_u, _v)
+    */
     inline void addEdgeWeight(const Graph::Node _u, const Graph::Node _v, const double& _w) {
         m_matrix(_u, _v).second += _w;
     }
 
+    /**
+    * \brief Add _w to the weight of the edge _e
+    */
     inline void addEdgeWeight(const Graph::Edge& _e, const double& _w) {
         addEdgeWeight(_e.first, _e.second, _w);
     }
