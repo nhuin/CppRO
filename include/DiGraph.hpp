@@ -81,10 +81,16 @@ class DiGraph {
         setEdgeWeight(_e.first, _e.second, _w);
     }
 
+    /**
+    * \brief Add _w to the weight of the edge (_u, _v)
+    */
     inline void addEdgeWeight(const Graph::Node _u, const Graph::Node _v, const double& _w) {
         m_matrix(_u, _v).second += _w;
     }
 
+    /**
+    * \brief Add _w to the weight of the edge _e
+    */
     inline void addEdgeWeight(const Graph::Edge& _e, const double& _w) {
         addEdgeWeight(_e.first, _e.second, _w);
     }
@@ -340,8 +346,7 @@ std::ostream& operator<<(std::ostream&, const DiGraph& _g);
 * \retval true If the graphs are equal
 * \retval false If the the graps are different
 */
-template<typename DG>
-inline bool operator==(const DG& _g1, const DG& _g2) {
+inline bool operator==(const DiGraph& _g1, const DiGraph& _g2) {
     // First, check size and order of both digraph
     if (_g1.getOrder() == _g2.getOrder() && _g1.size() == _g2.size()) {
         // Second, check that all edge in _g1 belong to _g2
