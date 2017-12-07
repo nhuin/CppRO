@@ -1,6 +1,7 @@
 #ifndef DIGRAPH_H
 #define DIGRAPH_H
 
+#include <iostream>
 #include <algorithm>
 #include <functional>
 #include <sstream>
@@ -8,6 +9,7 @@
 #include <vector>
 
 #include "Graph.hpp"
+#include "utility.hpp"
 #include "Matrix.hpp"
 
 template<typename DG>
@@ -30,8 +32,6 @@ class DiGraph {
     ~DiGraph() = default;
 
     void addEdge(const Graph::Node _u, const Graph::Node _v, const double& _w = double()) {
-        assert(_u >= 0);
-        assert(_v >= 0);
         assert(_u < m_matrix.size1());
         assert(_v < m_matrix.size2());
 
@@ -329,6 +329,9 @@ class DiGraph {
     std::vector<std::vector<Graph::Node>> m_neighbors;
 };
 
+std::ostream& operator<<(std::ostream&, const DiGraph& _g);
+
+
 /**
 * Compare two graphs and return true if the two graphs have the same order
 * and the have the same set of nodes and edges.
@@ -358,6 +361,7 @@ inline bool operator==(const DG& _g1, const DG& _g2) {
 template<typename DG>
 inline std::vector<Graph::Node> getTopologicalOrder(const DG& _g) {
     std::vector<Graph::Node> topo;
+    topo.reserve(_g.getOrder());
 
     std::vector<std::size_t> inDegrees = ::getInDegrees(_g);
 
@@ -365,14 +369,17 @@ inline std::vector<Graph::Node> getTopologicalOrder(const DG& _g) {
     bool foundNullInDegree = false;
     while (topo.size() < _g.getOrder()) {
         foundNullInDegree = false;
-        for (std::size_t u = 0; u < inDegrees.size(); ++u) {
-            if (inDegrees[u] == 0 && !inOrder[u]) {
+        for (std::size_t u = 0; u < _g.getOrder(); ++u) {
+            if (inDegrees[u] == 0 
+                && !inOrder[u]) {
                 foundNullInDegree = true;
                 topo.push_back(u);
                 inOrder[u] = true;
+                std::cout << _g.getNeighbors(u) << '\n';
                 for (const auto& v : _g.getNeighbors(u)) {
                     --inDegrees[v];
                 }
+                std::cout << inDegrees << '\n';
             }
         }
         if (!foundNullInDegree) {
@@ -409,7 +416,7 @@ template<typename DG>
 inline std::vector<std::size_t> getInDegrees(const DG& _g) {
     std::vector<std::size_t> inDegrees(_g.getOrder(), 0);
     for(const auto& edge : _g.getEdges()) {
-        ++inDegrees[edge.first];
+        ++inDegrees[edge.second];
     }
     return inDegrees;
 }
@@ -466,6 +473,10 @@ inline std::vector<std::vector<Graph::Node>> getStronglyConnectedComponent(const
         }
     }
     return SCCs;
+}
+
+inline std::ostream& operator<<(std::ostream& _out, const DiGraph& _g) {
+    return _out << _g.getOrder() << " nodes, " << _g.size() << " edges: " << _g.getEdges() << '\n';
 }
 
 #endif
