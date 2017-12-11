@@ -380,11 +380,9 @@ inline std::vector<Graph::Node> getTopologicalOrder(const DG& _g) {
                 foundNullInDegree = true;
                 topo.push_back(u);
                 inOrder[u] = true;
-                std::cout << _g.getNeighbors(u) << '\n';
                 for (const auto& v : _g.getNeighbors(u)) {
                     --inDegrees[v];
                 }
-                std::cout << inDegrees << '\n';
             }
         }
         if (!foundNullInDegree) {
