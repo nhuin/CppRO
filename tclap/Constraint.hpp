@@ -34,39 +34,38 @@ namespace TCLAP {
 /**
  * The interface that defines the interaction between the Arg and Constraint.
  */
-template<class T>
-class Constraint
-{
+template <class T>
+class Constraint {
 
-	public:
-		/**
+  public:
+    /**
 		 * Returns a description of the Constraint.
 		 */
-		virtual const std::string& description() const =0;
+    virtual const std::string& description() const = 0;
 
-		/**
+    /**
 		 * Returns the short ID for the Constraint.
 		 */
-		virtual const std::string& shortID() const =0;
+    virtual const std::string& shortID() const = 0;
 
-		/**
+    /**
 		 * The method used to verify that the value parsed from the command
 		 * line meets the constraint.
 		 * \param value - The value that will be checked.
 		 */
-		virtual bool check(const T& value) const =0;
+    virtual bool check(const T& value) const = 0;
 
-		/**
+    /**
 		 * Destructor.
 		 * Silences warnings about Constraint being a base class with virtual
 		 * functions but without a virtual destructor.
 		 */
-		virtual ~Constraint() = default;
-		Constraint() = default;
-		Constraint(const Constraint&) = default;
-		Constraint& operator=(const Constraint&) = default;
-		Constraint(Constraint&&) noexcept = default;
-		Constraint& operator=(Constraint&&) noexcept = default;
+    virtual ~Constraint() = default;
+    Constraint() = default;
+    Constraint(const Constraint&) = default;
+    Constraint& operator=(const Constraint&) = default;
+    Constraint(Constraint&&) noexcept = default;
+    Constraint& operator=(Constraint&&) noexcept = default;
 };
 
 } //namespace TCLAP

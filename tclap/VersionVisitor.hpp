@@ -18,8 +18,7 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
  *  DEALINGS IN THE SOFTWARE.  
  *  
- *****************************************************************************/ 
-
+ *****************************************************************************/
 
 #ifndef TCLAP_VERSION_VISITOR_H
 #define TCLAP_VERSION_VISITOR_H
@@ -35,50 +34,46 @@ namespace TCLAP {
  * A Vistor that will call the version method of the given CmdLineOutput
  * for the specified CmdLine object and then exit.
  */
-class VersionVisitor: public Visitor
-{
-	protected:
-
-		/**
+class VersionVisitor : public Visitor {
+  protected:
+    /**
 		 * The CmdLine of interest.
 		 */
-		CmdLineInterface& _cmd;
+    CmdLineInterface& _cmd;
 
-		/**
+    /**
 		 * The output object. 
 		 */
-		CmdLineOutput& _out;
+    CmdLineOutput& _out;
 
-	public:
-
-		/**
+  public:
+    /**
 		 * Constructor.
 		 * \param cmd - The CmdLine the output is generated for. 
 		 * \param out - The type of output. 
 		 */
-		VersionVisitor( CmdLineInterface& cmd, CmdLineOutput& out ) : 
-			 
-			_cmd( cmd ), 
-			_out( out )
-		{}
+    VersionVisitor(CmdLineInterface& cmd, CmdLineOutput& out)
+        :
 
-		VersionVisitor(const VersionVisitor&) = delete;
-		VersionVisitor& operator=(const VersionVisitor&) = delete;
-		VersionVisitor(VersionVisitor&&) = default;
-		VersionVisitor& operator=(VersionVisitor&&) = default;
-		~VersionVisitor() override = default;
+        _cmd(cmd)
+        , _out(out) {}
 
-		/**
+    VersionVisitor(const VersionVisitor&) = delete;
+    VersionVisitor& operator=(const VersionVisitor&) = delete;
+    VersionVisitor(VersionVisitor&&) = default;
+    VersionVisitor& operator=(VersionVisitor&&) = default;
+    ~VersionVisitor() override = default;
+
+    /**
 		 * Calls the version method of the output object using the
 		 * specified CmdLine.
 		 */
-		void visit() override { 
-		    _out.version(_cmd); 
-		    throw ExitException(0); 
-		}
-
+    void visit() override {
+        _out.version(_cmd);
+        throw ExitException(0);
+    }
 };
 
-}  // namespace TCLAP
+} // namespace TCLAP
 
 #endif

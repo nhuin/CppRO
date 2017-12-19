@@ -30,7 +30,7 @@
 #include <config.h> // To check for long long
 #endif
 
-// If Microsoft has already typedef'd wchar_t as an unsigned 
+// If Microsoft has already typedef'd wchar_t as an unsigned
 // short, then compiles will break because it's as if we're
 // creating ArgTraits twice for unsigned short. Thus...
 #ifdef _MSC_VER
@@ -53,7 +53,7 @@ namespace TCLAP {
 /**
  * longs have value-like semantics.
  */
-template<>
+template <>
 struct ArgTraits<int64_t> {
     using ValueCategory = TCLAP::ValueLike;
 };
@@ -61,7 +61,7 @@ struct ArgTraits<int64_t> {
 /**
  * ints have value-like semantics.
  */
-template<>
+template <>
 struct ArgTraits<int> {
     using ValueCategory = TCLAP::ValueLike;
 };
@@ -69,7 +69,7 @@ struct ArgTraits<int> {
 /**
  * shorts have value-like semantics.
  */
-template<>
+template <>
 struct ArgTraits<int16_t> {
     using ValueCategory = TCLAP::ValueLike;
 };
@@ -77,7 +77,7 @@ struct ArgTraits<int16_t> {
 /**
  * chars have value-like semantics.
  */
-template<>
+template <>
 struct ArgTraits<char> {
     using ValueCategory = TCLAP::ValueLike;
 };
@@ -86,7 +86,7 @@ struct ArgTraits<char> {
 /**
  * long longs have value-like semantics.
  */
-template<>
+template <>
 struct ArgTraits<long long> {
     typedef ValueLike ValueCategory;
 };
@@ -99,7 +99,7 @@ struct ArgTraits<long long> {
 /**
  * unsigned longs have value-like semantics.
  */
-template<>
+template <>
 struct ArgTraits<uint64_t> {
     using ValueCategory = TCLAP::ValueLike;
 };
@@ -107,7 +107,7 @@ struct ArgTraits<uint64_t> {
 /**
  * unsigned ints have value-like semantics.
  */
-template<>
+template <>
 struct ArgTraits<unsigned int> {
     using ValueCategory = TCLAP::ValueLike;
 };
@@ -115,7 +115,7 @@ struct ArgTraits<unsigned int> {
 /**
  * unsigned shorts have value-like semantics.
  */
-template<>
+template <>
 struct ArgTraits<uint16_t> {
     using ValueCategory = TCLAP::ValueLike;
 };
@@ -123,28 +123,27 @@ struct ArgTraits<uint16_t> {
 /**
  * unsigned chars have value-like semantics.
  */
-template<>
+template <>
 struct ArgTraits<unsigned char> {
     using ValueCategory = TCLAP::ValueLike;
 };
 
-// Microsoft implements size_t awkwardly. 
+// Microsoft implements size_t awkwardly.
 #if defined(_MSC_VER) && defined(_M_X64)
 /**
  * size_ts have value-like semantics.
  */
-template<>
+template <>
 struct ArgTraits<size_t> {
     using ValueCategory = TCLAP::ValueLike;
 };
 #endif
 
-
 #ifdef HAVE_LONG_LONG
 /**
  * unsigned long longs have value-like semantics.
  */
-template<>
+template <>
 struct ArgTraits<unsigned long long> {
     using ValueCategory = TCLAP::ValueLike;
 };
@@ -157,7 +156,7 @@ struct ArgTraits<unsigned long long> {
 /**
  * floats have value-like semantics.
  */
-template<>
+template <>
 struct ArgTraits<float> {
     using ValueCategory = TCLAP::ValueLike;
 };
@@ -165,7 +164,7 @@ struct ArgTraits<float> {
 /**
  * doubles have value-like semantics.
  */
-template<>
+template <>
 struct ArgTraits<double> {
     using ValueCategory = TCLAP::ValueLike;
 };
@@ -177,17 +176,16 @@ struct ArgTraits<double> {
 /**
  * bools have value-like semantics.
  */
-template<>
+template <>
 struct ArgTraits<bool> {
     using ValueCategory = TCLAP::ValueLike;
 };
-
 
 /**
  * wchar_ts have value-like semantics.
  */
 #ifndef TCLAP_DONT_DECLARE_WCHAR_T_ARGTRAITS
-template<>
+template <>
 struct ArgTraits<wchar_t> {
     using ValueCategory = TCLAP::ValueLike;
 };
@@ -196,17 +194,16 @@ struct ArgTraits<wchar_t> {
 /**
  * Strings have string like argument traits.
  */
-template<>
+template <>
 struct ArgTraits<std::string> {
     using ValueCategory = TCLAP::StringLike;
 };
 
-template<typename T>
-void SetString(T &dst, const std::string &src) {
+template <typename T>
+void SetString(T& dst, const std::string& src) {
     dst = src;
 }
 
 } // namespace TCLAP
 
 #endif
-

@@ -9,7 +9,7 @@ class BinaryHeap {
   public:
     class Handle {
         explicit Handle(const std::size_t i)
-            : index(i){};
+            : index(i){}
         std::size_t index;
         friend BinaryHeap;
     };
@@ -18,7 +18,7 @@ class BinaryHeap {
     struct Node {
         Node(const T& _object, Handle* _index)
             : object(_object)
-            , handle(_index){};
+            , handle(_index){}
         T object;
         Handle* handle;
         void changeIndex(const std::size_t index) { handle->index = index; }
@@ -90,9 +90,13 @@ class BinaryHeap {
         return *this;
     }
 
-    const T& top() { return m_array[0].object; }
+    const T& top() {
+        return m_array[0].object;
+    }
 
-    bool empty() const { return m_nbElements != 0; }
+    bool empty() const {
+        return m_nbElements == 0;
+    }
 
     Handle* push(const T& object) {
         Handle* h = m_handle + m_nbElements;

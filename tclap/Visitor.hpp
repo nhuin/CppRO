@@ -17,8 +17,7 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
  *  DEALINGS IN THE SOFTWARE.  
  *  
- *****************************************************************************/ 
-
+ *****************************************************************************/
 
 #ifndef TCLAP_VISITOR_H
 #define TCLAP_VISITOR_H
@@ -28,16 +27,15 @@ namespace TCLAP {
 /**
  * A base class that defines the interface for visitors.
  */
-class Visitor
-{
-	public:	
-		Visitor() = default;
-		Visitor(const Visitor&) = default;
-		Visitor& operator=(const Visitor&) = default;
-		Visitor(Visitor&&) noexcept = default;
-		Visitor& operator=(Visitor&&) noexcept = default;
-		virtual ~Visitor() = default;
-		virtual void visit() = 0;
+class Visitor {
+  public:
+    Visitor() = default;
+    Visitor(const Visitor&) = default;
+    Visitor& operator=(const Visitor&) = default;
+    Visitor(Visitor&&) noexcept = default;
+    Visitor& operator=(Visitor&&) noexcept = default;
+    virtual ~Visitor() = default;
+    virtual void visit() = 0;
 };
 
 } // namespace TCLAP

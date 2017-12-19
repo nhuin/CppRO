@@ -1,5 +1,5 @@
 ---
-Checks:          'clang-diagnostic-*,clang-analyzer-*,*,-misc-definitions-in-headers,-llvm-header-guard,-cppcoreguidelines-pro-bounds-array-to-pointer-decay'
+Checks:          'clang-diagnostic-*,clang-analyzer-*,*,-misc-definitions-in-headers,-llvm-header-guard,-cppcoreguidelines-pro-bounds-array-to-pointer-decay, -google-runtime-references'
 WarningsAsErrors: ''
 HeaderFilterRegex: ''
 AnalyzeTemporaryDtors: false

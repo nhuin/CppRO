@@ -25,10 +25,9 @@ find_program(
 
 if(CLANG_FORMAT)
     message(STATUS "clang-format found: ${CLANG_FORMAT}")  
-    file(GLOB
+    file(GLOB        
         ALL_CXX_SOURCE_FILES
-        ${PROJECT_SOURCE_DIR}/src/*.[chi]pp 
-        ${PROJECT_SOURCE_DIR}/include/*.[chi]pp 
+        ${PROJECT_SOURCE_DIR}/*/*.[chi]pp
         *.[chi]pp
     )
     add_custom_target(

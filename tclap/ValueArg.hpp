@@ -17,8 +17,7 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
  *  DEALINGS IN THE SOFTWARE.  
  *  
- *****************************************************************************/ 
-
+ *****************************************************************************/
 
 #ifndef TCLAP_VALUE_ARGUMENT_H
 #define TCLAP_VALUE_ARGUMENT_H
@@ -40,49 +39,46 @@ namespace TCLAP {
  * an unflagged ValueArg, it is unwise and would cause significant problems.
  * Instead use an UnlabeledValueArg.
  */
-template<class T>
-class ValueArg : public Arg 
-{
-    protected:
-
-        /**
+template <class T>
+class ValueArg : public Arg {
+  protected:
+    /**
          * The value parsed from the command line.
          * Can be of any type, as long as the >> operator for the type
          * is defined.
          */
-        T _value;
+    T _value;
 
-		/**
+    /**
 		 * Used to support the reset() method so that ValueArg can be
 		 * reset to their constructed value.
 		 */
-        T _default;
+    T _default;
 
-        /**
+    /**
          * A human readable description of the type to be parsed.
          * This is a hack, plain and simple.  Ideally we would use RTTI to
          * return the name of type T, but until there is some sort of
          * consistent support for human readable names, we are left to our
          * own devices.
          */
-        std::string _typeDesc;
+    std::string _typeDesc;
 
-        /**
+    /**
          * A Constraint this Arg must conform to. 
          */
-        Constraint<T>* _constraint;
+    Constraint<T>* _constraint;
 
-        /**
+    /**
          * Extracts the value from the string.
          * Attempts to parse string as type T, if this fails an exception
          * is thrown.
          * \param val - value to be parsed. 
          */
-        void _extractValue( const std::string& val );
+    void _extractValue(const std::string& val);
 
-	public:
-
-        /**
+  public:
+    /**
          * Labeled ValueArg constructor.
          * You could conceivably call this constructor with a blank flag, 
          * but that would make you a bad person.  It would also cause
@@ -96,7 +92,7 @@ class ValueArg : public Arg
          * does.
          * \param req - Whether the argument is required on the command
          * line.
-         * \param value - The default value assigned to this argument if it
+         * \param val - The default value assigned to this argument if it
          * is not present on the command line.
          * \param typeDesc - A short, human readable description of the
          * type that this object expects.  This is used in the generation
@@ -105,16 +101,15 @@ class ValueArg : public Arg
          * \param v - An optional visitor.  You probably should not
          * use this unless you have a very good reason.
          */
-        ValueArg( const std::string& flag, 
-                  const std::string& name, 
-                  const std::string& desc, 
-                  bool req, 
-                  T val,
-                  std::string  typeDesc,
-                  Visitor* v = nullptr);
-				 
-				 
-        /**
+    ValueArg(const std::string& flag,
+        const std::string& name,
+        const std::string& desc,
+        bool req,
+        T val,
+        std::string typeDesc,
+        Visitor* v = nullptr);
+
+    /**
          * Labeled ValueArg constructor.
          * You could conceivably call this constructor with a blank flag, 
          * but that would make you a bad person.  It would also cause
@@ -128,7 +123,7 @@ class ValueArg : public Arg
          * does.
          * \param req - Whether the argument is required on the command
          * line.
-         * \param value - The default value assigned to this argument if it
+         * \param val - The default value assigned to this argument if it
          * is not present on the command line.
          * \param typeDesc - A short, human readable description of the
          * type that this object expects.  This is used in the generation
@@ -138,16 +133,16 @@ class ValueArg : public Arg
          * \param v - An optional visitor.  You probably should not
          * use this unless you have a very good reason.
          */
-        ValueArg( const std::string& flag, 
-                  const std::string& name, 
-                  const std::string& desc, 
-                  bool req, 
-                  T val,
-                  std::string  typeDesc,
-                  CmdLineInterface& parser,
-                  Visitor* v = nullptr );
- 
-        /**
+    ValueArg(const std::string& flag,
+        const std::string& name,
+        const std::string& desc,
+        bool req,
+        T val,
+        std::string typeDesc,
+        CmdLineInterface& parser,
+        Visitor* v = nullptr);
+
+    /**
          * Labeled ValueArg constructor.
          * You could conceivably call this constructor with a blank flag, 
          * but that would make you a bad person.  It would also cause
@@ -161,7 +156,7 @@ class ValueArg : public Arg
          * does.
          * \param req - Whether the argument is required on the command
          * line.
-         * \param value - The default value assigned to this argument if it
+         * \param val - The default value assigned to this argument if it
          * is not present on the command line.
          * \param constraint - A pointer to a Constraint object used
 		 * to constrain this Arg.
@@ -169,16 +164,16 @@ class ValueArg : public Arg
          * \param v - An optional visitor.  You probably should not
          * use this unless you have a very good reason.
          */
-        ValueArg( const std::string& flag, 
-                  const std::string& name, 
-                  const std::string& desc, 
-                  bool req, 
-                  T val,
-                  Constraint<T>* constraint,
-                  CmdLineInterface& parser,
-                  Visitor* v = nullptr );
-	  
-        /**
+    ValueArg(const std::string& flag,
+        const std::string& name,
+        const std::string& desc,
+        bool req,
+        T val,
+        Constraint<T>* constraint,
+        CmdLineInterface& parser,
+        Visitor* v = nullptr);
+
+    /**
          * Labeled ValueArg constructor.
          * You could conceivably call this constructor with a blank flag, 
          * but that would make you a bad person.  It would also cause
@@ -192,29 +187,28 @@ class ValueArg : public Arg
          * does.
          * \param req - Whether the argument is required on the command
          * line.
-         * \param value - The default value assigned to this argument if it
+         * \param val - The default value assigned to this argument if it
          * is not present on the command line.
          * \param constraint - A pointer to a Constraint object used
 		 * to constrain this Arg.
          * \param v - An optional visitor.  You probably should not
          * use this unless you have a very good reason.
          */
-        ValueArg( const std::string& flag, 
-                  const std::string& name, 
-                  const std::string& desc, 
-                  bool req, 
-                  T val,
-                  Constraint<T>* constraint,
-                  Visitor* v = nullptr );
+    ValueArg(const std::string& flag,
+        const std::string& name,
+        const std::string& desc,
+        bool req,
+        T val,
+        Constraint<T>* constraint,
+        Visitor* v = nullptr);
 
+    ValueArg(const ValueArg&) = delete;
+    ValueArg& operator=(const ValueArg&) = delete;
+    ValueArg(ValueArg&&) = default;
+    ValueArg& operator=(ValueArg&&) = default;
+    ~ValueArg() override = default;
 
-        ValueArg(const ValueArg&) = delete;
-        ValueArg& operator=(const ValueArg&) = delete;
-        ValueArg(ValueArg&&) = default;
-        ValueArg& operator=(ValueArg&&) = default;
-        ~ValueArg() override = default;
-
-        /**
+    /**
          * Handles the processing of the argument.
          * This re-implements the Arg version of this method to set the
          * _value of the argument appropriately.  It knows the difference
@@ -223,204 +217,190 @@ class ValueArg : public Arg
          * \param args - Mutable list of strings. Passed 
          * in from main().
          */
-        bool processArg(int* i, std::vector<std::string>& args) override; 
+    bool processArg(std::size_t& i, std::vector<std::string>& args) override;
 
-        /**
+    /**
          * Returns the value of the argument.
          */
-        const T& getValue() const;
+    const T& getValue() const;
 
-        /**
+    /**
          * Specialization of shortID.
          * \param val - value to be used.
          */
-        std::string shortID(const std::string& val) const override;
+    std::string shortID(const std::string& val) const override;
 
-        /**
+    /**
          * Specialization of longID.
          * \param val - value to be used.
          */
-        std::string longID(const std::string& val) const override;
-        
-        void reset() override;
-};
+    std::string longID(const std::string& val) const override;
 
+    void reset() override;
+};
 
 /**
  * Constructor implementation.
  */
-template<class T>
-ValueArg<T>::ValueArg(const std::string& flag, 
-                      const std::string& name, 
-                      const std::string& desc, 
-                      bool req, 
-                      T val,
-                      std::string  typeDesc,
-                      Visitor* v)
-: Arg(flag, name, desc, req, true, v),
-  _value( val ),
-  _default( val ),
-  _typeDesc(std::move( typeDesc )),
-  _constraint( nullptr )
-{
-  Arg::checkParams();
-}
-
-template<class T>
-ValueArg<T>::ValueArg(const std::string& flag, 
-                      const std::string& name, 
-                      const std::string& desc, 
-                      bool req, 
-                      T val,
-                      std::string  typeDesc,
-                      CmdLineInterface& parser,
-                      Visitor* v)
-: Arg(flag, name, desc, req, true, v),
-  _value( val ),
-  _default( val ),
-  _typeDesc(std::move( typeDesc )),
-  _constraint( NULL )
-{ 
+template <class T>
+ValueArg<T>::ValueArg(const std::string& flag,
+    const std::string& name,
+    const std::string& desc,
+    bool req,
+    T val,
+    std::string typeDesc,
+    Visitor* v)
+    : Arg(flag, name, desc, req, true, v)
+    , _value(val)
+    , _default(val)
+    , _typeDesc(std::move(typeDesc))
+    , _constraint(nullptr) {
     Arg::checkParams();
-    parser.add( this );
 }
 
-template<class T>
-ValueArg<T>::ValueArg(const std::string& flag, 
-                      const std::string& name, 
-                      const std::string& desc, 
-                      bool req, 
-                      T val,
-                      Constraint<T>* constraint,
-                      Visitor* v)
-: Arg(flag, name, desc, req, true, v),
-  _value( val ),
-  _default( val ),
-  _typeDesc( constraint->shortID() ),
-  _constraint( constraint )
-{
-  Arg::checkParams();
+template <class T>
+ValueArg<T>::ValueArg(const std::string& flag,
+    const std::string& name,
+    const std::string& desc,
+    bool req,
+    T val,
+    std::string typeDesc,
+    CmdLineInterface& parser,
+    Visitor* v)
+    : Arg(flag, name, desc, req, true, v)
+    , _value(val)
+    , _default(val)
+    , _typeDesc(std::move(typeDesc))
+    , _constraint(NULL) {
+    Arg::checkParams();
+    parser.add(this);
 }
 
-template<class T>
-ValueArg<T>::ValueArg(const std::string& flag, 
-                      const std::string& name, 
-                      const std::string& desc, 
-                      bool req, 
-                      T val,
-                      Constraint<T>* constraint,
-                      CmdLineInterface& parser,
-                      Visitor* v)
-: Arg(flag, name, desc, req, true, v),
-  _value( val ),
-  _default( val ),
-  _typeDesc( constraint->shortID() ),
-  _constraint( constraint )
-{ 
-  Arg::checkParams();
-  parser.add( this );
+template <class T>
+ValueArg<T>::ValueArg(const std::string& flag,
+    const std::string& name,
+    const std::string& desc,
+    bool req,
+    T val,
+    Constraint<T>* constraint,
+    Visitor* v)
+    : Arg(flag, name, desc, req, true, v)
+    , _value(val)
+    , _default(val)
+    , _typeDesc(constraint->shortID())
+    , _constraint(constraint) {
+    Arg::checkParams();
 }
 
+template <class T>
+ValueArg<T>::ValueArg(const std::string& flag,
+    const std::string& name,
+    const std::string& desc,
+    bool req,
+    T val,
+    Constraint<T>* constraint,
+    CmdLineInterface& parser,
+    Visitor* v)
+    : Arg(flag, name, desc, req, true, v)
+    , _value(val)
+    , _default(val)
+    , _typeDesc(constraint->shortID())
+    , _constraint(constraint) {
+    Arg::checkParams();
+    parser.add(this);
+}
 
 /**
  * Implementation of getValue().
  */
-template<class T>
-const T& ValueArg<T>::getValue() const { 
-    return _value; 
+template <class T>
+const T& ValueArg<T>::getValue() const {
+    return _value;
 }
 
 /**
  * Implementation of processArg().
  */
-template<class T>
-bool ValueArg<T>::processArg(int *i, std::vector<std::string>& args) {
-    if ( _ignoreable && Arg::ignoreRest() ){
+template <class T>
+bool ValueArg<T>::processArg(std::size_t& i, std::vector<std::string>& args) {
+    if (_ignoreable && Arg::ignoreRest()) {
         return false;
     }
 
-    if ( _hasBlanks( args[*i] ) ){
+    if (_hasBlanks(args[i])) {
         return false;
     }
-    std::string flag = args[*i];
+    std::string flag = args[i];
 
     std::string value;
-    trimFlag( flag, value );
+    trimFlag(flag, value);
 
-    if ( argMatches( flag ) ) {
-        if ( _alreadySet ) {
-            if ( _xorSet ) {
-                throw( CmdLineParseException("Mutually exclusive argument already set!", toString()) );
+    if (argMatches(flag)) {
+        if (_alreadySet) {
+            if (_xorSet) {
+                throw(CmdLineParseException("Mutually exclusive argument already set!", toString()));
             }
-            throw( CmdLineParseException("Argument already set!", toString()) );
+            throw(CmdLineParseException("Argument already set!", toString()));
         }
 
-        if ( Arg::delimiter() != ' ' && value.empty() ){
-            throw( ArgParseException( "Couldn't find delimiter for this argument!", toString()) );
+        if (Arg::delimiter() != ' ' && value.empty()) {
+            throw(ArgParseException("Couldn't find delimiter for this argument!", toString()));
         }
-        if ( value.empty() ) {
-            (*i)++;
-            if ( static_cast<unsigned int>(*i) < args.size() ) {
-                _extractValue( args[*i] );
+        if (value.empty()) {
+            (i)++;
+            if (i < args.size()) {
+                _extractValue(args[i]);
             } else {
-                throw( ArgParseException("Missing a value for this argument!", toString() ) );
+                throw(ArgParseException("Missing a value for this argument!", toString()));
             }
         } else {
-            _extractValue( value );
+            _extractValue(value);
         }
 
         _alreadySet = true;
         _checkWithVisitor();
         return true;
-    } 
-        return false;
-    
+    }
+    return false;
 }
 
 /**
  * Implementation of shortID.
  */
-template<class T>
-std::string ValueArg<T>::shortID(const std::string& val) const
-{
-	static_cast<void>(val); // Ignore input, don't warn
-	return Arg::shortID( _typeDesc ); 
+template <class T>
+std::string ValueArg<T>::shortID(const std::string& /*unused*/) const {
+    return Arg::shortID(_typeDesc);
 }
 
 /**
  * Implementation of longID.
  */
-template<class T>
-std::string ValueArg<T>::longID(const std::string& val) const
-{
-	static_cast<void>(val); // Ignore input, don't warn
-	return Arg::longID( _typeDesc ); 
+template <class T>
+std::string ValueArg<T>::longID(const std::string& /*unused*/) const {
+    return Arg::longID(_typeDesc);
 }
 
-template<class T>
-void ValueArg<T>::_extractValue( const std::string& val ) 
-{
+template <class T>
+void ValueArg<T>::_extractValue(const std::string& val) {
     try {
-	ExtractValue(_value, val, typename ArgTraits<T>::ValueCategory());
-    } catch( ArgParseException &e) {
-	throw ArgParseException(e.error(), toString());
+        ExtractValue(_value, val, typename ArgTraits<T>::ValueCategory());
+    } catch (ArgParseException& e) {
+        throw ArgParseException(e.error(), toString());
     }
-    
-    if ( _constraint != nullptr ) {
-    	if ( ! _constraint->check( _value ) ) {
-    	    throw( CmdLineParseException( "Value '" + val + 
-    					  + "' does not meet constraint: " 
-    					  + _constraint->description(),
-    					  toString() ) );
+
+    if (_constraint != nullptr) {
+        if (!_constraint->check(_value)) {
+            throw(CmdLineParseException("Value '" + val + +"' does not meet constraint: "
+                                            + _constraint->description(),
+                toString()));
         }
     }
 }
 
-template<class T>
-void ValueArg<T>::reset()
-{
-	Arg::reset();
-	_value = _default;
+template <class T>
+void ValueArg<T>::reset() {
+    Arg::reset();
+    _value = _default;
 }
 
 } // namespace TCLAP

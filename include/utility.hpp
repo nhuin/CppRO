@@ -164,23 +164,26 @@ inline std::ostream& operator<<(std::ostream& _o, const unused& /*unused*/) {
     return _o;
 }
 
-template <typename Ite, typename T>
-std::pair<Ite, Ite> find_consecutive_common_value(Ite _first1, const Ite& _last1,
-    Ite _first2, const Ite& _last2,
-    T _value, std::size_t _size) {
-    std::size_t counter = 0;
-    for (; _first1 != _last1 && _first2 != _last2;
-         ++_first1, ++_first2) {
-        if (*_first1 == _value && *_first2 == _value) {
-            if (++counter == _size) {
-                break;
-            }
-        } else {
-            counter = 0;
-        }
-    }
-    return {_first1, _first2};
-}
+// template <typename RandomIterator, typename T>
+// std::pair<RandomIterator, RandomIterator>
+// find_consecutive_common_value(RandomIterator _first1, RandomIterator _last1,
+//     RandomIterator _first2,
+//     const T& _value, const std::size_t _size) {
+
+//     std::size_t counter = 0;
+//     for(RandomIterator window1 = _first1 + _size, window2 = _first2 + _size;
+//         ; window1 != _last1;
+//         window1 += _size, window2 += _size) {
+//         if(*window1 == _value && *window2 == _value) {
+//             for(
+//                 ; _first1 != _window1 && _first2 != _last1;
+//                 ++_first1, ++_first2) {
+
+//             }
+//         }
+//     }
+//     return {_first1, _first2};
+// }
 
 template <typename T, typename... Args>
 auto product(T _val, Args... _args) {

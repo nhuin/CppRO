@@ -18,7 +18,7 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
  *  DEALINGS IN THE SOFTWARE.  
  *  
- *****************************************************************************/ 
+ *****************************************************************************/
 
 #ifndef TCLAP_CMDLINEOUTPUT_H
 #define TCLAP_CMDLINEOUTPUT_H
@@ -38,42 +38,39 @@ class ArgException;
 /**
  * The interface that any output object must implement.
  */
-class CmdLineOutput 
-{
+class CmdLineOutput {
 
-	public:
-
-		/**
+  public:
+    /**
 		 * Virtual destructor.
 		 */
-		virtual ~CmdLineOutput() = default;
-		CmdLineOutput() = default;
-		CmdLineOutput(const CmdLineOutput&) = default;
-		CmdLineOutput& operator=(const CmdLineOutput&) = default;
-		CmdLineOutput(CmdLineOutput&&) = default;
-		CmdLineOutput& operator=(CmdLineOutput&&) = default;
+    virtual ~CmdLineOutput() = default;
+    CmdLineOutput() = default;
+    CmdLineOutput(const CmdLineOutput&) = default;
+    CmdLineOutput& operator=(const CmdLineOutput&) = default;
+    CmdLineOutput(CmdLineOutput&&) = default;
+    CmdLineOutput& operator=(CmdLineOutput&&) = default;
 
-		/**
+    /**
 		 * Generates some sort of output for the USAGE. 
 		 * \param c - The CmdLine object the output is generated for. 
 		 */
-		virtual void usage(CmdLineInterface& c) = 0;
+    virtual void usage(CmdLineInterface& c) = 0;
 
-		/**
+    /**
 		 * Generates some sort of output for the version. 
 		 * \param c - The CmdLine object the output is generated for. 
 		 */
-		virtual void version(CmdLineInterface& c) = 0;
+    virtual void version(CmdLineInterface& c) = 0;
 
-		/**
+    /**
 		 * Generates some sort of output for a failure. 
 		 * \param c - The CmdLine object the output is generated for. 
 		 * \param e - The ArgException that caused the failure. 
 		 */
-		virtual void failure( CmdLineInterface& c, 
-						      ArgException& e ) = 0;
-
+    virtual void failure(CmdLineInterface& c,
+        ArgException& e) = 0;
 };
 
 } //namespace TCLAP
-#endif 
+#endif

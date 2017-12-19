@@ -25,7 +25,7 @@ class Time {
         m_tStart = std::chrono::high_resolution_clock::now();
     }
 
-    std::pair<double, double> show() const {
+    [[deprecated]] std::pair<double, double> show() const {
         std::clock_t c_end = std::clock();
         auto t_end = std::chrono::high_resolution_clock::now();
         double timeDifference = c_end - m_cStart;
@@ -35,6 +35,23 @@ class Time {
             << " ms\nWall clock time passed: "
             << std::chrono::duration<double, std::milli>(t_end - m_tStart).count()
             << " ms\n";
+        return {
+            1000.0 * (timeDifference) / CLOCKS_PER_SEC,
+            std::chrono::duration<double, std::milli>(t_end - m_tStart).count()};
+    }
+
+    std::pair<double, double> get(bool verbose=true) const {
+        std::clock_t c_end = std::clock();
+        auto t_end = std::chrono::high_resolution_clock::now();
+        double timeDifference = c_end - m_cStart;
+        if(verbose) {            
+        std::cout
+            << std::fixed << std::setprecision(2)
+            << "CPU time used: " << 1000.0 * timeDifference / CLOCKS_PER_SEC
+            << " ms\nWall clock time passed: "
+            << std::chrono::duration<double, std::milli>(t_end - m_tStart).count()
+            << " ms\n";
+        }
         return {
             1000.0 * (timeDifference) / CLOCKS_PER_SEC,
             std::chrono::duration<double, std::milli>(t_end - m_tStart).count()};
