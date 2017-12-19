@@ -41,11 +41,11 @@ inline std::ostream& operator<<(std::ostream& _out, const std::list<T>& _list) {
     if (_list.empty()) {
         return _out << "[]";
     }
-    _out << "[";
+    _out << '[';
     for (auto ite = _list.begin(); ite != std::prev(_list.end()); ++ite) {
         _out << *ite << ", ";
     }
-    return _out << _list.back() << "]";
+    return _out << _list.back() << ']';
 }
 
 template <typename T>
@@ -53,11 +53,11 @@ inline std::ostream& operator<<(std::ostream& _out, const std::set<T>& _set) {
     if (_set.empty()) {
         return _out << "[]";
     }
-    _out << "[";
+    _out << '[';
     for (auto ite = _set.begin(); ite != std::prev(_set.end()); ++ite) {
         _out << *ite << ", ";
     }
-    return _out << *(_set.cbegin()) << "]";
+    return _out << *(_set.rbegin()) << ']';
 }
 
 template <typename T>
@@ -72,11 +72,11 @@ inline std::ostream& operator<<(std::ostream& _out, const std::vector<T>& _v) {
     if (_v.empty()) {
         return _out << "[]";
     }
-    _out << "[";
-    for (int i = 0; i < static_cast<int>(_v.size() - 1); ++i) {
+    _out << '[';
+    for (typename std::vector<T>::size_type i = 0; i < _v.size() - 1; ++i) {
         _out << _v[i] << ", ";
     }
-    return _out << _v.back() << "]";
+    return _out << _v.back() << ']';
 }
 
 template <typename T>
@@ -84,20 +84,20 @@ inline std::ostream& operator<<(std::ostream& _out, const std::deque<T>& _d) {
     if (_d.empty()) {
         return _out << "[]";
     }
-    _out << "[";
-    for (int i = 0; i < static_cast<int>(_d.size() - 1); ++i) {
+    _out << '[';
+    for (typename std::deque<T>::size_type i = 0; i < _d.size() - 1; ++i) {
         _out << _d[i] << ", ";
     }
-    return _out << _d.back() << "]";
+    return _out << _d.back() << ']';
 }
 
 template <typename T, int SIZE>
 std::ostream& operator<<(std::ostream& _out, const std::array<T, SIZE>& _a) {
-    _out << "[";
+    _out << '[';
     for (int i = 0; i < SIZE; ++i) {
         _out << _a[i] << ", ";
     }
-    return _out << _a.back() << "]";
+    return _out << _a.back() << ']';
 }
 
 template <typename A, typename B>
