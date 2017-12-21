@@ -360,8 +360,21 @@ inline bool operator==(const DiGraph& _g1, const DiGraph& _g2) {
 }
 
 /**
-* Return a topological order of the digraph _g if _g is a DAG
-* Otherwise, return an empty vector
+* \brief Return true is _g is a directed acyclic graph
+* Compute a topological order and return true if the order is not empty
+* \param _g The graph to be tested 
+* \retval true _g is a DAG
+* \retval false _g is a DAG
+* \todo Move away from topological order to test the graph. Should be a simple DFS.
+*/
+template<typename DG>
+inline bool isDAG(const DG& _g) {
+    return !getTopologicalOrder(_g).empty();
+}
+
+/**
+* \brief Return the topological order of the digraph _g if _g is a DAG. Otherwise, return an empty vector.
+* \param _g The graph to be tested
 */
 template<typename DG>
 inline std::vector<Graph::Node> getTopologicalOrder(const DG& _g) {
