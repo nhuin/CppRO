@@ -131,6 +131,9 @@ class DiGraph {
         return m_neighbors[_u];
     }
 
+    /**
+    * \brief Returns the set of nodes v such that G has the edge (v, _u)
+    */
     std::vector<Graph::Node> getInNeighbors(const Graph::Node _u) const {
         std::vector<Graph::Node> inNeighbors;
         for (Graph::Node v = 0; v < m_order; ++v) {
