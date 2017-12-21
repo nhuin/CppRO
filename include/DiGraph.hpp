@@ -66,6 +66,9 @@ class DiGraph {
     }
 
     const double& getEdgeWeight(const Graph::Node _u, const Graph::Node _v) const {
+        assert(_u < m_order);
+        assert(_v < m_order);
+        assert(m_matrix(_u, _v).first);
         return m_matrix(_u, _v).second;
     }
 
