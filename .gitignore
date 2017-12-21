@@ -9,4 +9,10 @@ compile_commands.json
 **/bin
 *.sublime-workspace
 clang-tidy.txt
-*.gch
+**/build
+*.aux
+*.pdf
+*.tex
+*.log
+*.synctex.gz
+*.pyc
