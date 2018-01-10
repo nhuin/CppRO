@@ -27,8 +27,8 @@ class Time {
 
     [[deprecated]] std::pair<double, double> show() const {
         std::clock_t c_end = std::clock();
-        auto t_end = std::chrono::high_resolution_clock::now();
-        double timeDifference = c_end - m_cStart;
+        const auto t_end = std::chrono::high_resolution_clock::now();
+        const double timeDifference = c_end - m_cStart;
         std::cout
             << std::fixed << std::setprecision(2)
             << "CPU time used: " << 1000.0 * timeDifference / CLOCKS_PER_SEC
@@ -42,8 +42,8 @@ class Time {
 
     std::pair<double, double> get(bool verbose=true) const {
         std::clock_t c_end = std::clock();
-        auto t_end = std::chrono::high_resolution_clock::now();
-        double timeDifference = c_end - m_cStart;
+        const auto t_end = std::chrono::high_resolution_clock::now();
+        const double timeDifference = c_end - m_cStart;
         if(verbose) {            
         std::cout
             << std::fixed << std::setprecision(2)
