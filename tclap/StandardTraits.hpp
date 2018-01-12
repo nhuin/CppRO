@@ -133,10 +133,10 @@ struct ArgTraits<unsigned char> {
 /**
  * size_ts have value-like semantics.
  */
-template <>
-struct ArgTraits<size_t> {
+/*template <>
+struct ArgTraits<std::size_t> {
     using ValueCategory = TCLAP::ValueLike;
-};
+};*/
 #endif
 
 #ifdef HAVE_LONG_LONG

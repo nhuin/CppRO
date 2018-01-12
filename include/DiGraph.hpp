@@ -1,6 +1,7 @@
 #ifndef DIGRAPH_H
 #define DIGRAPH_H
 
+#include <iostream>
 #include <algorithm>
 #include <functional>
 #include <sstream>
@@ -8,6 +9,7 @@
 #include <vector>
 
 #include "Graph.hpp"
+#include "utility.hpp"
 #include "Matrix.hpp"
 
 template<typename DG>
@@ -15,6 +17,7 @@ std::vector<Graph::Node> getTopologicalOrder(const DG& _g);
 template<typename DG>
 std::vector<std::size_t> getInDegrees(const DG& _g);
 
+template<typename W = double>
 class DiGraph {
   public:
     explicit DiGraph(const std::size_t _order)
@@ -29,9 +32,7 @@ class DiGraph {
     DiGraph(DiGraph&&) = default;
     ~DiGraph() = default;
 
-    void addEdge(const Graph::Node _u, const Graph::Node _v, const double& _w = double()) {
-        assert(_u >= 0);
-        assert(_v >= 0);
+    void addEdge(const Graph::Node _u, const Graph::Node _v, const W& _w = W()) {
         assert(_u < m_matrix.size1());
         assert(_v < m_matrix.size2());
 
@@ -65,27 +66,36 @@ class DiGraph {
         removeEdge(_p.first, _p.second);
     }
 
-    const double& getEdgeWeight(const Graph::Node _u, const Graph::Node _v) const {
+    const W& getEdgeWeight(const Graph::Node _u, const Graph::Node _v) const {
+        assert(_u < m_order);
+        assert(_v < m_order);
+        assert(m_matrix(_u, _v).first);
         return m_matrix(_u, _v).second;
     }
 
-    const double& getEdgeWeight(const Graph::Edge& _edge) const {
+    const W& getEdgeWeight(const Graph::Edge& _edge) const {
         return getEdgeWeight(_edge.first, _edge.second);
     }
 
-    inline void setEdgeWeight(const Graph::Node _u, const Graph::Node _v, const double& _w) {
+    inline void setEdgeWeight(const Graph::Node _u, const Graph::Node _v, const W& _w) {
         m_matrix(_u, _v).second = _w;
     }
 
-    inline void setEdgeWeight(const Graph::Edge& _e, const double& _w) {
+    inline void setEdgeWeight(const Graph::Edge& _e, const W& _w) {
         setEdgeWeight(_e.first, _e.second, _w);
     }
 
-    inline void addEdgeWeight(const Graph::Node _u, const Graph::Node _v, const double& _w) {
+    /**
+    * \brief Add _w to the weight of the edge (_u, _v)
+    */
+    inline void addEdgeWeight(const Graph::Node _u, const Graph::Node _v, const W& _w) {
         m_matrix(_u, _v).second += _w;
     }
 
-    inline void addEdgeWeight(const Graph::Edge& _e, const double& _w) {
+    /**
+    * \brief Add _w to the weight of the edge _e
+    */
+    inline void addEdgeWeight(const Graph::Edge& _e, const W& _w) {
         addEdgeWeight(_e.first, _e.second, _w);
     }
 
@@ -122,6 +132,9 @@ class DiGraph {
         return m_neighbors[_u];
     }
 
+    /**
+    * \brief Returns the set of nodes v such that G has the edge (v, _u)
+    */
     std::vector<Graph::Node> getInNeighbors(const Graph::Node _u) const {
         std::vector<Graph::Node> inNeighbors;
         for (Graph::Node v = 0; v < m_order; ++v) {
@@ -258,7 +271,7 @@ class DiGraph {
         std::vector<int> indexes(m_order, -1), lowLink(m_order);
         std::vector<bool> onStack(m_order, false);
 
-        const std::function<void(Graph::Node)> strongConnect = [&](const Graph::Node v) {
+        const auto strongConnect = [&](const Graph::Node v) {
             // Set the depth index for v to the smallest unused index
             indexes[v] = lowLink[v] = index;
             ++index;
@@ -325,9 +338,13 @@ class DiGraph {
   private:
     std::size_t m_order;
     std::size_t m_size = 0;
-    Matrix<std::pair<bool, double>> m_matrix;
+    Matrix<std::pair<bool, W>> m_matrix;
     std::vector<std::vector<Graph::Node>> m_neighbors;
 };
+
+template<typename W>
+std::ostream& operator<<(std::ostream&, const DiGraph<W>& _g);
+
 
 /**
 * Compare two graphs and return true if the two graphs have the same order
@@ -337,26 +354,41 @@ class DiGraph {
 * \retval true If the graphs are equal
 * \retval false If the the graps are different
 */
-inline bool operator==(const DiGraph& _g1, const DiGraph& _g2) {
+template<typename W1, typename W2>
+inline bool operator==(const DiGraph<W1>& _g1, const DiGraph<W2>& _g2) {
     // First, check size and order of both digraph
     if (_g1.getOrder() == _g2.getOrder() && _g1.size() == _g2.size()) {
         // Second, check that all edge in _g1 belong to _g2
         // Since _g1.size() == _g2.size(),
         const auto edges = _g1.getEdges();
-        return std::all_of(std::begin(edges), std::end(edges), [&](const auto __edge) {
-            return _g2.hasEdge(__edge);
+        return std::all_of(std::begin(edges), std::end(edges), [&](auto&& __edge) {
+            return _g2.hasEdge(__edge) && _g1.getEdgeWeight(__edge) == _g2.getEdgeWeight(__edge);
         });
     }
     return false;
 }
 
 /**
-* Return a topological order of the digraph _g if _g is a DAG
-* Otherwise, return an empty vector
+* \brief Return true is _g is a directed acyclic graph
+* Compute a topological order and return true if the order is not empty
+* \param _g The graph to be tested 
+* \retval true _g is a DAG
+* \retval false _g is a DAG
+* \todo Move away from topological order to test the graph. Should be a simple DFS.
+*/
+template<typename DG>
+inline bool isDAG(const DG& _g) {
+    return !getTopologicalOrder(_g).empty();
+}
+
+/**
+* \brief Return the topological order of the digraph _g if _g is a DAG. Otherwise, return an empty vector.
+* \param _g The graph to be tested
 */
 template<typename DG>
 inline std::vector<Graph::Node> getTopologicalOrder(const DG& _g) {
     std::vector<Graph::Node> topo;
+    topo.reserve(_g.getOrder());
 
     std::vector<std::size_t> inDegrees = ::getInDegrees(_g);
 
@@ -364,8 +396,9 @@ inline std::vector<Graph::Node> getTopologicalOrder(const DG& _g) {
     bool foundNullInDegree = false;
     while (topo.size() < _g.getOrder()) {
         foundNullInDegree = false;
-        for (std::size_t u = 0; u < inDegrees.size(); ++u) {
-            if (inDegrees[u] == 0 && !inOrder[u]) {
+        for (std::size_t u = 0; u < _g.getOrder(); ++u) {
+            if (inDegrees[u] == 0 
+                && !inOrder[u]) {
                 foundNullInDegree = true;
                 topo.push_back(u);
                 inOrder[u] = true;
@@ -381,10 +414,10 @@ inline std::vector<Graph::Node> getTopologicalOrder(const DG& _g) {
     return topo;
 }
 
-template<typename DG>
-inline std::vector<DiGraph> getStronglyConnectedSubGraph(const DG& _g) {
+template<typename DG, typename W>
+inline std::vector<DiGraph<W>> getStronglyConnectedSubGraph(const DG& _g) {
+	std::vector<DiGraph<W>> subGraphs;
     const auto SCCs = getStronglyConnectedComponent(_g);
-    std::vector<DiGraph> subGraphs;
     subGraphs.reserve(SCCs.size());
 
     for (const auto& SCC : SCCs) {
@@ -408,7 +441,7 @@ template<typename DG>
 inline std::vector<std::size_t> getInDegrees(const DG& _g) {
     std::vector<std::size_t> inDegrees(_g.getOrder(), 0);
     for(const auto& edge : _g.getEdges()) {
-        ++inDegrees[edge.first];
+        ++inDegrees[edge.second];
     }
     return inDegrees;
 }
@@ -465,6 +498,11 @@ inline std::vector<std::vector<Graph::Node>> getStronglyConnectedComponent(const
         }
     }
     return SCCs;
+}
+
+template<typename W>
+inline std::ostream& operator<<(std::ostream& _out, const DiGraph<W>& _g) {
+    return _out << _g.getOrder() << " nodes, " << _g.size() << " edges: " << _g.getEdges() << '\n';
 }
 
 #endif

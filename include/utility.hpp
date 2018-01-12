@@ -11,6 +11,7 @@
 #include <sstream>
 #include <tuple>
 #include <vector>
+#include <map>
 
 #if defined(NDEBUG) || defined(PROFILE)
 #define DBOUT(x)
@@ -28,6 +29,8 @@ template <typename T>
 std::string to_string_with_precision(const T& a_value, int n = 6);
 template <typename T>
 std::ostream& operator<<(std::ostream& _out, const std::vector<T>& _v);
+template <typename T, typename K>
+std::ostream& operator<<(std::ostream& _out, const std::map<T, K>& _v);
 template <typename T>
 std::ostream& operator<<(std::ostream& _out, const std::deque<T>& _d);
 template <typename T, int SIZE>
@@ -36,16 +39,29 @@ std::ostream& operator<<(std::ostream& _out, const std::array<T, SIZE>& _a);
 struct unused {};
 std::ostream& operator<<(std::ostream& _o, const unused& /*unused*/);
 
+template <typename T, typename K>
+std::ostream& operator<<(std::ostream& _out, const std::map<T, K>& _map) {
+    if (_map.empty()) {
+        return _out << "[]";
+    }
+    _out << '[';
+    const auto end = std::prev(_map.end());
+    for (auto ite = _map.begin(); ite != ite; ++ite) {
+        _out << '(' << ite->first << ", " << ite->second << ')';
+    }
+    return _out << '(' << end->first << ", " << end->second << ')';
+}
+
 template <typename T>
 inline std::ostream& operator<<(std::ostream& _out, const std::list<T>& _list) {
     if (_list.empty()) {
         return _out << "[]";
     }
-    _out << "[";
+    _out << '[';
     for (auto ite = _list.begin(); ite != std::prev(_list.end()); ++ite) {
         _out << *ite << ", ";
     }
-    return _out << _list.back() << "]";
+    return _out << _list.back() << ']';
 }
 
 template <typename T>
@@ -53,11 +69,11 @@ inline std::ostream& operator<<(std::ostream& _out, const std::set<T>& _set) {
     if (_set.empty()) {
         return _out << "[]";
     }
-    _out << "[";
+    _out << '[';
     for (auto ite = _set.begin(); ite != std::prev(_set.end()); ++ite) {
         _out << *ite << ", ";
     }
-    return _out << *(_set.cbegin()) << "]";
+    return _out << *(_set.rbegin()) << ']';
 }
 
 template <typename T>
@@ -72,11 +88,11 @@ inline std::ostream& operator<<(std::ostream& _out, const std::vector<T>& _v) {
     if (_v.empty()) {
         return _out << "[]";
     }
-    _out << "[";
-    for (int i = 0; i < static_cast<int>(_v.size() - 1); ++i) {
+    _out << '[';
+    for (typename std::vector<T>::size_type i = 0; i < _v.size() - 1; ++i) {
         _out << _v[i] << ", ";
     }
-    return _out << _v.back() << "]";
+    return _out << _v.back() << ']';
 }
 
 template <typename T>
@@ -84,20 +100,20 @@ inline std::ostream& operator<<(std::ostream& _out, const std::deque<T>& _d) {
     if (_d.empty()) {
         return _out << "[]";
     }
-    _out << "[";
-    for (int i = 0; i < static_cast<int>(_d.size() - 1); ++i) {
+    _out << '[';
+    for (typename std::deque<T>::size_type i = 0; i < _d.size() - 1; ++i) {
         _out << _d[i] << ", ";
     }
-    return _out << _d.back() << "]";
+    return _out << _d.back() << ']';
 }
 
 template <typename T, int SIZE>
 std::ostream& operator<<(std::ostream& _out, const std::array<T, SIZE>& _a) {
-    _out << "[";
+    _out << '[';
     for (int i = 0; i < SIZE; ++i) {
         _out << _a[i] << ", ";
     }
-    return _out << _a.back() << "]";
+    return _out << _a.back() << ']';
 }
 
 template <typename A, typename B>
