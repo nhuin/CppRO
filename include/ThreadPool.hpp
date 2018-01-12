@@ -64,7 +64,7 @@ inline ThreadPool::ThreadPool(const std::size_t _nbThreads)
 inline std::vector<std::thread::id> ThreadPool::getIds() const {
     std::vector<std::thread::id> ids;
     ids.reserve(workers.size());
-    for (auto& thread : workers) {
+    for (const auto& thread : workers) {
         ids.emplace_back(thread.get_id());
     }
     return ids;
