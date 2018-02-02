@@ -271,7 +271,7 @@ class DiGraph {
         std::vector<int> indexes(m_order, -1), lowLink(m_order);
         std::vector<bool> onStack(m_order, false);
 
-        const auto strongConnect = [&](const Graph::Node v) {
+        const std::function<void(Graph::Node)> strongConnect = [&](const Graph::Node v) -> void {
             // Set the depth index for v to the smallest unused index
             indexes[v] = lowLink[v] = index;
             ++index;
