@@ -91,6 +91,7 @@ class ShortestPath {
     }
 
     Graph::Path getShortestPath(const Graph::Node _s, const Graph::Node _t) {
+        clear();
         m_parent[_s] = _s;
         m_distance[_s] = 0;
         m_handles[_s] = m_heap.push(_s);
@@ -134,6 +135,7 @@ class ShortestPath {
     }
 
     Graph::Path getShortestPathNbArcs(const Graph::Node _s, const Graph::Node _t) {
+        clear();
         m_parent[_s] = _s;
         m_distance[_s] = 0;
         m_handles[_s] = m_heap.push(_s);
@@ -180,6 +182,7 @@ class ShortestPath {
     Graph::Path 
     getShortestPath(const Graph::Node _s, const Graph::Node _t,
         NeighborPredicate _np, WeightFunction _wf) {
+        clear();
         m_parent[_s] = _s;
         m_distance[_s] = 0;
         m_handles[_s] = m_heap.push(_s);
@@ -225,7 +228,7 @@ class ShortestPath {
     Graph::Path
     getShortestPathNbArcs(const Graph::Node _s, const Graph::Node _t,
         NeighborPredicate _np) {
-        m_heap.clear();
+        clear();
 
         m_parent[_s] = _s;
         m_distance[_s] = 0;
