@@ -6,36 +6,145 @@
 
 template <typename Ilo>
 inline void setIloName(const Ilo& _ilo, const std::string& _str) {
-    _ilo.setName(_str.c_str());
+	_ilo.setName(_str.c_str());
 }
 
 inline void displayConstraint(const IloCplex& _solver, const IloRange& _range) {
-    std::cout << _range << '\n';
-    for (auto ite = _range.getLinearIterator(); ite.ok() != 0; ++ite) {
-        std::cout << ite.getVar() << " -> " << _solver.getValue(ite.getVar())
-                  << '\n';
-    }
+	std::cout << _range << '\n';
+	for (auto ite = _range.getLinearIterator(); ite.ok() != 0; ++ite) {
+		std::cout << ite.getVar() << " -> " << _solver.getValue(ite.getVar()) << '\n';
+	}
 }
 
 inline void displayValue(const IloCplex& _solver, const IloNumVar& _var) {
-    std::cout << _var << " = " << _solver.getValue(_var);
+	std::cout << _var << " = " << _solver.getValue(_var);
 }
 
-template <typename... Tr>
-inline std::size_t someProduct(std::tuple<int, Tr...>&& _pos, std::tuple<int, Tr...>&& _dim) {
-    return someProduct(std::make_tuple(std::get<Tr...>(_pos)),
-               std::make_tuple(std::get<Tr...>(_dim)))
-               * std::get<0>(_dim)
-           + std::get<0>(_pos);
-}
+template<typename IloArray>
+class IloArrayIterator {
+	friend IloArrayIterator<IloArray> begin(IloArray& _arr);
+	friend IloArrayIterator<IloArray> end(IloArray& _arr);
+public:
+	using reference = decltype(IloArray().operator[](0));
+	using size_type = decltype(IloArray().getSize());	
+	using value_type = typename std::remove_reference<reference>::type;
+	using difference_type = IloInt;
+    using iterator_category = std::bidirectional_iterator_tag; 
+    using pointer = value_type*;
+	
+	IloArrayIterator() = default;
+	// Copy
+	IloArrayIterator(const IloArrayIterator&) = default;
+	IloArrayIterator& operator=(const IloArrayIterator&) = default;
+	// Move
+	IloArrayIterator(IloArrayIterator&&) = default;
+	IloArrayIterator& operator=(IloArrayIterator&&) = default;	
+	~IloArrayIterator() = default;
+	
+	reference operator*() {
+		return m_array[m_position];
+	}
 
-template <>
-inline std::size_t someProduct(std::tuple<int>&& _pos, std::tuple<int>&& /*_v2*/) {
-    return std::get<0>(_pos);
-}
+	// Pre-incrementable
+	IloArrayIterator& operator++() {
+		++m_position;
+		return *this;		
+	}	
+	
+	IloArrayIterator operator++(int /*unused*/) {
+		IloArrayIterator now = *this;
+		++m_position;
+		return now;
+	}
 
-template <typename IloType>
-class IloArrayWrapper {
+	// Pre-decrementable
+	IloArrayIterator& operator--() {
+		--m_position;
+		return *this;		
+	}	
+	
+	IloArrayIterator operator--(int /*unused*/) {
+		IloArrayIterator now = *this;
+		--m_position;
+		return now;
+	}
+
+	bool operator==(const IloArrayIterator& _rhs) const {
+		return &m_array == &_rhs.m_array 
+			&& m_position == _rhs.m_position;
+	}
+
+	bool operator!=(const IloArrayIterator& _rhs) const {
+		return !(*this == _rhs);
+	}
+
+	IloArrayIterator(IloArray& _arr, size_type _pos) 
+	: m_array(_arr)
+	, m_position(_pos)
+	{}
+	
+	// Compound addition assignment
+	IloArrayIterator& operator+=(std::size_t _offset) {
+		m_position += _offset;
+		return *this;
+	}
+
+	// Compound subtraction assignment
+	IloArrayIterator& operator-=(std::size_t _offset) {
+		m_position -= _offset;
+		return *this;
+	}
+
+	// Addition
+	IloArrayIterator operator+(std::size_t _offset) {
+		IloArrayIterator newIte = *this;
+		this->m_position += _offset;
+		return newIte;
+	}
+
+	// Subtraction
+	IloArrayIterator operator-(std::size_t _offset) {
+		IloArrayIterator newIte = *this;
+		this->m_position -= _offset;
+		return newIte;
+	}
+
+	//Relational less-than
+	bool operator<(const IloArrayIterator& _ite) {
+		return m_position < _ite.m_position;
+	}
+
+	// Relational greather-than 
+	bool operator>(const IloArrayIterator& _ite) {
+		return m_position > _ite.m_position;	
+	}
+
+	// Relational less-than-or-equal
+	bool operator<=(const IloArrayIterator& _ite) {
+		return m_position <= _ite.m_position;
+	}
+	// Relational greater-than-or-equal
+	bool operator>=(const IloArrayIterator& _ite) {
+	return m_position >= _ite.m_position;
+	}
+
+	// Subscripting
+	value_type operator[](std::size_t _idx) {
+		return m_array[_idx];		
+	}
+private:
+	IloArray& m_array;
+	size_type m_position;
 };
+
+template<typename IloArray>
+IloArrayIterator<IloArray> begin(IloArray& _arr) {
+	return IloArrayIterator<IloArray>(_arr, 0);
+}
+
+template<typename IloArray>
+IloArrayIterator<IloArray> end(IloArray& _arr) {
+	return IloArrayIterator<IloArray>(_arr, _arr.getSize());
+}
 
 #endif
