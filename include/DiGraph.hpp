@@ -34,11 +34,11 @@ class DiGraph {
 
     void addEdge(const Graph::Node _u, const Graph::Node _v, const W& _w = W()) {
         assert(_u < m_matrix.size1());
-        assert(_v < m_matrix.size2());
-
+        assert(_v < m_matrix.size2());        
         if (!m_matrix(_u, _v).first) {
             ++m_size;
             m_neighbors[_u].push_back(_v);
+            m_edgeChanges = true;
         }
         m_matrix(_u, _v).first = true;
         m_matrix(_u, _v).second = _w;
@@ -54,6 +54,7 @@ class DiGraph {
 
     void removeEdge(const Graph::Node _u, const Graph::Node _v) {
         if (m_matrix(_u, _v).first) {
+            m_edgeChanges = true;
             m_matrix(_u, _v).first = false;
             --m_size;
             m_neighbors[_u].erase(
@@ -171,17 +172,19 @@ class DiGraph {
     	return m_size;
     }
 
-    std::vector<Graph::Edge> getEdges() const {
-        std::vector<Graph::Edge> edges;
-
-        for (Graph::Node u = 0; u < m_order; ++u) {
-            for (Graph::Node v = 0; v < m_order; ++v) {
-                if (m_matrix(u, v).first) {
-                    edges.emplace_back(u, v);
+    const std::vector<Graph::Edge>& getEdges() const {
+        if(m_edgeChanges) {
+            m_edgeChanges = false;
+            m_edges.clear();
+            for (Graph::Node u = 0; u < m_order; ++u) {
+                for (Graph::Node v = 0; v < m_order; ++v) {
+                    if (m_matrix(u, v).first) {
+                        m_edges.emplace_back(u, v);
+                    }
                 }
             }
         }
-        return edges;
+        return m_edges;
     }
 
     std::size_t getOutDegree(const Graph::Node _u) const {
@@ -340,6 +343,8 @@ class DiGraph {
     std::size_t m_size = 0;
     Matrix<std::pair<bool, W>> m_matrix;
     std::vector<std::vector<Graph::Node>> m_neighbors;
+    mutable bool m_edgeChanges;
+    mutable std::vector<Graph::Edge> m_edges;
 };
 
 template<typename W>
