@@ -10,12 +10,13 @@
 
 #include <string>
 #include <vector>
+#include "gsl/gsl"
 
 /**
  * Interface for graph classes
  */
 namespace Graph {
-    using Node = std::size_t;
+    using Node = int;
     using Path = std::vector<Graph::Node>;
     using Edge = std::pair<Graph::Node, Graph::Node>;
 

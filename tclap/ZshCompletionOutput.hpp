@@ -34,6 +34,8 @@
 #include <tclap/CmdLineOutput.hpp>
 #include <tclap/XorHandler.hpp>
 
+#include "gsl/gsl"
+
 namespace TCLAP {
 
 /**
@@ -250,7 +252,7 @@ inline void ZshCompletionOutput::usage(CmdLineInterface& _cmd) {
             list << '*';
         }
 
-        for (std::size_t i = 0; i < xorList.size(); i++) {
+        for (int i = 0; i < xorList.size(); i++) {
             for (ArgVectorIterator it = xorList[i].begin();
                  it != xorList[i].end();
                  it++)

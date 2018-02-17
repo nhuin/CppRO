@@ -1,6 +1,8 @@
 #ifndef SINGLETON_HPP
 #define SINGLETON_HPP
 
+#include "gsl/gsl"
+
 template <typename T>
 struct Singleton {
     static T& getInstance() {

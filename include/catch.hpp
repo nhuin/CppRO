@@ -434,19 +434,19 @@ bool replaceInPlace(std::string& str, std::string const& replaceThis,
     std::string const& withThis);
 
 struct pluralise {
-    pluralise(std::size_t count, std::string const& label);
+    pluralise(int count, std::string const& label);
 
     friend std::ostream& operator<<(std::ostream& os,
         pluralise const& pluraliser);
 
-    std::size_t m_count;
+    int m_count;
     std::string m_label;
 };
 
 struct SourceLineInfo {
 
     SourceLineInfo();
-    SourceLineInfo(char const* _file, std::size_t _line);
+    SourceLineInfo(char const* _file, int _line);
 #ifdef CATCH_CONFIG_CPP11_GENERATED_METHODS
     SourceLineInfo(SourceLineInfo const& other) = default;
     SourceLineInfo(SourceLineInfo&&) = default;
@@ -458,7 +458,7 @@ struct SourceLineInfo {
     bool operator<(SourceLineInfo const& other) const;
 
     char const* file;
-    std::size_t line;
+    int line;
 };
 
 std::ostream& operator<<(std::ostream& os, SourceLineInfo const& info);
@@ -489,7 +489,7 @@ T const& operator+(T const& value, StreamEndStop) {
 } // namespace Catch
 
 #define CATCH_INTERNAL_LINEINFO \
-    ::Catch::SourceLineInfo(__FILE__, static_cast<std::size_t>(__LINE__))
+    ::Catch::SourceLineInfo(__FILE__, static_cast<int>(__LINE__))
 #define CATCH_INTERNAL_ERROR(msg) \
     ::Catch::throwLogicError(msg, CATCH_INTERNAL_LINEINFO);
 
@@ -528,14 +528,14 @@ namespace Catch {
 struct IGeneratorInfo {
     virtual ~IGeneratorInfo();
     virtual bool moveNext() = 0;
-    virtual std::size_t getCurrentIndex() const = 0;
+    virtual int getCurrentIndex() const = 0;
 };
 
 struct IGeneratorsForTest {
     virtual ~IGeneratorsForTest();
 
     virtual IGeneratorInfo& getGeneratorInfo(std::string const& fileInfo,
-        std::size_t size) = 0;
+        int size) = 0;
     virtual bool moveNext() = 0;
 };
 
@@ -1111,7 +1111,7 @@ struct MatcherBase : MatcherUntypedBase, MatcherMethod<ObjectT> {
 template <typename ArgT>
 struct MatchAllOf : MatcherBase<ArgT> {
     virtual bool match(ArgT const& arg) const CATCH_OVERRIDE {
-        for (std::size_t i = 0; i < m_matchers.size(); ++i) {
+        for (int i = 0; i < m_matchers.size(); ++i) {
             if (!m_matchers[i]->match(arg))
                 return false;
         }
@@ -1121,7 +1121,7 @@ struct MatchAllOf : MatcherBase<ArgT> {
         std::string description;
         description.reserve(4 + m_matchers.size() * 32);
         description += "( ";
-        for (std::size_t i = 0; i < m_matchers.size(); ++i) {
+        for (int i = 0; i < m_matchers.size(); ++i) {
             if (i != 0)
                 description += " and ";
             description += m_matchers[i]->toString();
@@ -1141,7 +1141,7 @@ template <typename ArgT>
 struct MatchAnyOf : MatcherBase<ArgT> {
 
     virtual bool match(ArgT const& arg) const CATCH_OVERRIDE {
-        for (std::size_t i = 0; i < m_matchers.size(); ++i) {
+        for (int i = 0; i < m_matchers.size(); ++i) {
             if (m_matchers[i]->match(arg))
                 return true;
         }
@@ -1151,7 +1151,7 @@ struct MatchAnyOf : MatcherBase<ArgT> {
         std::string description;
         description.reserve(4 + m_matchers.size() * 32);
         description += "( ";
-        for (std::size_t i = 0; i < m_matchers.size(); ++i) {
+        for (int i = 0; i < m_matchers.size(); ++i) {
             if (i != 0)
                 description += " or ";
             description += m_matchers[i]->toString();
@@ -1764,7 +1764,7 @@ struct StringMakerBase<true> {
     }
 };
 
-std::string rawMemoryToString(const void* object, std::size_t size);
+std::string rawMemoryToString(const void* object, int size);
 
 template <typename T>
 inline std::string rawMemoryToString(const T& object) {
@@ -1819,7 +1819,7 @@ std::string toString(std::vector<T, Allocator> const& v) {
 
 // toString for tuples
 namespace TupleDetail {
-template <typename Tuple, std::size_t N = 0,
+template <typename Tuple, int N = 0,
     bool = (N < std::tuple_size<Tuple>::value)>
 struct ElementPrinter {
     static void print(const Tuple& tuple, std::ostream& os) {
@@ -1828,7 +1828,7 @@ struct ElementPrinter {
     }
 };
 
-template <typename Tuple, std::size_t N>
+template <typename Tuple, int N>
 struct ElementPrinter<Tuple, N, false> {
     static void print(const Tuple&, std::ostream&) {}
 };
@@ -2452,13 +2452,13 @@ struct Counts {
         return *this;
     }
 
-    std::size_t total() const { return passed + failed + failedButOk; }
+    int total() const { return passed + failed + failedButOk; }
     bool allPassed() const { return failed == 0 && failedButOk == 0; }
     bool allOk() const { return failed == 0; }
 
-    std::size_t passed;
-    std::size_t failed;
-    std::size_t failedButOk;
+    int passed;
+    int failed;
+    int failedButOk;
 };
 
 struct Totals {
@@ -2592,8 +2592,8 @@ namespace Catch {
 template <typename T>
 struct IGenerator {
     virtual ~IGenerator() {}
-    virtual T getValue(std::size_t index) const = 0;
-    virtual std::size_t size() const = 0;
+    virtual T getValue(int index) const = 0;
+    virtual int size() const = 0;
 };
 
 template <typename T>
@@ -2603,12 +2603,12 @@ class BetweenGenerator : public IGenerator<T> {
         : m_from(from)
         , m_to(to) {}
 
-    virtual T getValue(std::size_t index) const {
+    virtual T getValue(int index) const {
         return m_from + static_cast<int>(index);
     }
 
-    virtual std::size_t size() const {
-        return static_cast<std::size_t>(1 + m_to - m_from);
+    virtual int size() const {
+        return static_cast<int>(1 + m_to - m_from);
     }
 
   private:
@@ -2623,9 +2623,9 @@ class ValuesGenerator : public IGenerator<T> {
 
     void add(T value) { m_values.push_back(value); }
 
-    virtual T getValue(std::size_t index) const { return m_values[index]; }
+    virtual T getValue(int index) const { return m_values[index]; }
 
-    virtual std::size_t size() const { return m_values.size(); }
+    virtual int size() const { return m_values.size(); }
 
   private:
     std::vector<T> m_values;
@@ -3817,9 +3817,9 @@ class TestSpecParser {
         EscapedName };
     Mode m_mode;
     bool m_exclusion;
-    std::size_t m_start, m_pos;
+    int m_start, m_pos;
     std::string m_arg;
-    std::vector<std::size_t> m_escapeChars;
+    std::vector<int> m_escapeChars;
     TestSpec::Filter m_currentFilter;
     TestSpec m_testSpec;
     ITagAliasRegistry const* m_tagAliases;
@@ -3884,7 +3884,7 @@ class TestSpecParser {
         else if (m_mode == Tag && c == ']')
             addPattern<TestSpec::TagPattern>();
     }
-    void startNewMode(Mode mode, std::size_t start) {
+    void startNewMode(Mode mode, int start) {
         m_mode = mode;
         m_start = start;
     }
@@ -4137,7 +4137,7 @@ class Config : public SharedImpl<IConfig> {
         , m_stream(openStream()) {
         if (!data.testsOrTags.empty()) {
             TestSpecParser parser(ITagAliasRegistry::get());
-            for (std::size_t i = 0; i < data.testsOrTags.size(); ++i)
+            for (int i = 0; i < data.testsOrTags.size(); ++i)
                 parser.parse(data.testsOrTags[i]);
             m_testSpec = parser.testSpec();
         }
@@ -4282,15 +4282,15 @@ struct TextAttributes {
         , width(consoleWidth - 1)
         , tabChar('\t') {}
 
-    TextAttributes& setInitialIndent(std::size_t _value) {
+    TextAttributes& setInitialIndent(int _value) {
         initialIndent = _value;
         return *this;
     }
-    TextAttributes& setIndent(std::size_t _value) {
+    TextAttributes& setIndent(int _value) {
         indent = _value;
         return *this;
     }
-    TextAttributes& setWidth(std::size_t _value) {
+    TextAttributes& setWidth(int _value) {
         width = _value;
         return *this;
     }
@@ -4299,10 +4299,10 @@ struct TextAttributes {
         return *this;
     }
 
-    std::size_t initialIndent; // indent of first line, or npos
-    std::size_t
+    int initialIndent; // indent of first line, or npos
+    int
         indent; // indent of subsequent lines, or all if initialIndent is npos
-    std::size_t
+    int
         width;    // maximum width of text, including indent. Longer text will wrap
     char tabChar; // If this char is seen the indent is changed to current pos
 };
@@ -4312,7 +4312,7 @@ class Text {
     Text(std::string const& _str, TextAttributes const& _attr = TextAttributes())
         : attr(_attr) {
         std::string wrappableChars = " [({.,/|\\-";
-        std::size_t indent = _attr.initialIndent != std::string::npos
+        int indent = _attr.initialIndent != std::string::npos
                                  ? _attr.initialIndent
                                  : _attr.indent;
         std::string remainder = _str;
@@ -4322,9 +4322,9 @@ class Text {
                 lines.push_back("... message truncated due to excessive size");
                 return;
             }
-            std::size_t tabPos = std::string::npos;
-            std::size_t width = (std::min)(remainder.size(), _attr.width - indent);
-            std::size_t pos = remainder.find_first_of('\n');
+            int tabPos = std::string::npos;
+            int width = (std::min)(remainder.size(), _attr.width - indent);
+            int pos = remainder.find_first_of('\n');
             if (pos <= width) {
                 width = pos;
             }
@@ -4361,8 +4361,8 @@ class Text {
         }
     }
 
-    void spliceLine(std::size_t _indent, std::string& _remainder,
-        std::size_t _pos) {
+    void spliceLine(int _indent, std::string& _remainder,
+        int _pos) {
         lines.push_back(std::string(_indent, ' ') + _remainder.substr(0, _pos));
         _remainder = _remainder.substr(_pos);
     }
@@ -4372,8 +4372,8 @@ class Text {
     const_iterator begin() const { return lines.begin(); }
     const_iterator end() const { return lines.end(); }
     std::string const& last() const { return lines.back(); }
-    std::size_t size() const { return lines.size(); }
-    std::string const& operator[](std::size_t _index) const {
+    int size() const { return lines.size(); }
+    std::string const& operator[](int _index) const {
         return lines[_index];
     }
     std::string toString() const {
@@ -4763,8 +4763,8 @@ struct BoundBinaryFunction : IArgFunction<C> {
 
 inline std::vector<std::string> argsToVector(int argc,
     char const* const* const argv) {
-    std::vector<std::string> args(static_cast<std::size_t>(argc));
-    for (std::size_t i = 0; i < static_cast<std::size_t>(argc); ++i)
+    std::vector<std::string> args(static_cast<int>(argc));
+    for (int i = 0; i < static_cast<int>(argc); ++i)
         args[i] = argv[i];
 
     return args;
@@ -4778,7 +4778,7 @@ class Parser {
         LongOpt,
         Positional };
     Mode mode;
-    std::size_t from;
+    int from;
     bool inQuotes;
 
   public:
@@ -4801,12 +4801,12 @@ class Parser {
     void parseIntoTokens(std::vector<std::string> const& args,
         std::vector<Token>& tokens) {
         const std::string doubleDash = "--";
-        for (std::size_t i = 1; i < args.size() && args[i] != doubleDash; ++i)
+        for (int i = 1; i < args.size() && args[i] != doubleDash; ++i)
             parseIntoTokens(args[i], tokens);
     }
 
     void parseIntoTokens(std::string const& arg, std::vector<Token>& tokens) {
-        for (std::size_t i = 0; i < arg.size(); ++i) {
+        for (int i = 0; i < arg.size(); ++i) {
             char c = arg[i];
             if (c == '"')
                 inQuotes = !inQuotes;
@@ -4814,7 +4814,7 @@ class Parser {
         }
         mode = handleMode(arg.size(), '\0', arg, tokens);
     }
-    Mode handleMode(std::size_t i, char c, std::string const& arg,
+    Mode handleMode(int i, char c, std::string const& arg,
         std::vector<Token>& tokens) {
         switch (mode) {
         case None:
@@ -4832,7 +4832,7 @@ class Parser {
         }
     }
 
-    Mode handleNone(std::size_t i, char c) {
+    Mode handleNone(int i, char c) {
         if (inQuotes) {
             from = i;
             return Positional;
@@ -4850,7 +4850,7 @@ class Parser {
             return Positional;
         }
     }
-    Mode handleMaybeShortOpt(std::size_t i, char c) {
+    Mode handleMaybeShortOpt(int i, char c) {
         switch (c) {
         case '-':
             from = i + 1;
@@ -4861,14 +4861,14 @@ class Parser {
         }
     }
 
-    Mode handleOpt(std::size_t i, char c, std::string const& arg,
+    Mode handleOpt(int i, char c, std::string const& arg,
         std::vector<Token>& tokens) {
         if (std::string(":=\0", 3).find(c) == std::string::npos)
             return mode;
 
         std::string optName = arg.substr(from, i - from);
         if (mode == ShortOpt)
-            for (std::size_t j = 0; j < optName.size(); ++j)
+            for (int j = 0; j < optName.size(); ++j)
                 tokens.push_back(Token(Token::ShortOpt, optName.substr(j, 1)));
         else if (mode == SlashOpt && optName.size() == 1)
             tokens.push_back(Token(Token::ShortOpt, optName));
@@ -4876,7 +4876,7 @@ class Parser {
             tokens.push_back(Token(Token::LongOpt, optName));
         return None;
     }
-    Mode handlePositional(std::size_t i, char c, std::string const& arg,
+    Mode handlePositional(int i, char c, std::string const& arg,
         std::vector<Token>& tokens) {
         if (inQuotes || std::string("\0", 1).find(c) == std::string::npos)
             return mode;
@@ -5117,11 +5117,11 @@ class CommandLine {
         m_boundProcessName = new Detail::BoundUnaryMethod<C, M>(_unaryMethod);
     }
 
-    void optUsage(std::ostream& os, std::size_t indent = 0,
-        std::size_t width = Detail::consoleWidth) const {
+    void optUsage(std::ostream& os, int indent = 0,
+        int width = Detail::consoleWidth) const {
         typename std::vector<Arg>::const_iterator itBegin = m_options.begin(),
                                                   itEnd = m_options.end(), it;
-        std::size_t maxWidth = 0;
+        int maxWidth = 0;
         for (it = itBegin; it != itEnd; ++it)
             maxWidth = (std::max)(maxWidth, it->commands().size());
 
@@ -5132,7 +5132,7 @@ class CommandLine {
             Detail::Text desc(it->description, Detail::TextAttributes().setWidth(
                                                    width - maxWidth - 3));
 
-            for (std::size_t i = 0; i < (std::max)(usage.size(), desc.size()); ++i) {
+            for (int i = 0; i < (std::max)(usage.size(), desc.size()); ++i) {
                 std::string usageCol = i < usage.size() ? usage[i] : "";
                 os << usageCol;
 
@@ -5200,7 +5200,7 @@ class CommandLine {
     std::vector<Parser::Token> parseInto(std::vector<std::string> const& args,
         ConfigT& config) const {
         std::string processName = args.empty() ? std::string() : args[0];
-        std::size_t lastSlash = processName.find_last_of("/\\");
+        int lastSlash = processName.find_last_of("/\\");
         if (lastSlash != std::string::npos)
             processName = processName.substr(lastSlash + 1);
         m_boundProcessName.set(config, processName);
@@ -5224,7 +5224,7 @@ class CommandLine {
         ConfigT& config) const {
         std::vector<Parser::Token> unusedTokens;
         std::vector<std::string> errors;
-        for (std::size_t i = 0; i < tokens.size(); ++i) {
+        for (int i = 0; i < tokens.size(); ++i) {
             Parser::Token const& token = tokens[i];
             typename std::vector<Arg>::const_iterator it = m_options.begin(),
                                                       itEnd = m_options.end();
@@ -5272,7 +5272,7 @@ class CommandLine {
         ConfigT& config) const {
         std::vector<Parser::Token> unusedTokens;
         int position = 1;
-        for (std::size_t i = 0; i < tokens.size(); ++i) {
+        for (int i = 0; i < tokens.size(); ++i) {
             Parser::Token const& token = tokens[i];
             typename std::map<int, Arg>::const_iterator it =
                 m_positionalArgs.find(position);
@@ -5291,7 +5291,7 @@ class CommandLine {
         if (!m_floatingArg.get())
             return tokens;
         std::vector<Parser::Token> unusedTokens;
-        for (std::size_t i = 0; i < tokens.size(); ++i) {
+        for (int i = 0; i < tokens.size(); ++i) {
             Parser::Token const& token = tokens[i];
             if (token.type == Parser::Token::Positional)
                 m_floatingArg->boundField.set(config, token.data);
@@ -5587,23 +5587,23 @@ struct TextAttributes {
         , indent(0)
         , width(consoleWidth - 1) {}
 
-    TextAttributes& setInitialIndent(std::size_t _value) {
+    TextAttributes& setInitialIndent(int _value) {
         initialIndent = _value;
         return *this;
     }
-    TextAttributes& setIndent(std::size_t _value) {
+    TextAttributes& setIndent(int _value) {
         indent = _value;
         return *this;
     }
-    TextAttributes& setWidth(std::size_t _value) {
+    TextAttributes& setWidth(int _value) {
         width = _value;
         return *this;
     }
 
-    std::size_t initialIndent; // indent of first line, or npos
-    std::size_t
+    int initialIndent; // indent of first line, or npos
+    int
         indent; // indent of subsequent lines, or all if initialIndent is npos
-    std::size_t
+    int
         width; // maximum width of text, including indent. Longer text will wrap
 };
 
@@ -5630,7 +5630,7 @@ class Text {
             }
 
             std::string suffix;
-            std::size_t width =
+            int width =
                 (std::min)(static_cast<size_t>(strEnd - it),
                     _attr.width - static_cast<size_t>(indent.size()));
             iterator itEnd = it + width;
@@ -5686,8 +5686,8 @@ class Text {
     const_iterator begin() const { return lines.begin(); }
     const_iterator end() const { return lines.end(); }
     std::string const& last() const { return lines.back(); }
-    std::size_t size() const { return lines.size(); }
-    std::string const& operator[](std::size_t _index) const {
+    int size() const { return lines.size(); }
+    std::string const& operator[](int _index) const {
         return lines[_index];
     }
     std::string toString() const {
@@ -5838,15 +5838,15 @@ struct TestRunInfo {
     std::string name;
 };
 struct GroupInfo {
-    GroupInfo(std::string const& _name, std::size_t _groupIndex,
-        std::size_t _groupsCount)
+    GroupInfo(std::string const& _name, int _groupIndex,
+        int _groupsCount)
         : name(_name)
         , groupIndex(_groupIndex)
         , groupsCounts(_groupsCount) {}
 
     std::string name;
-    std::size_t groupIndex;
-    std::size_t groupsCounts;
+    int groupIndex;
+    int groupsCounts;
 };
 
 struct AssertionStats {
@@ -6037,7 +6037,7 @@ addReporter(Ptr<IStreamingReporter> const& existingReporter,
 
 namespace Catch {
 
-inline std::size_t listTests(Config const& config) {
+inline int listTests(Config const& config) {
 
     TestSpec testSpec = config.testSpec();
     if (config.testSpec().hasFilters())
@@ -6047,7 +6047,7 @@ inline std::size_t listTests(Config const& config) {
         testSpec = TestSpecParser(ITagAliasRegistry::get()).parse("*").testSpec();
     }
 
-    std::size_t matchedTests = 0;
+    int matchedTests = 0;
     TextAttributes nameAttr, tagsAttr;
     nameAttr.setInitialIndent(2).setIndent(4);
     tagsAttr.setIndent(6);
@@ -6077,11 +6077,11 @@ inline std::size_t listTests(Config const& config) {
     return matchedTests;
 }
 
-inline std::size_t listTestsNamesOnly(Config const& config) {
+inline int listTestsNamesOnly(Config const& config) {
     TestSpec testSpec = config.testSpec();
     if (!config.testSpec().hasFilters())
         testSpec = TestSpecParser(ITagAliasRegistry::get()).parse("*").testSpec();
-    std::size_t matchedTests = 0;
+    int matchedTests = 0;
     std::vector<TestCase> matchedTestCases =
         filterTests(getAllTestCasesSorted(config), testSpec, config);
     for (std::vector<TestCase>::const_iterator it = matchedTestCases.begin(),
@@ -6113,10 +6113,10 @@ struct TagInfo {
         return out;
     }
     std::set<std::string> spellings;
-    std::size_t count;
+    int count;
 };
 
-inline std::size_t listTags(Config const& config) {
+inline int listTags(Config const& config) {
     TestSpec testSpec = config.testSpec();
     if (config.testSpec().hasFilters())
         Catch::cout() << "Tags for matching test cases:\n";
@@ -6165,13 +6165,13 @@ inline std::size_t listTags(Config const& config) {
     return tagCounts.size();
 }
 
-inline std::size_t listReporters(Config const& /*config*/) {
+inline int listReporters(Config const& /*config*/) {
     Catch::cout() << "Available reporters:\n";
     IReporterRegistry::FactoryMap const& factories =
         getRegistryHub().getReporterRegistry().getFactories();
     IReporterRegistry::FactoryMap::const_iterator itBegin = factories.begin(),
                                                   itEnd = factories.end(), it;
-    std::size_t maxNameLen = 0;
+    int maxNameLen = 0;
     for (it = itBegin; it != itEnd; ++it)
         maxNameLen = (std::max)(maxNameLen, it->first.size());
 
@@ -6189,8 +6189,8 @@ inline std::size_t listReporters(Config const& /*config*/) {
     return factories.size();
 }
 
-inline Option<std::size_t> list(Config const& config) {
-    Option<std::size_t> listedCount;
+inline Option<int> list(Config const& config) {
+    Option<int> listedCount;
     if (config.listTests())
         listedCount = listedCount.valueOr(0) + listTests(config);
     if (config.listTestNamesOnly())
@@ -6715,7 +6715,7 @@ struct FatalConditionHandler {
 
     static void handleSignal(int sig) {
         std::string name = "<unknown signal>";
-        for (std::size_t i = 0; i < sizeof(signalDefs) / sizeof(SignalDefs); ++i) {
+        for (int i = 0; i < sizeof(signalDefs) / sizeof(SignalDefs); ++i) {
             SignalDefs& def = signalDefs[i];
             if (sig == def.id) {
                 name = def.name;
@@ -6738,7 +6738,7 @@ struct FatalConditionHandler {
 
         sa.sa_handler = handleSignal;
         sa.sa_flags = SA_ONSTACK;
-        for (std::size_t i = 0; i < sizeof(signalDefs) / sizeof(SignalDefs); ++i) {
+        for (int i = 0; i < sizeof(signalDefs) / sizeof(SignalDefs); ++i) {
             sigaction(signalDefs[i].id, &sa, &oldSigActions[i]);
         }
     }
@@ -6748,7 +6748,7 @@ struct FatalConditionHandler {
         if (isSet) {
             // Set signals back to previous values -- hopefully nobody overwrote them
             // in the meantime
-            for (std::size_t i = 0; i < sizeof(signalDefs) / sizeof(SignalDefs);
+            for (int i = 0; i < sizeof(signalDefs) / sizeof(SignalDefs);
                  ++i) {
                 sigaction(signalDefs[i].id, &oldSigActions[i], CATCH_NULL);
             }
@@ -6823,12 +6823,12 @@ class RunContext : public IResultCapture, public IRunner {
         m_reporter->testRunEnded(TestRunStats(m_runInfo, m_totals, aborting()));
     }
 
-    void testGroupStarting(std::string const& testSpec, std::size_t groupIndex,
-        std::size_t groupsCount) {
+    void testGroupStarting(std::string const& testSpec, int groupIndex,
+        int groupsCount) {
         m_reporter->testGroupStarting(GroupInfo(testSpec, groupIndex, groupsCount));
     }
     void testGroupEnded(std::string const& testSpec, Totals const& totals,
-        std::size_t groupIndex, std::size_t groupsCount) {
+        int groupIndex, int groupsCount) {
         m_reporter->testGroupEnded(TestGroupStats(
             GroupInfo(testSpec, groupIndex, groupsCount), totals, aborting()));
     }
@@ -7008,7 +7008,7 @@ class RunContext : public IResultCapture, public IRunner {
   public:
     // !TBD We need to do this another way!
     bool aborting() const {
-        return m_totals.assertions.failed == static_cast<std::size_t>(m_config->abortAfter());
+        return m_totals.assertions.failed == static_cast<int>(m_config->abortAfter());
     }
 
   private:
@@ -7221,7 +7221,7 @@ Totals runTests(Ptr<Config> const& config) {
 
 void applyFilenamesAsTags(IConfig const& config) {
     std::vector<TestCase> const& tests = getAllTestCasesSorted(config);
-    for (std::size_t i = 0; i < tests.size(); ++i) {
+    for (int i = 0; i < tests.size(); ++i) {
         TestCase& test = const_cast<TestCase&>(tests[i]);
         std::set<std::string> tags = test.tags;
 
@@ -7316,7 +7316,7 @@ class Session : NonCopyable {
                 applyFilenamesAsTags(*m_config);
 
             // Handle list request
-            if (Option<std::size_t> listed = list(config()))
+            if (Option<int> listed = list(config()))
                 return static_cast<int>(*listed);
 
             return static_cast<int>(runTests(m_config).assertions.failed);
@@ -7502,8 +7502,8 @@ inline std::string
 extractClassName(std::string const& classOrQualifiedMethodName) {
     std::string className = classOrQualifiedMethodName;
     if (startsWith(className, '&')) {
-        std::size_t lastColons = className.rfind("::");
-        std::size_t penultimateColons = className.rfind("::", lastColons - 1);
+        int lastColons = className.rfind("::");
+        int penultimateColons = className.rfind("::", lastColons - 1);
         if (penultimateColons == std::string::npos)
             penultimateColons = 1;
         className =
@@ -8162,7 +8162,7 @@ namespace Catch {
 
 struct GeneratorInfo : IGeneratorInfo {
 
-    GeneratorInfo(std::size_t size)
+    GeneratorInfo(int size)
         : m_size(size)
         , m_currentIndex(0) {}
 
@@ -8174,10 +8174,10 @@ struct GeneratorInfo : IGeneratorInfo {
         return true;
     }
 
-    std::size_t getCurrentIndex() const { return m_currentIndex; }
+    int getCurrentIndex() const { return m_currentIndex; }
 
-    std::size_t m_size;
-    std::size_t m_currentIndex;
+    int m_size;
+    int m_currentIndex;
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -8188,7 +8188,7 @@ class GeneratorsForTest : public IGeneratorsForTest {
     ~GeneratorsForTest() { deleteAll(m_generatorsInOrder); }
 
     IGeneratorInfo& getGeneratorInfo(std::string const& fileInfo,
-        std::size_t size) {
+        int size) {
         std::map<std::string, IGeneratorInfo*>::const_iterator it =
             m_generatorsByName.find(fileInfo);
         if (it == m_generatorsByName.end()) {
@@ -8352,7 +8352,7 @@ TestCase makeTestCase(ITestCase* _testCase, std::string const& _className,
     std::set<std::string> tags;
     std::string desc, tag;
     bool inTag = false;
-    for (std::size_t i = 0; i < _descOrTags.size(); ++i) {
+    for (int i = 0; i < _descOrTags.size(); ++i) {
         char c = _descOrTags[i];
         if (!inTag) {
             if (c == '[')
@@ -8768,7 +8768,7 @@ std::string trim(std::string const& str) {
 bool replaceInPlace(std::string& str, std::string const& replaceThis,
     std::string const& withThis) {
     bool replaced = false;
-    std::size_t i = str.find(replaceThis);
+    int i = str.find(replaceThis);
     while (i != std::string::npos) {
         replaced = true;
         str = str.substr(0, i) + withThis + str.substr(i + replaceThis.size());
@@ -8780,7 +8780,7 @@ bool replaceInPlace(std::string& str, std::string const& replaceThis,
     return replaced;
 }
 
-pluralise::pluralise(std::size_t count, std::string const& label)
+pluralise::pluralise(int count, std::string const& label)
     : m_count(count)
     , m_label(label) {}
 
@@ -8794,7 +8794,7 @@ std::ostream& operator<<(std::ostream& os, pluralise const& pluraliser) {
 SourceLineInfo::SourceLineInfo()
     : file("")
     , line(0) {}
-SourceLineInfo::SourceLineInfo(char const* _file, std::size_t _line)
+SourceLineInfo::SourceLineInfo(char const* _file, int _line)
     : file(_file)
     , line(_line) {}
 bool SourceLineInfo::empty() const { return file[0] == '\0'; }
@@ -9006,7 +9006,7 @@ struct Endianness {
 };
 } // namespace
 
-std::string rawMemoryToString(const void* object, std::size_t size) {
+std::string rawMemoryToString(const void* object, int size) {
     // Reverse order for little endian architectures
     int i = 0, end = static_cast<int>(size), inc = 1;
     if (Endianness::which() == Endianness::Little) {
@@ -9098,7 +9098,7 @@ std::string fpToString(T value, int precision) {
     std::ostringstream oss;
     oss << std::setprecision(precision) << std::fixed << value;
     std::string d = oss.str();
-    std::size_t i = d.find_last_not_of('0');
+    int i = d.find_last_not_of('0');
     if (i != std::string::npos && i != d.size() - 1) {
         if (d[i] == '.')
             i++;
@@ -9351,7 +9351,7 @@ TagAliasRegistry::expandAliases(std::string const& unexpandedTestSpec) const {
     for (std::map<std::string, TagAlias>::const_iterator it = m_registry.begin(),
                                                          itEnd = m_registry.end();
          it != itEnd; ++it) {
-        std::size_t pos = expandedTestSpec.find(it->first);
+        int pos = expandedTestSpec.find(it->first);
         if (pos != std::string::npos) {
             expandedTestSpec = expandedTestSpec.substr(0, pos) + it->second.tag + expandedTestSpec.substr(pos + it->first.size());
         }
@@ -10020,7 +10020,7 @@ class XmlEncode {
         // Apostrophe escaping not necessary if we always use " to write attributes
         // (see: http://www.w3.org/TR/xml/#syntax)
 
-        for (std::size_t i = 0; i < m_str.size(); ++i) {
+        for (int i = 0; i < m_str.size(); ++i) {
             char c = m_str[i];
             switch (c) {
             case '<':
@@ -11002,8 +11002,8 @@ struct ConsoleReporter : StreamingReporterBase {
 
     // if string has a : in first line will set indent to follow it on
     // subsequent lines
-    void printHeaderString(std::string const& _string, std::size_t indent = 0) {
-        std::size_t i = _string.find(": ");
+    void printHeaderString(std::string const& _string, int indent = 0) {
+        int i = _string.find(": ");
         if (i != std::string::npos)
             i += 2;
         else
@@ -11019,7 +11019,7 @@ struct ConsoleReporter : StreamingReporterBase {
         SummaryColumn(std::string const& _label, Colour::Code _colour)
             : label(_label)
             , colour(_colour) {}
-        SummaryColumn addRow(std::size_t count) {
+        SummaryColumn addRow(int count) {
             std::ostringstream oss;
             oss << count;
             std::string row = oss.str();
@@ -11070,7 +11070,7 @@ struct ConsoleReporter : StreamingReporterBase {
     }
     void printSummaryRow(std::string const& label,
         std::vector<SummaryColumn> const& cols,
-        std::size_t row) {
+        int row) {
         for (std::vector<SummaryColumn>::const_iterator it = cols.begin();
              it != cols.end(); ++it) {
             std::string value = it->rows[row];
@@ -11088,12 +11088,12 @@ struct ConsoleReporter : StreamingReporterBase {
         stream << '\n';
     }
 
-    static std::size_t makeRatio(std::size_t number, std::size_t total) {
-        std::size_t ratio =
+    static int makeRatio(int number, int total) {
+        int ratio =
             total > 0 ? CATCH_CONFIG_CONSOLE_WIDTH * number / total : 0;
         return (ratio == 0 && number > 0) ? 1 : ratio;
     }
-    static std::size_t& findMax(std::size_t& i, std::size_t& j, std::size_t& k) {
+    static int& findMax(int& i, int& j, int& k) {
         if (i > j && i > k)
             return i;
         else if (j > k)
@@ -11104,11 +11104,11 @@ struct ConsoleReporter : StreamingReporterBase {
 
     void printTotalsDivider(Totals const& totals) {
         if (totals.testCases.total() > 0) {
-            std::size_t failedRatio =
+            int failedRatio =
                 makeRatio(totals.testCases.failed, totals.testCases.total());
-            std::size_t failedButOkRatio =
+            int failedButOkRatio =
                 makeRatio(totals.testCases.failedButOk, totals.testCases.total());
-            std::size_t passedRatio =
+            int passedRatio =
                 makeRatio(totals.testCases.passed, totals.testCases.total());
             while (failedRatio + failedButOkRatio + passedRatio < CATCH_CONFIG_CONSOLE_WIDTH - 1)
                 findMax(failedRatio, failedButOkRatio, passedRatio)++;
@@ -11354,8 +11354,8 @@ struct CompactReporter : StreamingReporterBase {
 
             // using messages.end() directly yields compilation error:
             std::vector<MessageInfo>::const_iterator itEnd = messages.end();
-            const std::size_t N =
-                static_cast<std::size_t>(std::distance(itMessage, itEnd));
+            const int N =
+                static_cast<int>(std::distance(itMessage, itEnd));
 
             {
                 Colour colourGuard(colour);
@@ -11390,7 +11390,7 @@ struct CompactReporter : StreamingReporterBase {
     // -   red: Failed N tests cases, failed M assertions.
     // - green: Passed [both/all] N tests cases with M assertions.
 
-    std::string bothOrAll(std::size_t count) const {
+    std::string bothOrAll(int count) const {
         return count == 1 ? std::string() : count == 2 ? "both " : "all ";
     }
 

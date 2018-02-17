@@ -28,6 +28,8 @@
 #include "MultiArg.hpp"
 #include "OptionalUnlabeledTracker.hpp"
 
+#include "gsl/gsl"
+
 namespace TCLAP {
 
 /**
@@ -153,7 +155,7 @@ class UnlabeledMultiArg : public MultiArg<T> {
 		 * \param i - Pointer the the current argument in the list.
 		 * \param args - Mutable list of strings. Passed from main().
 		 */
-    bool processArg(std::size_t& i, std::vector<std::string>& args) override;
+    bool processArg(int& i, std::vector<std::string>& args) override;
 
     /**
 		 * Returns the a short id string.  Used in the usage.
@@ -237,7 +239,7 @@ UnlabeledMultiArg<T>::UnlabeledMultiArg(const std::string& name,
 }
 
 template <class T>
-bool UnlabeledMultiArg<T>::processArg(std::size_t& i, std::vector<std::string>& args) {
+bool UnlabeledMultiArg<T>::processArg(int& i, std::vector<std::string>& args) {
     if (_hasBlanks(args[i])) {
         return false;
     }

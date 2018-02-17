@@ -6,6 +6,7 @@
 #include "Graph.hpp"
 #include "Matrix.hpp"
 #include "utility.hpp"
+#include "gsl/gsl"
 
 template <typename G>
 class AllShortestPathBellmanFord {
@@ -40,7 +41,7 @@ class AllShortestPathBellmanFord {
     void getAllShortestPaths() {
         const auto edges = m_graph.getEdges();
         for (Graph::Node s = 0; s < m_graph.getOrder(); ++s) {
-            for (std::size_t i = 0; i < m_graph.getOrder(); ++i) {
+            for (int i = 0; i < m_graph.getOrder(); ++i) {
                 for (const auto& edge : edges) {
                     const double dist =
                         m_distance(s, edge.first) + m_graph.getEdgeWeight(edge);

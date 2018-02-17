@@ -4,7 +4,7 @@
 #include <boost/multi_array.hpp>
 
 static void MINE_init_list_access(benchmark::State& state) {
-    const std::size_t x = state.range(0),
+    const int x = state.range(0),
                       y = state.range(1),
                       z = state.range(2);
     MultiDimArray<int, 3> m({{x, y, z}});
@@ -14,7 +14,7 @@ static void MINE_init_list_access(benchmark::State& state) {
 }
 
 static void MINE_variadic_access(benchmark::State& state) {
-    const std::size_t x = state.range(0),
+    const int x = state.range(0),
                       y = state.range(1),
                       z = state.range(2);
     MultiDimArray<int, 3> m({{x, y, z}});
@@ -24,7 +24,7 @@ static void MINE_variadic_access(benchmark::State& state) {
 }
 
 static void BOOST(benchmark::State& state) {
-    const std::size_t x = state.range(0),
+    const int x = state.range(0),
                       y = state.range(1),
                       z = state.range(2);
     boost::multi_array<int, 3> m(boost::extents[x][y][z]);
@@ -34,7 +34,7 @@ static void BOOST(benchmark::State& state) {
 }
 
 static void BOOST_ref(benchmark::State& state) {
-    const std::size_t x = state.range(0),
+    const int x = state.range(0),
                       y = state.range(1),
                       z = state.range(2);
     std::vector<int> container(x * y * z);
@@ -45,7 +45,7 @@ static void BOOST_ref(benchmark::State& state) {
 }
 
 static void BOOST_fill(benchmark::State& state) {
-    const std::size_t x = state.range(0),
+    const int x = state.range(0),
                       y = state.range(1),
                       z = state.range(2);
     while (state.KeepRunning()) {
@@ -55,7 +55,7 @@ static void BOOST_fill(benchmark::State& state) {
 }
 
 static void BOOST_ref_fill(benchmark::State& state) {
-    const std::size_t x = state.range(0),
+    const int x = state.range(0),
                       y = state.range(1),
                       z = state.range(2);
     while (state.KeepRunning()) {
@@ -65,7 +65,7 @@ static void BOOST_ref_fill(benchmark::State& state) {
 }
 
 static void MINE_fill(benchmark::State& state) {
-    const std::size_t x = state.range(0),
+    const int x = state.range(0),
                       y = state.range(1),
                       z = state.range(2);
     while (state.KeepRunning()) {

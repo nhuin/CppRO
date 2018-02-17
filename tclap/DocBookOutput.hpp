@@ -29,6 +29,8 @@
 #include <string>
 #include <vector>
 
+#include "gsl/gsl"
+
 #include <tclap/Arg.hpp>
 #include <tclap/CmdLineInterface.hpp>
 #include <tclap/CmdLineOutput.hpp>
@@ -119,7 +121,7 @@ inline void DocBookOutput::usage(CmdLineInterface& _cmd) {
     std::cout << "<command>" << progName << "</command>" << std::endl;
 
     // xor
-    for (std::size_t i = 0; i < xorList.size(); i++) {
+    for (int i = 0; i < xorList.size(); i++) {
         std::cout << "<group choice='req'>" << std::endl;
         for (ArgVectorIterator it = xorList[i].begin();
              it != xorList[i].end(); it++)

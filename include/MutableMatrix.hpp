@@ -1,6 +1,8 @@
 #ifndef MUTABLE_MATRIX_HPP
 #define MUTABLE_MATRIX_HPP
 
+#include "gsl/gsl"
+
 class MutableMatrix {
   public:
     MutableMatrix(int _nbRow, int _nbColumn, const T& _value = T())

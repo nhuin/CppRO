@@ -10,10 +10,11 @@
 #include <stdexcept>
 #include <thread>
 #include <vector>
+#include "gsl/gsl"
 
 class ThreadPool {
   public:
-    explicit ThreadPool(std::size_t _nbThreads);
+    explicit ThreadPool(int _nbThreads);
     ThreadPool(const ThreadPool&) = delete;
     ThreadPool(ThreadPool&&) = delete;
     ThreadPool& operator=(const ThreadPool&) = delete;
@@ -24,7 +25,7 @@ class ThreadPool {
     auto enqueue(F&& f, Args&&... args)
         -> std::future<typename std::result_of<F(Args...)>::type>;
     std::vector<std::thread::id> getIds() const;
-    std::size_t size() const { return workers.size(); }
+    int size() const { return workers.size(); }
 
   private:
     // need to keep track of threads so we can join them
@@ -39,9 +40,9 @@ class ThreadPool {
 };
 
 // the constructor just launches some amount of workers
-inline ThreadPool::ThreadPool(const std::size_t _nbThreads)
+inline ThreadPool::ThreadPool(const int _nbThreads)
     : stop(false) {
-    for (std::size_t i = 0; i < _nbThreads; ++i) {
+    for (int i = 0; i < _nbThreads; ++i) {
         workers.emplace_back([this] {
             for (;;) {
                 std::function<void()> task;

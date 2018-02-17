@@ -26,6 +26,8 @@
 #include <utility>
 #include <vector>
 
+#include "gsl/gsl"
+
 #include "Arg.hpp"
 #include "Constraint.hpp"
 
@@ -182,7 +184,7 @@ class MultiArg : public Arg {
 	 * \param i - Pointer the the current argument in the list.
 	 * \param args - Mutable list of strings. Passed from main().
 	 */
-    bool processArg(std::size_t& i, std::vector<std::string>& args) override;
+    bool processArg(int& i, std::vector<std::string>& args) override;
 
     /**
 	 * Returns a vector of type T containing the values parsed from
@@ -300,7 +302,7 @@ template <class T>
 const std::vector<T>& MultiArg<T>::getValue() { return _values; }
 
 template <class T>
-bool MultiArg<T>::processArg(std::size_t& i, std::vector<std::string>& args) {
+bool MultiArg<T>::processArg(int& i, std::vector<std::string>& args) {
     if (_ignoreable && Arg::ignoreRest()) {
         return false;
     }

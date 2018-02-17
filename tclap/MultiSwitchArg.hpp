@@ -27,6 +27,8 @@
 #include <string>
 #include <vector>
 
+#include "gsl/gsl"
+
 #include "SwitchArg.hpp"
 
 namespace TCLAP {
@@ -97,7 +99,7 @@ class MultiSwitchArg : public SwitchArg {
 		 * \param args - Mutable list of strings. Passed
 		 * in from main().
 		 */
-    bool processArg(std::size_t& i, std::vector<std::string>& args) override;
+    bool processArg(int& i, std::vector<std::string>& args) override;
 
     /**
 		 * Returns int, the number of times the switch has been set.
@@ -146,7 +148,7 @@ MultiSwitchArg::MultiSwitchArg(const std::string& flag,
 
 int MultiSwitchArg::getValue() { return _multiValue; }
 
-bool MultiSwitchArg::processArg(std::size_t& i, std::vector<std::string>& args) {
+bool MultiSwitchArg::processArg(int& i, std::vector<std::string>& args) {
     if (_ignoreable && Arg::ignoreRest()) {
         return false;
     }

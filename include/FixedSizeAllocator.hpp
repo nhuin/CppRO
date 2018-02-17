@@ -4,6 +4,7 @@
 #include <cassert>
 #include <numeric>
 #include <vector>
+#include "gsl/gsl"
 
 template <typename T>
 class FixedSizeAllocator {

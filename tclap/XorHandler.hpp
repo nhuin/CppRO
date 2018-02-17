@@ -29,6 +29,8 @@
 #include <string>
 #include <vector>
 
+#include "gsl/gsl"
+
 namespace TCLAP {
 
 /**
@@ -61,7 +63,7 @@ class XorHandler {
 		 * the Arg's in the list. You shouldn't use this.  
 		 * \param a - The Arg to be checked.
 		 */
-    std::size_t check(const Arg* a);
+    int check(const Arg* a);
 
     /**
 		 * Returns the XOR specific short usage.
@@ -91,10 +93,10 @@ inline void XorHandler::add(const std::vector<Arg*>& ors) {
     _orList.push_back(ors);
 }
 
-inline std::size_t XorHandler::check(const Arg* a) {
+inline int XorHandler::check(const Arg* a) {
     // iterate over each XOR list
     for (auto& list : _orList) {
-        // for (std::size_t i = 0; i < _orList.size(); i++) {
+        // for (int i = 0; i < _orList.size(); i++) {
         // if the XOR list contains the arg..
         auto ait = std::find(list.begin(),
             list.end(), a);

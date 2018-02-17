@@ -34,6 +34,8 @@
 #include "CmdLineOutput.hpp"
 #include "XorHandler.hpp"
 
+#include "gsl/gsl"
+
 namespace TCLAP {
 
 /**
@@ -95,9 +97,9 @@ class StdOutput : public CmdLineOutput {
 		 */
     void spacePrint(std::ostream& os,
         const std::string& s,
-        std::size_t maxWidth,
-        std::size_t indentSpaces,
-        std::size_t secondLineOffset) const;
+        int maxWidth,
+        int indentSpaces,
+        int secondLineOffset) const;
 };
 
 inline void StdOutput::version(CmdLineInterface& _cmd) {
@@ -166,7 +168,7 @@ StdOutput::_shortUsage(CmdLineInterface& _cmd,
         }
     }
     // if the program name is too long, then adjust the second line offset
-    std::size_t secondLineOffset = std::min<std::size_t>(75 / 2, progName.length() + 2);
+    int secondLineOffset = std::min<int>(75 / 2, progName.length() + 2);
 
     spacePrint(os, s, 75, 3, secondLineOffset);
 }
@@ -179,7 +181,7 @@ StdOutput::_longUsage(CmdLineInterface& _cmd,
     std::vector<std::vector<Arg*>> xorList = xorHandler.getXorList();
 
     // first the xor
-    for (std::size_t i = 0; i < xorList.size(); i++) {
+    for (int i = 0; i < xorList.size(); i++) {
         for (auto it = xorList[i].begin();
              it != xorList[i].end();
              it++) {
@@ -210,12 +212,12 @@ StdOutput::_longUsage(CmdLineInterface& _cmd,
 
 inline void StdOutput::spacePrint(std::ostream& os,
     const std::string& s,
-    const std::size_t maxWidth,
-    std::size_t indentSpaces,
-    const std::size_t secondLineOffset) const {
+    const int maxWidth,
+    int indentSpaces,
+    const int secondLineOffset) const {
     if ((s.length() + indentSpaces > maxWidth) && maxWidth > 0) {
         long allowedLen = maxWidth - indentSpaces;
-        std::size_t start = 0;
+        int start = 0;
         while (start < s.length()) {
             // find the substring length
             // int stringLen = std::min<int>( s.length() - start, allowedLen );
@@ -243,7 +245,7 @@ inline void StdOutput::spacePrint(std::ostream& os,
             }
 
             // print the indent
-            for (std::size_t i = 0; i < indentSpaces; i++) {
+            for (int i = 0; i < indentSpaces; i++) {
                 os << ' ';
             }
 
@@ -265,7 +267,7 @@ inline void StdOutput::spacePrint(std::ostream& os,
             start += stringLen;
         }
     } else {
-        for (std::size_t i = 0; i < indentSpaces; i++) {
+        for (int i = 0; i < indentSpaces; i++) {
             os << ' ';
         }
         os << s << '\n';

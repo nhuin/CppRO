@@ -52,6 +52,7 @@ using istringstream = std::istrstream;
 #include "CmdLineInterface.hpp"
 #include "StandardTraits.hpp"
 #include "Visitor.hpp"
+#include "gsl/gsl"
 
 namespace TCLAP {
 
@@ -271,7 +272,7 @@ class Arg {
 		 * \param args - Mutable list of strings. What is
 		 * passed in from main.
 		 */
-    virtual bool processArg(std::size_t& i, std::vector<std::string>& args) = 0;
+    virtual bool processArg(int& i, std::vector<std::string>& args) = 0;
 
     /**
 		 * Operator ==.
@@ -605,8 +606,8 @@ inline void Arg::_checkWithVisitor() const {
  * Implementation of trimFlag.
  */
 inline void Arg::trimFlag(std::string& flag, std::string& value) const {
-    std::size_t stop = 0;
-    for (std::size_t i = 0; i < flag.length(); i++) {
+    int stop = 0;
+    for (int i = 0; i < flag.length(); i++) {
         if (flag[i] == Arg::delimiter()) {
             stop = i;
             break;
@@ -623,7 +624,7 @@ inline void Arg::trimFlag(std::string& flag, std::string& value) const {
  * Implementation of _hasBlanks.
  */
 inline bool Arg::_hasBlanks(const std::string& s) const {
-    for (std::size_t i = 1; i < s.length(); i++) {
+    for (int i = 1; i < s.length(); i++) {
         if (s[i] == Arg::blankChar()) {
             return true;
         }

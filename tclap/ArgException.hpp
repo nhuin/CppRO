@@ -25,6 +25,7 @@
 
 #include <exception>
 #include <string>
+#include "gsl/gsl"
 
 namespace TCLAP {
 

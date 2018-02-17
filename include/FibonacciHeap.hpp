@@ -6,6 +6,7 @@
 #include <cassert>
 #include <list>
 #include <vector>
+#include "gsl/gsl"
 
 template <typename T, typename Comparator = std::less<T>>
 class FibonacciHeap {

@@ -29,6 +29,8 @@
 #include "OptionalUnlabeledTracker.hpp"
 #include "ValueArg.hpp"
 
+#include "gsl/gsl"
+
 namespace TCLAP {
 
 /**
@@ -176,7 +178,7 @@ class UnlabeledValueArg : public ValueArg<T> {
 		 * \param i - Pointer the the current argument in the list.
 		 * \param args - Mutable list of strings. 
 		 */
-    bool processArg(std::size_t& i, std::vector<std::string>& args) override;
+    bool processArg(int& i, std::vector<std::string>& args) override;
 
     /**
 		 * Overrides shortID for specific behavior.
@@ -271,7 +273,7 @@ UnlabeledValueArg<T>::UnlabeledValueArg(const std::string& name,
  * Implementation of processArg().
  */
 template <class T>
-bool UnlabeledValueArg<T>::processArg(std::size_t& i, std::vector<std::string>& args) {
+bool UnlabeledValueArg<T>::processArg(int& i, std::vector<std::string>& args) {
     if (_alreadySet) {
         return false;
     }

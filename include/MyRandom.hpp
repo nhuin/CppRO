@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <chrono>
 #include <random>
+#include "gsl/gsl"
 
 class MyRandom {
   public:
@@ -27,7 +28,7 @@ class MyRandom {
     inline std::vector<T> getShuffled(const T& _a, const T& _b);
 
     template <typename T>
-    inline std::vector<T> getKShuffled(std::size_t _k, const T& _a, const T& _b);
+    inline std::vector<T> getKShuffled(int _k, const T& _a, const T& _b);
 
     inline void setEngine(std::mt19937&& _mt19937) { m_mt19937 = _mt19937; }
     inline std::mt19937& getEngine() { return m_mt19937; }
@@ -53,7 +54,7 @@ std::vector<T> MyRandom::getShuffled(const T& _a, const T& _b) {
 }
 
 template <typename T>
-std::vector<T> MyRandom::getKShuffled(const std::size_t _k, const T& _a,
+std::vector<T> MyRandom::getKShuffled(const int _k, const T& _a,
     const T& _b) {
     auto result = getShuffled(_a, _b);
     result.erase(result.begin() + _k, result.end());

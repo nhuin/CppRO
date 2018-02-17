@@ -25,6 +25,8 @@
 #include "Arg.hpp"
 #include "Visitor.hpp"
 
+#include "gsl/gsl"
+
 namespace TCLAP {
 
 /**

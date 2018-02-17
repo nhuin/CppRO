@@ -40,6 +40,8 @@
 #include "Constraint.hpp"
 #include "ValuesConstraint.hpp"
 
+#include "gsl/gsl"
+
 #include <algorithm>
 #include <cstdlib> // Needed for exit(), which isn't defined in some envs.
 #include <iomanip>
@@ -393,7 +395,7 @@ inline void CmdLine::parse(std::vector<std::string>& args) {
 
         int requiredCount = 0;
 
-        for (std::size_t i = 0; i < args.size(); ++i) {
+        for (int i = 0; i < args.size(); ++i) {
             bool matched = false;
             for (auto& arg : m_argList) {
                 if (arg->processArg(i, args)) {

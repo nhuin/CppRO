@@ -3,6 +3,7 @@
 
 #include <ilcplex/ilocplex.h>
 #include <numeric>
+#include "gsl/gsl"
 
 template <typename Ilo>
 inline void setIloName(const Ilo& _ilo, const std::string& _str) {
@@ -84,26 +85,26 @@ public:
 	{}
 	
 	// Compound addition assignment
-	IloArrayIterator& operator+=(std::size_t _offset) {
+	IloArrayIterator& operator+=(int _offset) {
 		m_position += _offset;
 		return *this;
 	}
 
 	// Compound subtraction assignment
-	IloArrayIterator& operator-=(std::size_t _offset) {
+	IloArrayIterator& operator-=(int _offset) {
 		m_position -= _offset;
 		return *this;
 	}
 
 	// Addition
-	IloArrayIterator operator+(std::size_t _offset) {
+	IloArrayIterator operator+(int _offset) {
 		IloArrayIterator newIte = *this;
 		this->m_position += _offset;
 		return newIte;
 	}
 
 	// Subtraction
-	IloArrayIterator operator-(std::size_t _offset) {
+	IloArrayIterator operator-(int _offset) {
 		IloArrayIterator newIte = *this;
 		this->m_position -= _offset;
 		return newIte;
@@ -129,7 +130,7 @@ public:
 	}
 
 	// Subscripting
-	value_type operator[](std::size_t _idx) {
+	value_type operator[](int _idx) {
 		return m_array[_idx];		
 	}
 private:

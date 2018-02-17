@@ -29,6 +29,8 @@
 #include "Arg.hpp"
 #include "Constraint.hpp"
 
+#include "gsl/gsl"
+
 namespace TCLAP {
 
 /**
@@ -217,7 +219,7 @@ class ValueArg : public Arg {
          * \param args - Mutable list of strings. Passed 
          * in from main().
          */
-    bool processArg(std::size_t& i, std::vector<std::string>& args) override;
+    bool processArg(int& i, std::vector<std::string>& args) override;
 
     /**
          * Returns the value of the argument.
@@ -322,7 +324,7 @@ const T& ValueArg<T>::getValue() const {
  * Implementation of processArg().
  */
 template <class T>
-bool ValueArg<T>::processArg(std::size_t& i, std::vector<std::string>& args) {
+bool ValueArg<T>::processArg(int& i, std::vector<std::string>& args) {
     if (_ignoreable && Arg::ignoreRest()) {
         return false;
     }

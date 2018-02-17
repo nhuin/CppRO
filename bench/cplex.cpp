@@ -8,7 +8,7 @@ static void CPLEX_getDual(benchmark::State& state) {
         IloAdd(model, x);
         IloCplex solver;
         solver.solve();
-        for (std::size_t i = 0; i < state.range(0); ++i) {
+        for (int i = 0; i < state.range(0); ++i) {
             IloNum val = solve.getDual(x[i]);
         }
     }

@@ -11,16 +11,17 @@
 #include "Graph.hpp"
 #include "utility.hpp"
 #include "Matrix.hpp"
+#include "gsl/gsl"
 
 template<typename DG>
 std::vector<Graph::Node> getTopologicalOrder(const DG& _g);
 template<typename DG>
-std::vector<std::size_t> getInDegrees(const DG& _g);
+std::vector<int> getInDegrees(const DG& _g);
 
 template<typename W = double>
 class DiGraph {
   public:
-    explicit DiGraph(const std::size_t _order)
+    explicit DiGraph(const int _order)
         : m_order(_order)
         , m_matrix(_order, _order, {false, 0})
         , m_neighbors(m_order) {
@@ -164,11 +165,11 @@ class DiGraph {
         }
     }	
 
-    std::size_t getOrder() const {
+    int getOrder() const {
     	return m_order;
     }
 
-    std::size_t size() const {
+    int size() const {
     	return m_size;
     }
 
@@ -187,21 +188,21 @@ class DiGraph {
         return m_edges;
     }
 
-    std::size_t getOutDegree(const Graph::Node _u) const {
+    int getOutDegree(const Graph::Node _u) const {
         return m_neighbors[_u].size();
     }
 
-    std::vector<std::size_t> getOutDegrees() const {
-        std::vector<std::size_t> outDegrees(m_order);
+    std::vector<int> getOutDegrees() const {
+        std::vector<int> outDegrees(m_order);
         for (Graph::Node u = 0; u < m_order; ++u) {
             outDegrees[u] = m_neighbors[u].size();
         }
         return outDegrees;
     }
 
-    std::size_t getInDegree(const Graph::Node _u) const {
-        std::size_t indegree = 0;
-        for (std::size_t v = 0; v < m_order; ++v) {
+    int getInDegree(const Graph::Node _u) const {
+        int indegree = 0;
+        for (int v = 0; v < m_order; ++v) {
             if (m_matrix(v, _u).first) {
                 ++indegree;
             }
@@ -209,10 +210,10 @@ class DiGraph {
         return indegree;
     }
 
-    [[deprecated]] std::vector<std::size_t> getInDegrees() const {
-        std::vector<std::size_t> inDegrees(m_order);
+    [[deprecated]] std::vector<int> getInDegrees() const {
+        std::vector<int> inDegrees(m_order);
         for (Graph::Node u = 0; u < m_order; ++u) {
-            for (std::size_t v = 0; v < m_order; ++v) {
+            for (int v = 0; v < m_order; ++v) {
                 if (m_matrix(v, u).first) {
                     ++inDegrees[u];
                 }
@@ -233,7 +234,7 @@ class DiGraph {
         ofs << "}";
     }
 
-    static std::tuple<DiGraph, std::size_t, std::size_t>
+    static std::tuple<DiGraph, int, int>
     loadFromFile(const std::string& _filename) {
         std::ifstream ifs(_filename, std::ifstream::in);
         if (!ifs) {
@@ -243,9 +244,9 @@ class DiGraph {
         std::string line;
         std::getline(ifs, line, '\n');
 
-        std::size_t vertexNumber = 0;
-        std::size_t nbServers = 0;
-        std::size_t nbSwitches = 0;
+        int vertexNumber = 0;
+        int nbServers = 0;
+        int nbSwitches = 0;
 
         std::stringstream(line) >> vertexNumber >> nbServers >> nbSwitches;
 
@@ -308,7 +309,7 @@ class DiGraph {
             }
         };
 
-        for (std::size_t v = 0; v < m_order; ++v) {
+        for (int v = 0; v < m_order; ++v) {
             if (indexes[v] == -1) {
                 strongConnect(v);
             }
@@ -323,9 +324,9 @@ class DiGraph {
 
         for (const auto& SCC : SCCs) {
             subGraphs.emplace_back(SCC.size());
-            std::size_t u2 = 0;
+            int u2 = 0;
             for (const auto& u : SCC) {
-                std::size_t v2 = 0;
+                int v2 = 0;
                 for (const auto& v : SCC) {
                     if (u != v && hasEdge(u, v)) {
                         subGraphs.back().addEdge(u2, v2);
@@ -339,8 +340,8 @@ class DiGraph {
     }
 
   private:
-    std::size_t m_order;
-    std::size_t m_size = 0;
+    int m_order;
+    int m_size = 0;
     Matrix<std::pair<bool, W>> m_matrix;
     std::vector<std::vector<Graph::Node>> m_neighbors;
     mutable bool m_edgeChanges;
@@ -395,13 +396,13 @@ inline std::vector<Graph::Node> getTopologicalOrder(const DG& _g) {
     std::vector<Graph::Node> topo;
     topo.reserve(_g.getOrder());
 
-    std::vector<std::size_t> inDegrees = ::getInDegrees(_g);
+    std::vector<int> inDegrees = ::getInDegrees(_g);
 
     std::vector<bool> inOrder(_g.getOrder(), false);
     bool foundNullInDegree = false;
     while (topo.size() < _g.getOrder()) {
         foundNullInDegree = false;
-        for (std::size_t u = 0; u < _g.getOrder(); ++u) {
+        for (int u = 0; u < _g.getOrder(); ++u) {
             if (inDegrees[u] == 0 
                 && !inOrder[u]) {
                 foundNullInDegree = true;
@@ -427,9 +428,9 @@ inline std::vector<DiGraph<W>> getStronglyConnectedSubGraph(const DG& _g) {
 
     for (const auto& SCC : SCCs) {
         subGraphs.emplace_back(SCC.size());
-        std::size_t u2 = 0;
+        int u2 = 0;
         for (const auto& u : SCC) {
-            std::size_t v2 = 0;
+            int v2 = 0;
             for (const auto& v : SCC) {
                 if (u != v && _g.hasEdge(u, v)) {
                     subGraphs.back().addEdge(u2, v2);
@@ -443,8 +444,8 @@ inline std::vector<DiGraph<W>> getStronglyConnectedSubGraph(const DG& _g) {
 }
 
 template<typename DG>
-inline std::vector<std::size_t> getInDegrees(const DG& _g) {
-    std::vector<std::size_t> inDegrees(_g.getOrder(), 0);
+inline std::vector<int> getInDegrees(const DG& _g) {
+    std::vector<int> inDegrees(_g.getOrder(), 0);
     for(const auto& edge : _g.getEdges()) {
         ++inDegrees[edge.second];
     }
@@ -497,7 +498,7 @@ inline std::vector<std::vector<Graph::Node>> getStronglyConnectedComponent(const
         }
     };
 
-    for (std::size_t v = 0; v < _g.getOrder(); ++v) {
+    for (int v = 0; v < _g.getOrder(); ++v) {
         if (indexes[v] == -1) {
             strongConnect(v);
         }

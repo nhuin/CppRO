@@ -30,6 +30,8 @@
 #include <string>
 #include <vector>
 
+#include "gsl/gsl"
+
 namespace TCLAP {
 
 class CmdLineInterface;

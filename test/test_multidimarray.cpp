@@ -6,16 +6,16 @@
 #include "MultiDimArray.hpp"
 
 TEST_CASE("Test operator()", "[]") {
-    const std::size_t x = 25, y = 56, z = 8;
+    const int x = 25, y = 56, z = 8;
     MultiDimArray<int, 3> m1({x, y, z}, 5);
     REQUIRE(m1.getTotalSize() == x * y * z);
     REQUIRE(m1.getDim<0>() == x);
     REQUIRE(m1.getDim<1>() == y);
     REQUIRE(m1.getDim<2>() == z);
     m1(0, 1, 2) = 1;
-    for (std::size_t i = 0; i < m1.getDim<0>(); ++i) {
-        for (std::size_t j = 0; j < m1.getDim<1>(); ++j) {
-            for (std::size_t k = 0; k < m1.getDim<2>(); ++k) {
+    for (int i = 0; i < m1.getDim<0>(); ++i) {
+        for (int j = 0; j < m1.getDim<1>(); ++j) {
+            for (int k = 0; k < m1.getDim<2>(); ++k) {
 
                 if (std::make_tuple(i, j, k) != std::make_tuple(0, 1, 2)) {
                     REQUIRE(m1(i, j, k) == 5);
@@ -30,7 +30,7 @@ TEST_CASE("Test operator()", "[]") {
 }
 
 TEST_CASE("Test boost", "[]") {
-    const std::size_t x = 25, y = 56, z = 8;
+    const int x = 25, y = 56, z = 8;
     boost::multi_array<int, 3> m1(boost::extents[x][y][z]);
     std::fill_n(m1.data(), m1.num_elements(), 5);
 
@@ -39,9 +39,9 @@ TEST_CASE("Test boost", "[]") {
     REQUIRE(m1.shape()[1] == y);
     REQUIRE(m1.shape()[2] == z);
     m1[0][1][2] = 1;
-    for (std::size_t i = 0; i < m1.shape()[0]; ++i) {
-        for (std::size_t j = 0; j < m1.shape()[1]; ++j) {
-            for (std::size_t k = 0; k < m1.shape()[2]; ++k) {
+    for (int i = 0; i < m1.shape()[0]; ++i) {
+        for (int j = 0; j < m1.shape()[1]; ++j) {
+            for (int k = 0; k < m1.shape()[2]; ++k) {
                 if (std::make_tuple(i, j, k) != std::make_tuple(0, 1, 2)) {
                     REQUIRE(m1[i][j][k] == 5);
                 } else {
@@ -54,14 +54,14 @@ TEST_CASE("Test boost", "[]") {
 }
 
 TEST_CASE("Test for each loop", "[]") {
-    std::size_t x = 25, y = 56, z = 8;
+    int x = 25, y = 56, z = 8;
     MultiDimArray<int, 3> m1({{x, y, z}}, 5);
 
     for (auto& v : MultiDimArray<int, 3>::DimensionView<2>(m1, {25, 56, 0})) {
         v = 1;
     }
 
-    for (std::size_t i = 0; i < m1.getDim<2>(); ++i) {
+    for (int i = 0; i < m1.getDim<2>(); ++i) {
         REQUIRE(m1({25, 56, i}) == 1);
     }
 

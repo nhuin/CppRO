@@ -26,6 +26,8 @@
 #ifndef TCLAP_ARGTRAITS_H
 #define TCLAP_ARGTRAITS_H
 
+#include "gsl/gsl"
+
 namespace TCLAP {
 
 // We use two empty structs to get compile type specialization

@@ -2,6 +2,7 @@
 #define GRAPH_HPP
 
 #include "Matrix.hpp"
+#include "gsl/gsl"
 
 class MutableGraph {
   public:

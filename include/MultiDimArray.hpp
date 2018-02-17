@@ -7,16 +7,17 @@
 #include <tuple>
 #include <type_traits>
 #include <vector>
+#include "gsl/gsl"
 
 #include "utility.hpp"
 
-template <typename T, std::size_t N, typename Container = std::vector<T>>
+template <typename T, int N, typename Container = std::vector<T>>
 class MultiDimArray {
   public:
-    template <std::size_t D>
+    template <int D>
     class DimensionView {
       public:
-        explicit DimensionView(MultiDimArray& _arr, std::array<std::size_t, N> _indexes)
+        explicit DimensionView(MultiDimArray& _arr, std::array<int, N> _indexes)
             : m_arr(_arr)
             , m_indexes(std::move(_indexes)) {}
 
@@ -70,12 +71,12 @@ class MultiDimArray {
             }
 
           private:
-            iterator(MultiDimArray& _arr, std::array<std::size_t, N> _indexes)
+            iterator(MultiDimArray& _arr, std::array<int, N> _indexes)
                 : m_arr(_arr)
                 , m_indexes(std::move(_indexes)) {}
 
             MultiDimArray& m_arr;
-            std::array<std::size_t, N> m_indexes;
+            std::array<int, N> m_indexes;
         };
 
         iterator begin() {
@@ -97,10 +98,10 @@ class MultiDimArray {
 
       private:
         MultiDimArray& m_arr;
-        std::array<std::size_t, N> m_indexes;
+        std::array<int, N> m_indexes;
     };
 
-    explicit MultiDimArray(std::array<std::size_t, N> _arr, const T& _value = T());
+    explicit MultiDimArray(std::array<int, N> _arr, const T& _value = T());
 
     template <typename... Args>
     typename std::enable_if<(sizeof...(Args) == N), T&>::type
@@ -110,20 +111,20 @@ class MultiDimArray {
     typename std::enable_if<(sizeof...(Args) == N), const T&>::type
     operator()(const Args... _args) const;
 
-    T& operator()(const std::size_t (&_il)[N]);
+    T& operator()(const int (&_il)[N]);
 
-    const T& operator()(const std::size_t (&_il)[N]) const;
+    const T& operator()(const int (&_il)[N]) const;
 
-    T& operator()(const std::array<std::size_t, N>& _arr);
+    T& operator()(const std::array<int, N>& _arr);
 
-    const T& operator()(const std::array<std::size_t, N>& _arr) const;
+    const T& operator()(const std::array<int, N>& _arr) const;
 
-    std::size_t getTotalSize() const {
+    int getTotalSize() const {
         return m_array.size();
     }
 
-    template <std::size_t D>
-    std::size_t getDim() {
+    template <int D>
+    int getDim() {
         return m_dim[D];
     }
 
@@ -139,28 +140,28 @@ class MultiDimArray {
     MultiDimArray& operator=(MultiDimArray&&) noexcept = default;
 
   private:
-    template <typename... Args, std::size_t... Is>
-    std::size_t getValue_impl(std::tuple<Args...> _args, std::index_sequence<Is...> /*unused*/);
+    template <typename... Args, int... Is>
+    int getValue_impl(std::tuple<Args...> _args, std::index_sequence<Is...> /*unused*/);
 
-    std::array<std::size_t, N> m_dim;
+    std::array<int, N> m_dim;
     Container m_array;
 };
 
-template <typename T, std::size_t N, typename Container>
-MultiDimArray<T, N, Container>::MultiDimArray(std::array<std::size_t, N> _arr, const T& _value)
+template <typename T, int N, typename Container>
+MultiDimArray<T, N, Container>::MultiDimArray(std::array<int, N> _arr, const T& _value)
     : m_dim(std::move(_arr))
-    , m_array(std::accumulate(std::begin(m_dim), std::end(m_dim), 1, std::multiplies<std::size_t>()), _value) {}
+    , m_array(std::accumulate(std::begin(m_dim), std::end(m_dim), 1, std::multiplies<int>()), _value) {}
 
-template <typename T, std::size_t N, typename Container>
-template <typename... Args, std::size_t... Is>
-std::size_t MultiDimArray<T, N, Container>::getValue_impl(std::tuple<Args...> _args, std::index_sequence<Is...> /*unused*/) {
+template <typename T, int N, typename Container>
+template <typename... Args, int... Is>
+int MultiDimArray<T, N, Container>::getValue_impl(std::tuple<Args...> _args, std::index_sequence<Is...> /*unused*/) {
     // x + xSize * (y + ySize * ())
-    std::size_t retval = 0;
+    int retval = 0;
     return (..., (retval *= m_dim[Is], retval += std::get<Is>(_args)));
     return retval;
 }
 
-template <typename T, std::size_t N, typename Container>
+template <typename T, int N, typename Container>
 template <typename... Args>
 typename std::enable_if<(sizeof...(Args) == N), T&>::type
 MultiDimArray<T, N, Container>::operator()(const Args... _args) {
@@ -168,7 +169,7 @@ MultiDimArray<T, N, Container>::operator()(const Args... _args) {
     return m_array[getValue_impl(std::make_tuple(_args...), std::index_sequence_for<Args...>{})];
 }
 
-template <typename T, std::size_t N, typename Container>
+template <typename T, int N, typename Container>
 template <typename... Args>
 typename std::enable_if<(sizeof...(Args) == N), const T&>::type
 MultiDimArray<T, N, Container>::operator()(const Args... _args) const {
@@ -176,10 +177,10 @@ MultiDimArray<T, N, Container>::operator()(const Args... _args) const {
     return m_array[getValue_impl(std::make_tuple(_args...), std::index_sequence_for<Args...>{})];
 }
 
-template <typename T, std::size_t N, typename Container>
-T& MultiDimArray<T, N, Container>::operator()(const std::size_t (&_il)[N]) {
-    std::size_t in = 0;
-    std::size_t i = 0;
+template <typename T, int N, typename Container>
+T& MultiDimArray<T, N, Container>::operator()(const int (&_il)[N]) {
+    int in = 0;
+    int i = 0;
     for (const auto& _v : _il) {
         in *= m_dim[i];
         in += _v;
@@ -188,10 +189,10 @@ T& MultiDimArray<T, N, Container>::operator()(const std::size_t (&_il)[N]) {
     return m_array[in];
 }
 
-template <typename T, std::size_t N, typename Container>
-const T& MultiDimArray<T, N, Container>::operator()(const std::size_t (&_il)[N]) const {
-    std::size_t in = 0;
-    std::size_t i = 0;
+template <typename T, int N, typename Container>
+const T& MultiDimArray<T, N, Container>::operator()(const int (&_il)[N]) const {
+    int in = 0;
+    int i = 0;
     for (const auto& _v : _il) {
         in *= m_dim[i];
         in += _v;
@@ -200,10 +201,10 @@ const T& MultiDimArray<T, N, Container>::operator()(const std::size_t (&_il)[N])
     return m_array[in];
 }
 
-template <typename T, std::size_t N, typename Container>
-T& MultiDimArray<T, N, Container>::operator()(const std::array<std::size_t, N>& _il) {
-    std::size_t in = 0;
-    std::size_t i = 0;
+template <typename T, int N, typename Container>
+T& MultiDimArray<T, N, Container>::operator()(const std::array<int, N>& _il) {
+    int in = 0;
+    int i = 0;
     for (const auto& _v : _il) {
         in *= m_dim[i];
         in += _v;
@@ -212,10 +213,10 @@ T& MultiDimArray<T, N, Container>::operator()(const std::array<std::size_t, N>& 
     return m_array[in];
 }
 
-template <typename T, std::size_t N, typename Container>
-const T& MultiDimArray<T, N, Container>::operator()(const std::array<std::size_t, N>& _il) const {
-    std::size_t in = 0;
-    std::size_t i = 0;
+template <typename T, int N, typename Container>
+const T& MultiDimArray<T, N, Container>::operator()(const std::array<int, N>& _il) const {
+    int in = 0;
+    int i = 0;
     for (const auto& _v : _il) {
         in *= m_dim[i];
         in += _v;

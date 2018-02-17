@@ -12,6 +12,7 @@
 #include <tuple>
 #include <vector>
 #include <map>
+#include "gsl/gsl"
 
 #if defined(NDEBUG) || defined(PROFILE)
 #define DBOUT(x)
@@ -131,8 +132,8 @@ int getMaxSetBit(T _v) {
 }
 
 template <typename T>
-std::size_t getMaxSetByte(T _v) {
-    std::size_t ret = 0;
+int getMaxSetByte(T _v) {
+    int ret = 0;
     while (_v >>= 8) {
         ++ret;
     }
@@ -184,9 +185,9 @@ inline std::ostream& operator<<(std::ostream& _o, const unused& /*unused*/) {
 // std::pair<RandomIterator, RandomIterator>
 // find_consecutive_common_value(RandomIterator _first1, RandomIterator _last1,
 //     RandomIterator _first2,
-//     const T& _value, const std::size_t _size) {
+//     const T& _value, const int _size) {
 
-//     std::size_t counter = 0;
+//     int counter = 0;
 //     for(RandomIterator window1 = _first1 + _size, window2 = _first2 + _size;
 //         ; window1 != _last1;
 //         window1 += _size, window2 += _size) {

@@ -44,6 +44,8 @@
 #include <cstdint>
 #include <string>
 
+#include "gsl/gsl"
+
 namespace TCLAP {
 
 // ======================================================================
@@ -134,7 +136,7 @@ struct ArgTraits<unsigned char> {
  * size_ts have value-like semantics.
  */
 /*template <>
-struct ArgTraits<std::size_t> {
+struct ArgTraits<int> {
     using ValueCategory = TCLAP::ValueLike;
 };*/
 #endif

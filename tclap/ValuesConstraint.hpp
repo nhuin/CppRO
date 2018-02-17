@@ -28,6 +28,8 @@
 #include <tclap/Constraint.hpp>
 #include <vector>
 
+#include "gsl/gsl"
+
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #else
@@ -107,7 +109,7 @@ ValuesConstraint<T>::ValuesConstraint(std::vector<T> _allowed)
 
         streamtype os;
         os << m_allowed[0];
-        for (std::size_t i = 1; i < m_allowed.size(); ++i) {
+        for (int i = 1; i < m_allowed.size(); ++i) {
             os << '|' << m_allowed[i];
         }
         return os.str();

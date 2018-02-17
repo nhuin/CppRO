@@ -7,6 +7,7 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
+#include "gsl/gsl"
 
 struct Demand {
     Demand(const Graph::Node& _s, const Graph::Node& _t, const double& _d)

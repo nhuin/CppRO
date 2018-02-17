@@ -6,6 +6,7 @@
 #include <deque>
 #include <iterator>
 #include <type_traits>
+#include "gsl/gsl"
 
 template <typename G>
 class ShortestPathBellmanFord {
@@ -52,7 +53,7 @@ class ShortestPathBellmanFord {
         m_parent[_s] = _s;
         m_distance[_s] = 0;
         const auto edges = m_graph->getEdges();
-        for (std::size_t i = 0; i < m_graph->getOrder() - 1; ++i) {
+        for (int i = 0; i < m_graph->getOrder() - 1; ++i) {
             for (const auto& edge : edges) {
                 const double dist =
                     m_distance[edge.first] + m_graph->getEdgeWeight(edge);
@@ -88,7 +89,7 @@ class ShortestPathBellmanFord {
         m_distance[_s] = 0;
         const auto edges = m_graph->getEdges();
         bool anyChanges = true;
-        for (std::size_t i = 0; i < m_graph->getOrder() - 1 && anyChanges == true; ++i) {
+        for (int i = 0; i < m_graph->getOrder() - 1 && anyChanges == true; ++i) {
             anyChanges = false;
             for (const auto& edge : edges) {
                 const double dist =
@@ -179,12 +180,12 @@ class ShortestPathBellmanFord {
         m_distance[_s] = 0;
         const auto edges = m_graph->getEdges();
         bool anyChanges = true;
-        std::vector<std::size_t> nbOutEdgeChange(m_graph->getOrder(), 0.0);
+        std::vector<int> nbOutEdgeChange(m_graph->getOrder(), 0.0);
         std::vector<char> edgeToRelax(m_graph->size(), true);
 
-        for (std::size_t i = 0; i < m_graph->getOrder() - 1 && anyChanges == true; ++i) {
+        for (int i = 0; i < m_graph->getOrder() - 1 && anyChanges == true; ++i) {
             anyChanges = false;
-            std::size_t e = 0;
+            int e = 0;
             for (const auto& edge : edges) {
                 if (edgeToRelax[e]) {
                     const double dist =
@@ -235,9 +236,9 @@ class ShortestPathBellmanFord {
         auto edges = m_graph->getEdges();
         const auto allEdges = m_graph->getEdges();
         bool anyChanges = true;
-        std::vector<std::size_t> nbOutEdgeChange(m_graph->getOrder(), 0.0);
+        std::vector<int> nbOutEdgeChange(m_graph->getOrder(), 0.0);
 
-        for (std::size_t i = 0; i < m_graph->getOrder() - 1 && anyChanges == true; ++i) {
+        for (int i = 0; i < m_graph->getOrder() - 1 && anyChanges == true; ++i) {
             anyChanges = false;
             // std::fill(nbOutEdgeChange.begin(), nbOutEdgeChange.end(), 0.0);
             for (const auto& edge : edges) {
@@ -284,10 +285,10 @@ class ShortestPathBellmanFord {
         m_distance[_s] = 0;
         auto edges = m_graph->getEdges();
         bool anyChanges = true;
-        std::vector<std::size_t> nbOutEdgeChange(m_graph->getOrder(), 0.0);
+        std::vector<int> nbOutEdgeChange(m_graph->getOrder(), 0.0);
         auto iteEnd = edges.end();
 
-        for (std::size_t i = 0; i < m_graph->getOrder() - 1 && anyChanges == true; ++i) {
+        for (int i = 0; i < m_graph->getOrder() - 1 && anyChanges == true; ++i) {
             anyChanges = false;
             for (auto ite = edges.begin(); ite != iteEnd; ++ite) {
                 const double dist =
@@ -337,9 +338,9 @@ class ShortestPathBellmanFord {
         auto iteFirstEnd = iteSecondBegin;
         auto iteSecondEnd = edges.end();
 
-        std::vector<std::size_t> nbOutEdgeChange(m_graph->getOrder(), 0.0);
+        std::vector<int> nbOutEdgeChange(m_graph->getOrder(), 0.0);
         bool anyChanges = true;
-        for (std::size_t i = 0; i < m_graph->getOrder() - 1 && anyChanges == true; ++i) {
+        for (int i = 0; i < m_graph->getOrder() - 1 && anyChanges == true; ++i) {
             anyChanges = false;
             for (auto ite = edges.begin(); ite != iteFirstEnd; ++ite) {
                 const double dist =
@@ -397,7 +398,7 @@ class ShortestPathBellmanFord {
     std::vector<double> m_distance;
     std::vector<int> m_parent;
     std::vector<char> m_inQueue;
-    std::vector<std::size_t> m_count;
+    std::vector<int> m_count;
 };
 
 #endif

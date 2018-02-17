@@ -4,6 +4,7 @@
 #include <cassert>
 #include <iostream>
 #include <vector>
+#include "gsl/gsl"
 
 template <typename T, typename Container = std::vector<T>>
 class Matrix {
@@ -11,12 +12,12 @@ class Matrix {
     // friend std::ostream& operator<<(std::ostream&, const Matrix<V>&);
 
   private:
-    std::size_t m_nbRow;
-    std::size_t m_nbColumn;
+    int m_nbRow;
+    int m_nbColumn;
     Container m_matrix;
 
   public:
-    Matrix(const std::size_t _nbRow, const std::size_t _nbColumn, const T& _value = T())
+    Matrix(const int _nbRow, const int _nbColumn, const T& _value = T())
         : m_nbRow(_nbRow)
         , m_nbColumn(_nbColumn)
         , m_matrix(m_nbRow * m_nbColumn, _value) {
@@ -29,21 +30,21 @@ class Matrix {
     Matrix& operator=(Matrix&& _other) noexcept = default;
     ~Matrix() = default;
 
-    std::size_t size1() const {
+    int size1() const {
         return m_nbRow;
     }
 
-    std::size_t size2() const {
+    int size2() const {
         return m_nbColumn;
     }
 
-    const T& operator()(const std::size_t _i, const std::size_t _j) const {
+    const T& operator()(const int _i, const int _j) const {
         assert(0 <= _i && _i < m_nbRow);
         assert(0 <= _j && _j < m_nbColumn);
         return m_matrix[m_nbRow * _j + _i];
     }
 
-    T& operator()(const std::size_t _i, const std::size_t _j) {
+    T& operator()(const int _i, const int _j) {
         assert(0 <= _i && _i < m_nbRow);
         assert(0 <= _j && _j < m_nbColumn);
         return m_matrix[m_nbRow * _j + _i];
@@ -56,8 +57,8 @@ class Matrix {
 
 template <typename T>
 std::ostream& operator<<(std::ostream& _out, const Matrix<T>& _mat) {
-    for (std::size_t i = 0; i < _mat.size1(); ++i) {
-        for (std::size_t j = 0; j < _mat.size2(); ++j) {
+    for (int i = 0; i < _mat.size1(); ++i) {
+        for (int j = 0; j < _mat.size2(); ++j) {
             _out << _mat(i, j) << ' ';
         }
         _out << '\n';
@@ -70,8 +71,8 @@ bool operator==(const Matrix<T>& _m1, const Matrix<T>& _m2) {
     if (_m1.size1() != _m2.size1() || _m1.size2() != _m2.size2()) {
         return false;
     }
-    for (std::size_t i = 0; i < _m1.size1(); ++i) {
-        for (std::size_t j = 0; j < _m1.size2(); ++j) {
+    for (int i = 0; i < _m1.size1(); ++i) {
+        for (int j = 0; j < _m1.size2(); ++j) {
             if (_m1(i, j) != _m2(i, j)) {
                 return false;
             }
