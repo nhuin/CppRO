@@ -6,7 +6,6 @@
 #include <iomanip>
 #include <iostream>
 #include <utility>
-#include "gsl/gsl"
 
 class Time {
   private:

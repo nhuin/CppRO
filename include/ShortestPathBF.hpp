@@ -6,7 +6,6 @@
 #include <deque>
 #include <iterator>
 #include <type_traits>
-#include "gsl/gsl"
 
 template <typename G>
 class ShortestPathBellmanFord {

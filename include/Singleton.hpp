@@ -1,7 +1,7 @@
 #ifndef SINGLETON_HPP
 #define SINGLETON_HPP
 
-#include "gsl/gsl"
+0
 
 template <typename T>
 struct Singleton {

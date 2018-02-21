@@ -7,7 +7,6 @@
 #include "BinaryHeap.hpp"
 #include "Graph.hpp"
 #include "utility.hpp"
-#include "gsl/gsl"
 
 template <typename G>
 class ShortestPath {

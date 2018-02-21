@@ -28,7 +28,7 @@
 #include <tclap/Constraint.hpp>
 #include <vector>
 
-#include "gsl/gsl"
+
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>

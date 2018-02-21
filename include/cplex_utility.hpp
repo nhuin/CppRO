@@ -3,7 +3,6 @@
 
 #include <ilcplex/ilocplex.h>
 #include <numeric>
-#include "gsl/gsl"
 
 template <typename Ilo>
 inline void setIloName(const Ilo& _ilo, const std::string& _str) {

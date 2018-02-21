@@ -52,7 +52,7 @@ using istringstream = std::istrstream;
 #include "CmdLineInterface.hpp"
 #include "StandardTraits.hpp"
 #include "Visitor.hpp"
-#include "gsl/gsl"
+
 
 namespace TCLAP {
 

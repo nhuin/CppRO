@@ -6,7 +6,6 @@
 #include "Graph.hpp"
 #include "Matrix.hpp"
 #include "utility.hpp"
-#include "gsl/gsl"
 
 template <typename G>
 class AllShortestPathBellmanFord {

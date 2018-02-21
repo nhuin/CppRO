@@ -2,7 +2,6 @@
 #define BINARYHEAP_HPP
 
 #include <algorithm>
-#include "gsl/gsl"
 
 template <typename T, typename Comparator = std::less<T>>
 class BinaryHeap {
