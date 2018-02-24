@@ -1,7 +1,7 @@
 #ifndef LIST_HPP
 #define LIST_HPP
 
-#include "gsl/gsl"
+0
 
 template <typename T>
 class List {

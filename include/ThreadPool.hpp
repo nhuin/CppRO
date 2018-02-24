@@ -10,7 +10,6 @@
 #include <stdexcept>
 #include <thread>
 #include <vector>
-#include "gsl/gsl"
 
 class ThreadPool {
   public:

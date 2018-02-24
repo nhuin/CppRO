@@ -1,7 +1,7 @@
 #ifndef MUTABLE_MATRIX_HPP
 #define MUTABLE_MATRIX_HPP
 
-#include "gsl/gsl"
+0
 
 class MutableMatrix {
   public:

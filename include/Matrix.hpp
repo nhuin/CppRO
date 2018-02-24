@@ -4,7 +4,6 @@
 #include <cassert>
 #include <iostream>
 #include <vector>
-#include "gsl/gsl"
 
 template <typename T, typename Container = std::vector<T>>
 class Matrix {

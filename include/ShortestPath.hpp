@@ -7,7 +7,6 @@
 #include "BinaryHeap.hpp"
 #include "Graph.hpp"
 #include "utility.hpp"
-#include "gsl/gsl"
 
 template <typename G, typename DistanceComparator = std::less<typename G::weight_type>>
 class ShortestPath {

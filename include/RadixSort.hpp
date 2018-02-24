@@ -8,7 +8,6 @@
 #include <ostream>
 #include <type_traits>
 #include <vector>
-#include "gsl/gsl"
 
 #include "utility.hpp"
 

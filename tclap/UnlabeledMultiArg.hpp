@@ -28,7 +28,7 @@
 #include "MultiArg.hpp"
 #include "OptionalUnlabeledTracker.hpp"
 
-#include "gsl/gsl"
+
 
 namespace TCLAP {
 

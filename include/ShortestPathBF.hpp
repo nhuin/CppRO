@@ -6,7 +6,6 @@
 #include <deque>
 #include <iterator>
 #include <type_traits>
-#include "gsl/gsl"
 
 template <typename G, typename DistanceComparator = std::less<typename G::weight_type>>
 class ShortestPathBellmanFord {

@@ -40,7 +40,7 @@
 #include "Constraint.hpp"
 #include "ValuesConstraint.hpp"
 
-#include "gsl/gsl"
+
 
 #include <algorithm>
 #include <cstdlib> // Needed for exit(), which isn't defined in some envs.

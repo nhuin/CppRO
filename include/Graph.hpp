@@ -10,7 +10,6 @@
 
 #include <string>
 #include <vector>
-#include "gsl/gsl"
 
 /**
  * Interface for graph classes

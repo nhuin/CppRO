@@ -4,7 +4,6 @@
 #include <algorithm>
 #include <chrono>
 #include <random>
-#include "gsl/gsl"
 
 class MyRandom {
   public:

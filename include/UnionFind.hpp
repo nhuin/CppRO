@@ -3,7 +3,6 @@
 
 #include <numeric>
 #include <vector>
-#include "gsl/gsl"
 
 class UnionFind {
   public:

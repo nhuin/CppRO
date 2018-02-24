@@ -11,7 +11,6 @@
 #include "Graph.hpp"
 #include "utility.hpp"
 #include "Matrix.hpp"
-#include "gsl/gsl"
 
 template<typename DG>
 std::vector<Graph::Node> getTopologicalOrder(const DG& _g);

@@ -12,7 +12,6 @@
 #include <tuple>
 #include <vector>
 #include <map>
-#include "gsl/gsl"
 
 #if defined(NDEBUG) || defined(PROFILE)
 #define DBOUT(x)

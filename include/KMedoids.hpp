@@ -6,7 +6,6 @@
 #include "Matrix.hpp"
 #include "MyRandom.hpp"
 #include "utility.hpp"
-#include "gsl/gsl"
 
 std::vector<int> getKMedoids(const int _k, const Matrix<double>& _dist,
     const int _tMax = 100) {
