@@ -26,7 +26,7 @@
 #include <algorithm>
 #include <iostream>
 #include <string>
-#include <vector>v
+#include <vector>
 
 namespace TCLAP {
 
