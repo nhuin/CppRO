@@ -148,4 +148,16 @@ IloArrayIterator<IloArray> end(IloArray& _arr) {
 	return IloArrayIterator<IloArray>(_arr, _arr.getSize());
 }
 
+template<typename IloArray>
+IloArray copy(const IloArray& _array) {
+    IloNumArray retval(_array.getEnv(), _array.getSize());
+    std::copy(begin(_array), end(_array),
+        begin(retval));
+    return retval;
+}
+
+template<typename IloArray>
+IloArray move(const IloArray& _array) {
+    return IloNumArray(_array);
+}
 #endif
