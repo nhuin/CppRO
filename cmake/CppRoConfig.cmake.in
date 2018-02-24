@@ -1,0 +1,12 @@
+get_filename_component(CppRo_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+include(CMakeFindDependencyMacro)
+
+list(APPEND CMAKE_MODULE_PATH ${CppRo_CMAKE_DIR})
+find_dependency(CPLEX REQUIRED)
+list(REMOVE_AT CMAKE_MODULE_PATH -1)
+
+if(NOT TARGET CppRo)
+    include("${CppRo_CMAKE_DIR}/CppRoTargets.cmake")
+endif()
+
+set(CppRo_LIBRARIES CppRo)

@@ -1,48 +1,86 @@
-cmake_minimum_required(VERSION 2.4)
-project(MyC++ LANGUAGES CXX)
-# Get include directories 
-# get_property(dirs DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES)
-# foreach(dir ${dirs})
-#   string(CONCAT INCLUDE_COMMAND ${INCLUDE_COMMAND} "-I${dir}")
-# endforeach()
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}")
-set(CMAKE_FIND_LIBRARY_PREFIXES "lib")
-set(CMAKE_FIND_LIBRARY_SUFFIXES "")
+cmake_minimum_required(VERSION 3.5)
+project(CppRo VERSION 1.0.0 LANGUAGES CXX)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
 
-# Additional targets to perform clang-format/clang-tidy
+find_package(CPLEX REQUIRED MODULE)
 
-include_directories(./include)
-include_directories(../include)
-include_directories($ENV{MY_CPP_INCLUDE})
-include_directories(/usr/local/include/)
+##############################################
+# Create target and set properties
+add_library(CppRo
+	INTERFACE)
 
-# google benchmark
-include_directories(SYSTEM $ENV{BENCHMARK_ROOT}/include/)
-link_directories($ENV{HOME}/lib/)
+#Add an alias so that library can be used inside the build tree, e.g. when testing
+add_library(CppRo::CppRo ALIAS CppRo)
 
-# cplex stuffs
-# include_directories(SYSTEM $ENV{CPLEX_DIR}cplex/include/ $ENV{CPLEX_DIR}concert/include/)
-# if(${APPLE})
-# 	find_library(CPLEX_LIB HINTS cplex/lib/x86-64_osx/static_pic ENV CPLEX_DIR /static_pic ${CPLEX_DIR})
-# 	find_library(CONCERT_LIB HINTS ENV CPLEX_DIR /static_pic ${CPLEX_DIR}concert/lib/x86-64_osx/static_pic)
-#     link_directories(CPLEX_LIB)
-#     link_directories(CONCERT_LIB)
-# elseif(${UNIX})
-#     link_directories(${CPLEX_DIR}cplex/lib/x86-64_linux/static_pic ${CPLEX_DIR}concert/lib/x86-64_linux/static_pic)
-# endif()
-set(CPLEX_ROOT_DIR $ENV{CPLEX_DIR})
-find_package(CPLEX)
+#Set target properties
+target_include_directories(CppRo
+	INTERFACE 
+	$<INSTALL_INTERFACE:include>
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -Wall -Wextra -Wshadow -Wnon-virtual-dtor \
-    -pedantic -Wno-c++11-compat -DIL_STD -march=native -Weverything \
-    -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-sign-conversion")
-set(CMAKE_CXX_FLAGS_DEBUG "-Og -fsanitize=address")
-set(CMAKE_CXX_FLAGS_RELEASE " -Ofast -DNDEBUG -DBOOST_DISABLE_ASSERTS -DBOOST_UBLAS_NDEBUG")
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO " -g -Og")
-SET(CMAKE_INCLUDE_SYSTEM_FLAG_CXX "-isystem ")
+target_compile_features(CppRo INTERFACE cxx_std_17)
+target_compile_options(CppRo INTERFACE -DIL_STD -Wno-sign-conversion)
 
-enable_testing()
+include(GNUInstallDirs)
+set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/CppRo)
+
+target_link_libraries(CppRo INTERFACE cplex-library cplex-concert ilocplex)
+
+##############################################
+# Installation instructions
+
+include(GNUInstallDirs)
+set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/CppRo)
+
+install(TARGETS CppRo
+    EXPORT CppRo-targets
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)
+
+# set_target_properties(CppRo PROPERTIES EXPORT_NAME CppRo)
+
+install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+#Export the targets to a script
+install(EXPORT CppRo-targets
+  FILE
+    CppRoTargets.cmake
+  NAMESPACE
+    CppRo::
+  DESTINATION
+    ${INSTALL_CONFIGDIR}
+)
+
+#Create a ConfigVersion.cmake file
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+    ${CMAKE_CURRENT_BINARY_DIR}/CppRoConfigVersion.cmake
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY AnyNewerVersion
+)
+
+configure_package_config_file(${CMAKE_CURRENT_LIST_DIR}/cmake/CppRoConfig.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/CppRoConfig.cmake
+    INSTALL_DESTINATION ${INSTALL_CONFIGDIR}
+)
+
+#Install the config, configversion and custom find modules
+install(FILES
+	${CMAKE_CURRENT_LIST_DIR}/cmake/FindCPLEX.cmake
+	${CMAKE_CURRENT_LIST_DIR}/cmake/clang-extra-tools.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/CppRoConfig.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/CppRoConfigVersion.cmake
+    DESTINATION ${INSTALL_CONFIGDIR}
+)
+
+##############################################
+## Exporting from the build tree
+
+export(EXPORT CppRo-targets FILE ${CMAKE_CURRENT_BINARY_DIR}/CppRoTargets.cmake NAMESPACE CppRo::)
+
+#Register package in user's package registry
+export(PACKAGE CppRo)
+
 add_subdirectory(test)
 add_subdirectory(bench)
-
-include(clang-extra-tools)
