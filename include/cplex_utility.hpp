@@ -160,4 +160,19 @@ template<typename IloArray>
 IloArray move(const IloArray& _array) {
     return IloNumArray(_array);
 }
+template<typename T>
+struct epsilon_less {
+	bool operator()(T _lhs, T _rhs) {
+		return _lhs - _rhs < epsilon_less<T>::epsilon_value;
+	}
+	constexpr static T epsilon_value = -1e-6;
+};
+
+template<typename T>
+struct epsilon_equal {
+	bool operator()(T _lhs, T _rhs) {
+		return std::fabs(_lhs - _rhs) < epsilon_equal<T>::epsilon_value;
+	}
+	constexpr static T epsilon_value = -1e-6;
+};
 #endif
