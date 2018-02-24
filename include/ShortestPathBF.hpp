@@ -8,16 +8,18 @@
 #include <type_traits>
 #include "gsl/gsl"
 
-template <typename G>
+template <typename G, typename DistanceComparator = std::less<typename G::weight_type>>
 class ShortestPathBellmanFord {
+    using weight_type = typename G::weight_type;
   public:
     struct NegativeCycleException {
         Graph::Edge message;
     };
 
-    explicit ShortestPathBellmanFord(const G& _graph)
+    explicit ShortestPathBellmanFord(const G& _graph, DistanceComparator _distComp = DistanceComparator())
         : m_graph(&_graph)
-        , m_distance(m_graph->getOrder(), std::numeric_limits<double>::max())
+        , m_distComp(_distComp)
+        , m_distance(m_graph->getOrder(), std::numeric_limits<weight_type>::max())
         , m_parent(m_graph->getOrder(), -1)
         , m_inQueue(m_graph->getOrder(), false)
         , m_count(m_graph->getOrder(), 0)
@@ -35,7 +37,7 @@ class ShortestPathBellmanFord {
     void clear() {
         std::fill(m_parent.begin(), m_parent.end(), -1);
         std::fill(m_distance.begin(), m_distance.end(),
-            std::numeric_limits<double>::max());
+            std::numeric_limits<weight_type>::max());
         std::fill(m_inQueue.begin(), m_inQueue.end(), false);
         std::fill(m_count.begin(), m_count.end(), 0);
     }
@@ -44,7 +46,7 @@ class ShortestPathBellmanFord {
         return getShortestPath_v2(_s, _t);
     }
 
-    double getDistance(const Graph::Node _u) const {
+    weight_type getDistance(const Graph::Node _u) const {
         return m_distance[_u];
     }
 
@@ -55,9 +57,9 @@ class ShortestPathBellmanFord {
         const auto edges = m_graph->getEdges();
         for (int i = 0; i < m_graph->getOrder() - 1; ++i) {
             for (const auto& edge : edges) {
-                const double dist =
+                const weight_type dist =
                     m_distance[edge.first] + m_graph->getEdgeWeight(edge);
-                if (dist < m_distance[edge.second]) {
+                if (m_distComp(dist, m_distance[edge.second])) {
                     m_distance[edge.second] = dist;
                     m_parent[edge.second] = edge.first;
                 }
@@ -65,7 +67,7 @@ class ShortestPathBellmanFord {
         }
 
         for (const auto& edge : m_graph->getEdges()) {
-            if (m_distance[edge.first] + m_graph->getEdgeWeight(edge) < m_distance[edge.second]) {
+            if (m_distComp(m_distance[edge.first] + m_graph->getEdgeWeight(edge), m_distance[edge.second])) {
                 throw NegativeCycleException{edge};
             }
         }
@@ -92,9 +94,9 @@ class ShortestPathBellmanFord {
         for (int i = 0; i < m_graph->getOrder() - 1 && anyChanges == true; ++i) {
             anyChanges = false;
             for (const auto& edge : edges) {
-                const double dist =
+                const weight_type dist =
                     m_distance[edge.first] + m_graph->getEdgeWeight(edge);
-                if (dist < m_distance[edge.second]) {
+                if (m_distComp(dist, m_distance[edge.second])) {
                     anyChanges = true;
                     m_distance[edge.second] = dist;
                     m_parent[edge.second] = edge.first;
@@ -103,7 +105,7 @@ class ShortestPathBellmanFord {
         }
 
         for (const auto& edge : m_graph->getEdges()) {
-            if (m_distance[edge.first] + m_graph->getEdgeWeight(edge) < m_distance[edge.second]) {
+            if (m_distComp(m_distance[edge.first] + m_graph->getEdgeWeight(edge), m_distance[edge.second])) {
                 throw NegativeCycleException{edge};
             }
         }
@@ -139,8 +141,8 @@ class ShortestPathBellmanFord {
             // Don't try to relax if parent is in queue
             if (m_parent[u] == -1 || !m_inQueue[m_parent[u]]) {
                 for (const auto v : m_graph->getNeighbors(u)) {
-                    const double dist = m_distance[u] + m_graph->getEdgeWeight(u, v);
-                    if (dist < m_distance[v]) {
+                    const weight_type dist = m_distance[u] + m_graph->getEdgeWeight(u, v);
+                    if (m_distComp(dist, m_distance[v]))  {
                         if (++m_count[v] == m_graph->getOrder()) {
                             overRelaxed = true;
                         }
@@ -156,7 +158,7 @@ class ShortestPathBellmanFord {
         }
 
         for (const auto& edge : m_graph->getEdges()) {
-            if (m_distance[edge.first] + m_graph->getEdgeWeight(edge) < m_distance[edge.second]) {
+            if (m_distComp(m_distance[edge.first] + m_graph->getEdgeWeight(edge), m_distance[edge.second])) {
                 throw NegativeCycleException{edge};
             }
         }
@@ -188,9 +190,9 @@ class ShortestPathBellmanFord {
             int e = 0;
             for (const auto& edge : edges) {
                 if (edgeToRelax[e]) {
-                    const double dist =
+                    const weight_type dist =
                         m_distance[edge.first] + m_graph->getEdgeWeight(edge);
-                    if (dist < m_distance[edge.second]) {
+                    if (m_distComp(dist, m_distance[edge.second])) {
                         anyChanges = true;
                         m_distance[edge.second] = dist;
                         m_parent[edge.second] = edge.first;
@@ -210,7 +212,7 @@ class ShortestPathBellmanFord {
             }
         }
         for (const auto& edge : m_graph->getEdges()) {
-            if (m_distance[edge.first] + m_graph->getEdgeWeight(edge) < m_distance[edge.second]) {
+            if (m_distComp(m_distance[edge.first] + m_graph->getEdgeWeight(edge), m_distance[edge.second])) {
                 throw NegativeCycleException{edge};
             }
         }
@@ -242,9 +244,9 @@ class ShortestPathBellmanFord {
             anyChanges = false;
             // std::fill(nbOutEdgeChange.begin(), nbOutEdgeChange.end(), 0.0);
             for (const auto& edge : edges) {
-                const double dist =
+                const weight_type dist =
                     m_distance[edge.first] + m_graph->getEdgeWeight(edge);
-                if (dist < m_distance[edge.second]) {
+                if (m_distComp(dist, m_distance[edge.second])) {
                     anyChanges = true;
                     m_distance[edge.second] = dist;
                     m_parent[edge.second] = edge.first;
@@ -261,7 +263,7 @@ class ShortestPathBellmanFord {
                 });
         }
         for (const auto& edge : m_graph->getEdges()) {
-            if (m_distance[edge.first] + m_graph->getEdgeWeight(edge) < m_distance[edge.second]) {
+            if (m_distComp(m_distance[edge.first] + m_graph->getEdgeWeight(edge), m_distance[edge.second])) {
                 throw NegativeCycleException{edge};
             }
         }
@@ -291,10 +293,10 @@ class ShortestPathBellmanFord {
         for (int i = 0; i < m_graph->getOrder() - 1 && anyChanges == true; ++i) {
             anyChanges = false;
             for (auto ite = edges.begin(); ite != iteEnd; ++ite) {
-                const double dist =
+                const weight_type dist =
                     m_distance[(*ite).first] + m_graph->getEdgeWeight(*ite);
                 nbOutEdgeChange[(*ite).second]++;
-                if (dist < m_distance[(*ite).second]) {
+                if (m_distComp(dist, m_distance[(*ite).second])) {
                     anyChanges = true;
                     m_distance[(*ite).second] = dist;
                     m_parent[(*ite).second] = (*ite).first;
@@ -307,7 +309,7 @@ class ShortestPathBellmanFord {
                 });
         }
         for (const auto& edge : m_graph->getEdges()) {
-            if (m_distance[edge.first] + m_graph->getEdgeWeight(edge) < m_distance[edge.second]) {
+            if (m_distComp(m_distance[edge.first] + m_graph->getEdgeWeight(edge), m_distance[edge.second])) {
                 throw NegativeCycleException{edge};
             }
         }
@@ -343,10 +345,10 @@ class ShortestPathBellmanFord {
         for (int i = 0; i < m_graph->getOrder() - 1 && anyChanges == true; ++i) {
             anyChanges = false;
             for (auto ite = edges.begin(); ite != iteFirstEnd; ++ite) {
-                const double dist =
+                const weight_type dist =
                     m_distance[(*ite).first] + m_graph->getEdgeWeight(*ite);
                 nbOutEdgeChange[(*ite).second]++;
-                if (dist < m_distance[(*ite).second]) {
+                if (m_distComp(dist, m_distance[(*ite).second])) {
                     anyChanges = true;
                     m_distance[(*ite).second] = dist;
                     m_parent[(*ite).second] = (*ite).first;
@@ -354,10 +356,10 @@ class ShortestPathBellmanFord {
                 }
             }
             for (auto ite = iteSecondBegin; ite != iteSecondEnd; ++ite) {
-                const double dist =
+                const weight_type dist =
                     m_distance[(*ite).first] + m_graph->getEdgeWeight(*ite);
                 nbOutEdgeChange[(*ite).second]++;
-                if (dist < m_distance[(*ite).second]) {
+                if (m_distComp(dist, m_distance[(*ite).second])) {
                     anyChanges = true;
                     m_distance[(*ite).second] = dist;
                     m_parent[(*ite).second] = (*ite).first;
@@ -375,7 +377,7 @@ class ShortestPathBellmanFord {
         }
 
         for (const auto& edge : m_graph->getEdges()) {
-            if (m_distance[edge.first] + m_graph->getEdgeWeight(edge) < m_distance[edge.second]) {
+            if (m_distComp(m_distance[edge.first] + m_graph->getEdgeWeight(edge), m_distance[edge.second])) {
                 throw NegativeCycleException{edge};
             }
         }
@@ -395,7 +397,8 @@ class ShortestPathBellmanFord {
 
   private:
     G const* m_graph;
-    std::vector<double> m_distance;
+    DistanceComparator m_distComp;
+    std::vector<weight_type> m_distance;
     std::vector<int> m_parent;
     std::vector<char> m_inQueue;
     std::vector<int> m_count;

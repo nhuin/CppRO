@@ -9,18 +9,20 @@
 #include "utility.hpp"
 #include "gsl/gsl"
 
-template <typename G>
+template <typename G, typename DistanceComparator = std::less<typename G::weight_type>>
 class ShortestPath {
   public:
-    explicit ShortestPath(const G& _graph)
+    using weight_type = typename G::weight_type;
+    explicit ShortestPath(const G& _graph, DistanceComparator _distComp = DistanceComparator())
         : m_graph(&_graph)
-        , m_distance(_graph.getOrder(), std::numeric_limits<double>::max())
+        , m_distComp(_distComp)
+        , m_distance(_graph.getOrder(), std::numeric_limits<weight_type>::max())
         , m_parent(_graph.getOrder(), -1)
         , m_color(_graph.getOrder(), 0)
         , m_handles(_graph.getOrder())
         , m_heap(_graph.getOrder(),
               [&](const Graph::Node __u, const Graph::Node __v) {
-                  return m_distance[__u] < m_distance[__v];
+                  return m_distComp(m_distance[__u], m_distance[__v]);
               }) {}
     // Copy
     ShortestPath(const ShortestPath& _other)
@@ -29,8 +31,8 @@ class ShortestPath {
     ShortestPath& operator=(const ShortestPath& _other) {
         if (this != &_other) {
             m_graph = _other.m_graph;
-            m_distance = std::vector<double>(m_graph->getOrder(),
-                std::numeric_limits<double>::max());
+            m_distance = std::vector<weight_type>(m_graph->getOrder(),
+                std::numeric_limits<weight_type>::max());
             m_parent = std::vector<int>(m_graph->getOrder(), -1);
             m_color = std::vector<char>(m_graph->getOrder(), 0);
             m_handles = std::vector<typename BinaryHeap<
@@ -40,7 +42,7 @@ class ShortestPath {
                 int, std::function<bool(const Graph::Node, const Graph::Node)>>(
                 m_graph->getOrder(),
                 [=](const Graph::Node __u, const Graph::Node __v) {
-                    return m_distance[__u] < m_distance[__v];
+                    return m_distComp(m_distance[__u], m_distance[__v]);
                 });
         }
         return *this;
@@ -55,7 +57,7 @@ class ShortestPath {
         , m_handles(m_graph->getOrder())
         , m_heap(m_graph->getOrder(),
               [=](const Graph::Node __u, const Graph::Node __v) {
-                  return m_distance[__u] < m_distance[__v];
+                  return m_distComp(m_distance[__u], m_distance[__v]);
               }) {}
 
     ShortestPath& operator=(ShortestPath&& _other) noexcept {
@@ -71,7 +73,7 @@ class ShortestPath {
                 int, std::function<bool(const Graph::Node, const Graph::Node)>>(
                 m_graph->getOrder(),
                 [=](const Graph::Node __u, const Graph::Node __v) {
-                    return m_distance[__u] < m_distance[__v];
+                    return m_distComp(m_distance[__u], m_distance[__v]);
                 });
         }
         return *this;
@@ -79,14 +81,14 @@ class ShortestPath {
 
     ~ShortestPath() = default;
 
-    double getDistance(const Graph::Node _u) const {
+    weight_type getDistance(const Graph::Node _u) const {
         return m_distance[_u];
     }
 
     void clear() {
         std::fill(m_parent.begin(), m_parent.end(), -1);
         std::fill(m_distance.begin(), m_distance.end(),
-            std::numeric_limits<double>::max());
+            std::numeric_limits<weight_type>::max());
         std::fill(m_color.begin(), m_color.end(), 0);
         m_heap.clear();
     }
@@ -110,7 +112,7 @@ class ShortestPath {
             for (const auto& v : m_graph->getNeighbors(u)) {
                 if (m_color[v] != 2) {
                     auto distT = m_distance[u] + m_graph->getEdgeWeight(u, v);
-                    if (distT < m_distance[v]) {
+                    if (m_distComp(distT, m_distance[v])) {
                         m_distance[v] = distT;
                         if (m_color[v] == 1) {
                             m_heap.decrease(m_handles[v]);
@@ -154,7 +156,7 @@ class ShortestPath {
             for (const auto& v : m_graph->getNeighbors(u)) {
                 if (m_color[v] != 2) {
                     auto distT = m_distance[u] + 1;
-                    if (distT < m_distance[v]) {
+                    if (m_distComp(distT, m_distance[v])) {
                         m_distance[v] = distT;
                         if (m_color[v] == 1) {
                             m_heap.decrease(m_handles[v]);
@@ -201,7 +203,7 @@ class ShortestPath {
             for (const auto& v : m_graph->getNeighbors(u)) {
                 if (m_color[v] != 2 && _np(u, v)) {
                     auto distT = m_distance[u] + _wf(u, v);
-                    if (distT < m_distance[v]) {
+                    if (m_distComp(distT, m_distance[v])) {
                         m_distance[v] = distT;
                         if (m_color[v] == 1) {
                             m_heap.decrease(m_handles[v]);
@@ -247,7 +249,7 @@ class ShortestPath {
             for (auto& v : m_graph->getNeighbors(u)) {
                 if (m_color[v] != 2 && _np(u, v)) {
                     auto distT = m_distance[u] + 1;
-                    if (distT < m_distance[v]) {
+                    if (m_distComp(distT, m_distance[v])) {
                         m_distance[v] = distT;
                         if (m_color[v] == 1) {
                             m_heap.decrease(m_handles[v]);
@@ -349,7 +351,8 @@ class ShortestPath {
 
   private:
     G const* m_graph;
-    std::vector<double> m_distance;
+    DistanceComparator m_distComp;
+    std::vector<weight_type> m_distance;
     std::vector<Graph::Node> m_parent;
     std::vector<char> m_color;
     std::vector<typename BinaryHeap<

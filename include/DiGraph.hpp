@@ -21,6 +21,7 @@ std::vector<int> getInDegrees(const DG& _g);
 template<typename W = double>
 class DiGraph {
   public:
+    using weight_type = W;
     explicit DiGraph(const int _order)
         : m_order(_order)
         , m_matrix(_order, _order, {false, 0})
