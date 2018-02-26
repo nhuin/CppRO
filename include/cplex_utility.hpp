@@ -3,9 +3,10 @@
 
 #include <ilcplex/ilocplex.h>
 #include <numeric>
+#include <utility>
 
-template <typename Ilo>
-inline void setIloName(const Ilo& _ilo, const std::string& _str) {
+template <typename IloObject>
+inline void setIloName(const IloObject& _ilo, const std::string& _str) {
 	_ilo.setName(_str.c_str());
 }
 
@@ -156,9 +157,12 @@ IloArray copy(const IloArray& _array) {
 }
 
 template<typename IloArray>
-IloArray move(const IloArray& _array) {
-    return IloNumArray(_array);
+IloArray move(IloArray&& _array) {
+    auto retval = IloNumArray(_array.getImpl());
+    _array.end();
+    return retval;
 }
+
 template<typename T>
 struct epsilon_less {
 	bool operator()(T _lhs, T _rhs) {
@@ -172,6 +176,87 @@ struct epsilon_equal {
 	bool operator()(T _lhs, T _rhs) {
 		return std::fabs(_lhs - _rhs) < epsilon_equal<T>::epsilon_value;
 	}
-	constexpr static T epsilon_value = -1e-6;
+	constexpr static T epsilon_value = 1e-6;
 };
+
+template<typename IloArray, bool OWNING = false>
+class IloWrapper {
+public:
+	template<typename... Args, typename =
+	typename std::enable_if<std::is_constructible<IloArray, Args...>::value>::type>
+	IloWrapper(Args&&... args) 
+	: m_array(std::forward<Args>(args)...)
+	{}
+
+	// Copy
+	IloWrapper(const IloWrapper& _other)
+	: m_array(copy(_other.m_array))
+	{
+		std::cout << "Copy\n";
+	}
+
+	IloWrapper& operator=(const IloWrapper& _other) {
+		if(this != &_other) {
+			this->~IloWrapper();
+			m_array = copy(_other.m_array);
+		}
+		return *this;
+	}
+
+	// Move
+	IloWrapper& operator=(IloWrapper&& _other) {
+		if(this != &_other) {
+			this->~IloWrapper();
+			m_array = move(_other.m_array);
+		}
+		return *this;
+	}
+
+	IloWrapper(IloWrapper&& _other) 
+	: m_array(move(_other.m_array))
+	{
+		std::cout << "Move\n";
+	}
+
+	// operator IloArray() const {
+	// 	return IloArray(m_array.getImpl());
+	// }
+
+	~IloWrapper() {
+		if constexpr(OWNING) {
+			m_array.endElements();
+		}
+		m_array.end();
+	}
+	auto operator[](int _idx) {
+		return m_array[_idx];
+	}
+
+	auto operator[](int _idx) const {
+		return m_array[_idx];
+	}
+
+	int size() const {
+		return m_array.getSize();
+	}
+
+	IloArrayIterator<IloArray> begin() {
+		return ::begin(m_array);
+	}
+
+	IloArrayIterator<IloArray> end() {
+		return ::end(m_array);
+	}
+
+	IloArrayIterator<IloArray> cbegin() const {
+		return ::begin(m_array);
+	}
+
+	IloArrayIterator<IloArray> cend() const {
+		return ::end(m_array);
+	}
+private:
+	IloArray m_array;
+};
+
 #endif
