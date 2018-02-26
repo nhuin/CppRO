@@ -5,7 +5,7 @@ add_executable(sort sort.cpp)
 target_link_libraries(sort benchmark Boost::boost CppRo::CppRo)
 
 add_executable(multidimarray_bench multidimarray.cpp)
-target_compile_options(multidimarray_bench PRIVATE -O3)
+target_compile_options(multidimarray_bench PRIVATE -O3 -Wno-global-constructors)
 target_link_libraries(multidimarray_bench benchmark Boost::boost CppRo::CppRo)
 
 # add_executable(cplex_bench cplex.cpp)
