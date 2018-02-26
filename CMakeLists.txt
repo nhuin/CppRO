@@ -19,12 +19,47 @@ target_include_directories(CppRo
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 
 target_compile_features(CppRo INTERFACE cxx_std_17)
-target_compile_options(CppRo INTERFACE -DIL_STD -Wno-sign-conversion)
-
-include(GNUInstallDirs)
-set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/CppRo)
+target_compile_options(CppRo INTERFACE
+    -Werror
+    -Wall
+    -fpermissive
+    -Wextra
+    -Wshadow
+    -Wnon-virtual-dtor
+    -pedantic
+    -Wno-c++11-compat
+    -DIL_STD
+    -march=native
+    -Wno-c++98-compat
+    -Wno-sign-compare
+    -Weverything
+    -Wno-sign-compare
+    -Wno-sign-conversion
+    -Wno-c++98-compat-pedantic
+    -Wno-error=padded
+    -Wno-error=unused-variable
+    -Wno-shorten-64-to-32
+    -Wno-documentation-unknown-command)
 
 target_link_libraries(CppRo INTERFACE cplex-library cplex-concert ilocplex)
+
+# Create target and set properties
+add_library(TCLAP
+    INTERFACE)
+
+#Add an alias so that library can be used inside the build tree, e.g. when testing
+add_library(CppRo::TCLAP ALIAS TCLAP)
+
+#Set target properties
+target_include_directories(TCLAP
+    INTERFACE 
+    $<INSTALL_INTERFACE:include/tclap>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}include/tclap>)
+
+target_compile_features(TCLAP INTERFACE cxx_std_17)
+target_compile_options(TCLAP INTERFACE -DIL_STD -Wno-sign-conversion)
+
+target_link_libraries(TCLAP INTERFACE cplex-library cplex-concert ilocplex)
 
 ##############################################
 # Installation instructions
@@ -38,9 +73,14 @@ install(TARGETS CppRo
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
-# set_target_properties(CppRo PROPERTIES EXPORT_NAME CppRo)
+install(TARGETS TCLAP
+    EXPORT CppRo-targets
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)
 
 install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+install(DIRECTORY tclap/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/tclap)
 
 #Export the targets to a script
 install(EXPORT CppRo-targets
