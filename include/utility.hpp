@@ -7,11 +7,11 @@
 #include <iomanip>
 #include <iostream>
 #include <list>
+#include <map>
 #include <set>
 #include <sstream>
 #include <tuple>
 #include <vector>
-#include <map>
 
 #if defined(NDEBUG) || defined(PROFILE)
 #define DBOUT(x)

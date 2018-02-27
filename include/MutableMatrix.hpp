@@ -3,7 +3,7 @@
 
 0
 
-class MutableMatrix {
+    class MutableMatrix {
   public:
     MutableMatrix(int _nbRow, int _nbColumn, const T& _value = T())
         : m_nbRow(_nbRow)

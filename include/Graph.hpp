@@ -15,14 +15,14 @@
  * Interface for graph classes
  */
 namespace Graph {
-    using Node = int;
-    using Path = std::vector<Graph::Node>;
-    using Edge = std::pair<Graph::Node, Graph::Node>;
+using Node = int;
+using Path = std::vector<Graph::Node>;
+using Edge = std::pair<Graph::Node, Graph::Node>;
 
 /**
 * Save the graph as a dot file for graphviz
 */
-template<typename G>
+template <typename G>
 void createDotFile(const G& _g, const std::string& _name) {
     std::string dotFilename = _name + ".dot";
     std::ofstream ofs(dotFilename, std::ofstream::out);
@@ -54,18 +54,16 @@ struct BaseDFSVisitor {
     }
 };
 
-template<typename G>
-class DFSContainer
-{
-    DFSContainer(const G& _g) 
-    : inStack(_g.getOrder())
-    , stack()
-    {
+template <typename G>
+class DFSContainer {
+    DFSContainer(const G& _g)
+        : inStack(_g.getOrder())
+        , stack() {
         stack.reserve(_g.getOrder());
     }
 
     void insert(const Graph::Node _u) {
-        if(!inStack[_u]) {
+        if (!inStack[_u]) {
             stack.push_back(_u);
             inStack[_u] = 0;
         }
@@ -81,17 +79,15 @@ class DFSContainer
         return stack.empty();
     }
 
-private:
+  private:
     std::vector<uint8_t> inStack;
     std::vector<Graph::Node> stack;
 };
 
-template<typename G>
-struct DefaultNeighborView
-{
+template <typename G>
+struct DefaultNeighborView {
     DefaultNeighborView(G& _graph, const Graph::Node _u)
-    : neighbors(_graph.getNeighbors(_u))
-    {}
+        : neighbors(_graph.getNeighbors(_u)) {}
 
     auto begin() {
         return neighbors.begin();
@@ -139,6 +135,5 @@ void graphTraversal(const G& _graph,
     }
 }
 } // namespace Graph
-
 
 #endif

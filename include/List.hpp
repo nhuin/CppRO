@@ -3,8 +3,8 @@
 
 0
 
-template <typename T>
-class List {
+    template <typename T>
+    class List {
   public:
     List()
         : m_begin(nullptr)

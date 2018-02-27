@@ -111,10 +111,9 @@ class MultiDimArray {
         std::array<int, N> m_indexes;
     };
 
-    explicit MultiDimArray(std::array<int, N> _arr, const T& _value = T()) 
-    : m_dim(std::move(_arr))
-    , m_array(std::accumulate(std::begin(m_dim), std::end(m_dim), 1, std::multiplies<int>()), _value)
-    {}
+    explicit MultiDimArray(std::array<int, N> _arr, const T& _value = T())
+        : m_dim(std::move(_arr))
+        , m_array(std::accumulate(std::begin(m_dim), std::end(m_dim), 1, std::multiplies<int>()), _value) {}
 
     template <typename... Args>
     typename std::enable_if<(sizeof...(Args) == N), T&>::type

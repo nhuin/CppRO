@@ -180,8 +180,8 @@ class ShortestPath {
         return path;
     }
 
-    template<typename NeighborPredicate, typename WeightFunction>
-    Graph::Path 
+    template <typename NeighborPredicate, typename WeightFunction>
+    Graph::Path
     getShortestPath(const Graph::Node _s, const Graph::Node _t,
         NeighborPredicate _np, WeightFunction _wf) {
         clear();
@@ -226,7 +226,7 @@ class ShortestPath {
         return path;
     }
 
-    template<typename NeighborPredicate>
+    template <typename NeighborPredicate>
     Graph::Path
     getShortestPathNbArcs(const Graph::Node _s, const Graph::Node _t,
         NeighborPredicate _np) {

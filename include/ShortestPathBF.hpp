@@ -10,6 +10,7 @@
 template <typename G, typename DistanceComparator = std::less<typename G::weight_type>>
 class ShortestPathBellmanFord {
     using weight_type = typename G::weight_type;
+
   public:
     struct NegativeCycleException {
         Graph::Edge message;
@@ -141,7 +142,7 @@ class ShortestPathBellmanFord {
             if (m_parent[u] == -1 || !m_inQueue[m_parent[u]]) {
                 for (const auto v : m_graph->getNeighbors(u)) {
                     const weight_type dist = m_distance[u] + m_graph->getEdgeWeight(u, v);
-                    if (m_distComp(dist, m_distance[v]))  {
+                    if (m_distComp(dist, m_distance[v])) {
                         if (++m_count[v] == m_graph->getOrder()) {
                             overRelaxed = true;
                         }

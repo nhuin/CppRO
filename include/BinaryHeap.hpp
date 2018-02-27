@@ -9,7 +9,7 @@ class BinaryHeap {
   public:
     class Handle {
         explicit Handle(const int i)
-            : index(i){}
+            : index(i) {}
         int index;
         friend BinaryHeap;
     };
@@ -18,7 +18,7 @@ class BinaryHeap {
     struct Node {
         Node(const T& _object, Handle* _index)
             : object(_object)
-            , handle(_index){}
+            , handle(_index) {}
         T object;
         Handle* handle;
         void changeIndex(const int index) { handle->index = index; }
@@ -132,11 +132,11 @@ class BinaryHeap {
             int secondChild = firstChild + 1;
             while (firstChild < m_nbElements) {
                 int child = secondChild < m_nbElements
-                                        ? (m_comparator(m_array[firstChild].object,
-                                               m_array[secondChild].object)
-                                                  ? firstChild
-                                                  : secondChild)
-                                        : firstChild;
+                                ? (m_comparator(m_array[firstChild].object,
+                                       m_array[secondChild].object)
+                                          ? firstChild
+                                          : secondChild)
+                                : firstChild;
                 if (m_comparator(m_array[child].object, m_array[obj].object)) {
                     std::swap(m_array[child], m_array[obj]);
                     m_array[obj].handle->index = obj;
@@ -176,11 +176,11 @@ class BinaryHeap {
         while (firstChild < m_nbElements) {
             // Swap with biggest child
             int child = secondChild < m_nbElements
-                                    ? (m_comparator(m_array[firstChild].object,
-                                           m_array[secondChild].object)
-                                              ? firstChild
-                                              : secondChild)
-                                    : firstChild;
+                            ? (m_comparator(m_array[firstChild].object,
+                                   m_array[secondChild].object)
+                                      ? firstChild
+                                      : secondChild)
+                            : firstChild;
             if (m_comparator(m_array[child].object, m_array[obj].object)) {
                 std::swap(m_array[child], m_array[obj]);
                 m_array[obj].handle->index = obj;
