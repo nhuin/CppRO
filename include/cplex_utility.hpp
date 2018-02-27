@@ -4,6 +4,7 @@
 #include <ilcplex/ilocplex.h>
 #include <numeric>
 #include <utility>
+#include <type_traits>
 
 template <typename IloObject>
 inline void setIloName(const IloObject& _ilo, const std::string& _str) {
@@ -164,7 +165,7 @@ Array move(Array&& _array) {
 
 template <typename T>
 struct epsilon_less {
-    bool operator()(T _lhs, T _rhs) {
+    bool operator()(const T& _lhs, const T& _rhs) {
         return _lhs - _rhs < epsilon_less<T>::epsilon_value;
     }
     constexpr static T epsilon_value = -1e-6;
@@ -172,7 +173,7 @@ struct epsilon_less {
 
 template <typename T>
 struct epsilon_equal {
-    bool operator()(T _lhs, T _rhs) {
+    bool operator()(const T& _lhs, const T& _rhs) {
         return std::fabs(_lhs - _rhs) < epsilon_equal<T>::epsilon_value;
     }
     constexpr static T epsilon_value = 1e-6;
@@ -181,8 +182,16 @@ struct epsilon_equal {
 template <typename Array, bool OWNING = false>
 class IloWrapper {
   public:
-  	using reference = decltype(Array().operator[](0));
-  	using const_reference = const reference;
+    // using const_array = const Array;
+  	using reference = decltype(std::declval<Array>().operator[](0));
+    // using const_reference = typename std::result_of<decltype(&const_array::operator[])(Array, IloInt)>::type;
+    using const_reference = decltype(std::declval<const Array>().operator[](0));
+    using size_type = decltype(Array().getSize());
+    using value_type = typename std::remove_reference<reference>::type;
+    using difference_type = IloInt;
+    using iterator_category = std::bidirectional_iterator_tag;
+    using pointer = value_type*;
+
     template <typename FirstArg, 
     	typename... Args, 
     	typename = typename std::enable_if_t<

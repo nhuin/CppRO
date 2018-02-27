@@ -14,7 +14,7 @@ TEST_CASE("Test begin and end functions", "[]") {
 	std::fill(array.begin(), array.end(), 5);
 	for(const auto& val : array) {
 		REQUIRE(epsilon_equal<double>()(val, 5));
-	} 
+	}
 }
 
 TEST_CASE("Test operator[]", "[]") {
@@ -29,6 +29,8 @@ TEST_CASE("Test operator[]", "[]") {
 	REQUIRE(epsilon_equal<double>()(array[5], 5+1));
 	array[9]--;
 	REQUIRE(epsilon_equal<double>()(array[9], 5-1));
+	const auto& array2 = array;
+	REQUIRE(epsilon_equal<double>()(array2[5], 5-1));
 } 
 
 TEST_CASE("Test copy constructor", "[]") {
@@ -59,5 +61,3 @@ TEST_CASE("Test conversion operator", "[]") {
 	std::fill(array.begin(), array.end(), 5);
 	REQUIRE(epsilon_equal<double>()(IloSum(array), 5*10));
 }
-
-
