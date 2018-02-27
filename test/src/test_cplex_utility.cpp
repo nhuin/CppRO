@@ -30,7 +30,7 @@ TEST_CASE("Test operator[]", "[]") {
 	array[9]--;
 	REQUIRE(epsilon_equal<double>()(array[9], 5-1));
 	const auto& array2 = array;
-	REQUIRE(epsilon_equal<double>()(array2[5], 5-1));
+	REQUIRE(epsilon_equal<double>()(array2[5], 5+1));
 } 
 
 TEST_CASE("Test copy constructor", "[]") {
