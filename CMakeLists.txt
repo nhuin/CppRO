@@ -3,6 +3,7 @@ project(CppRo VERSION 1.0.0 LANGUAGES CXX)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
 
 find_package(CPLEX REQUIRED MODULE)
+include(cmake/clang-extra-tools.cmake)
 
 ##############################################
 # Create target and set properties
@@ -19,7 +20,8 @@ target_include_directories(CppRo
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 
 target_compile_features(CppRo INTERFACE cxx_std_17)
-target_compile_options(CppRo INTERFACE
+target_compile_options(CppRo
+    INTERFACE
     -Werror
     -Wall
     -fpermissive
@@ -57,7 +59,28 @@ target_include_directories(TCLAP
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}include/tclap>)
 
 target_compile_features(TCLAP INTERFACE cxx_std_17)
-target_compile_options(TCLAP INTERFACE -DIL_STD -Wno-sign-conversion)
+target_compile_options(TCLAP
+    INTERFACE
+    -Werror
+    -Wall
+    -fpermissive
+    -Wextra
+    -Wshadow
+    -Wnon-virtual-dtor
+    -pedantic
+    -Wno-c++11-compat
+    -DIL_STD
+    -march=native
+    -Wno-c++98-compat
+    -Wno-sign-compare
+    -Weverything
+    -Wno-sign-compare
+    -Wno-sign-conversion
+    -Wno-c++98-compat-pedantic
+    -Wno-error=padded
+    -Wno-error=unused-variable
+    -Wno-shorten-64-to-32
+    -Wno-documentation-unknown-command)
 
 target_link_libraries(TCLAP INTERFACE cplex-library cplex-concert ilocplex)
 
