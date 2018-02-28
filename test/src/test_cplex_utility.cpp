@@ -4,9 +4,29 @@
 #include "cplex_utility.hpp"
 
 TEST_CASE("Test epsilon_equal", "[]") {
+	REQUIRE(epsilon_equal<double>()(0.0, 0.0));
 	REQUIRE(epsilon_equal<double>()(1.0, 1.0));
-	REQUIRE(!epsilon_equal<double>()(1+1e5, 1.0));
+	REQUIRE(epsilon_equal<double>()(1.0, 1.0+1e-9));
+	REQUIRE(!epsilon_equal<double>()(1+1e-5, 1.0));
 } 
+
+TEST_CASE("Test epsilon_less", "[]") {
+	REQUIRE(epsilon_less<double>()(0.0, 1.0));
+	REQUIRE(!epsilon_less<double>()(1.0, 0.0));
+
+	REQUIRE(!epsilon_less<double>()(1.0, 1.0));
+	
+	REQUIRE(epsilon_less<double>()(1.0, 1.0+1e-5));
+	REQUIRE(!epsilon_less<double>()(1.0+1e-5, 1.0));
+
+	REQUIRE(!epsilon_less<double>()(1.0, 1.0-1e-5));
+	REQUIRE(epsilon_less<double>()(1.0-1e-5, 1.0));
+
+	REQUIRE(!epsilon_less<double>()(1000, 1.0));
+	REQUIRE(epsilon_less<double>()(1.0, 10000));
+
+	REQUIRE(epsilon_less<double>()(-1e-5, 0.0));
+}
 
 TEST_CASE("Test begin and end functions", "[]") {
 	IloEnv env;

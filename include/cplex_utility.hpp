@@ -138,7 +138,7 @@ class IloArrayIterator {
   private:
     Array& m_array;
     size_type m_position;
-};
+}; 
 
 template <typename Array>
 IloArrayIterator<Array> begin(Array& _arr) {
@@ -163,20 +163,22 @@ Array move(Array&& _array) {
     return Array(_array.getImpl());
 }
 
+static double epsilon_value = 1e-6;
+
 template <typename T>
 struct epsilon_less {
-    bool operator()(const T& _lhs, const T& _rhs) {
-        return _lhs - _rhs < epsilon_less<T>::epsilon_value;
+    constexpr bool operator()(const T& _lhs, const T& _rhs) {
+        return _lhs + epsilon_value < _rhs;
     }
-    constexpr static T epsilon_value = -1e-6;
+    //static T epsilon_value;
 };
 
 template <typename T>
 struct epsilon_equal {
-    bool operator()(const T& _lhs, const T& _rhs) {
-        return std::fabs(_lhs - _rhs) < epsilon_equal<T>::epsilon_value;
+    constexpr bool operator()(const T& _lhs, const T& _rhs) {
+        return std::fabs(_lhs - _rhs) < epsilon_value;
     }
-    constexpr static T epsilon_value = 1e-6;
+    //static T epsilon_value;
 };
 
 template <typename Array, bool OWNING = false>
@@ -284,9 +286,6 @@ class IloWrapper {
   private:
     Array m_array;
 };
-
-
-
 
 /**
 *
