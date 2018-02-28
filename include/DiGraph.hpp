@@ -344,7 +344,7 @@ class DiGraph {
     int m_size = 0;
     Matrix<std::pair<bool, W>> m_matrix;
     std::vector<std::vector<Graph::Node>> m_neighbors;
-    mutable bool m_edgeChanges;
+    mutable bool m_edgeChanges = true;
     mutable std::vector<Graph::Edge> m_edges;
 };
 
