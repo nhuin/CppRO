@@ -41,7 +41,8 @@ target_compile_options(CppRo
     -Wno-error=padded
     -Wno-error=unused-variable
     -Wno-shorten-64-to-32
-    -Wno-documentation-unknown-command)
+    -Wno-documentation-unknown-command
+    -Wno-padded)
 
 target_link_libraries(CppRo INTERFACE cplex-library cplex-concert ilocplex)
 
@@ -145,5 +146,6 @@ export(EXPORT CppRo-targets FILE ${CMAKE_CURRENT_BINARY_DIR}/CppRoTargets.cmake 
 #Register package in user's package registry
 export(PACKAGE CppRo)
 
+enable_testing()
 add_subdirectory(test)
 add_subdirectory(bench)
