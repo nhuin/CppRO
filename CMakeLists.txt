@@ -21,7 +21,7 @@ target_include_directories(CppRo
 
 target_compile_features(CppRo INTERFACE cxx_std_17)
 target_compile_options(CppRo
-    INTERFACE
+    PRIVATE
     -Werror
     -Wall
     -fpermissive
@@ -61,7 +61,7 @@ target_include_directories(TCLAP
 
 target_compile_features(TCLAP INTERFACE cxx_std_17)
 target_compile_options(TCLAP
-    INTERFACE
+    PRIVATE
     -Werror
     -Wall
     -fpermissive
