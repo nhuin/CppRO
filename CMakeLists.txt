@@ -5,6 +5,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
 find_package(CPLEX REQUIRED MODULE)
 include(cmake/clang-extra-tools.cmake)
 
+option(CppRO_ENABLE_TEST "Enable test" 0)
 ##############################################
 # Create target and set properties
 add_library(CppRo
@@ -101,6 +102,7 @@ export(EXPORT CppRo-targets FILE ${CMAKE_CURRENT_BINARY_DIR}/CppRoTargets.cmake 
 #Register package in user's package registry
 export(PACKAGE CppRo)
 
-enable_testing()
-add_subdirectory(test)
-add_subdirectory(bench)
+if(CppRO_ENABLE_TEST)
+    enable_testing()
+    add_subdirectory(test)
+endif()
