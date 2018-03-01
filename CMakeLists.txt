@@ -20,29 +20,6 @@ target_include_directories(CppRo
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 
 target_compile_features(CppRo INTERFACE cxx_std_17)
-target_compile_options(CppRo
-    PRIVATE
-    -Werror
-    -Wall
-    -fpermissive
-    -Wextra
-    -Wshadow
-    -Wnon-virtual-dtor
-    -pedantic
-    -Wno-c++11-compat
-    -DIL_STD
-    -march=native
-    -Wno-c++98-compat
-    -Wno-sign-compare
-    -Weverything
-    -Wno-sign-compare
-    -Wno-sign-conversion
-    -Wno-c++98-compat-pedantic
-    -Wno-error=padded
-    -Wno-error=unused-variable
-    -Wno-shorten-64-to-32
-    -Wno-documentation-unknown-command
-    -Wno-padded)
 
 target_link_libraries(CppRo INTERFACE cplex-library cplex-concert ilocplex)
 
@@ -60,28 +37,6 @@ target_include_directories(TCLAP
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}include/tclap>)
 
 target_compile_features(TCLAP INTERFACE cxx_std_17)
-target_compile_options(TCLAP
-    PRIVATE
-    -Werror
-    -Wall
-    -fpermissive
-    -Wextra
-    -Wshadow
-    -Wnon-virtual-dtor
-    -pedantic
-    -Wno-c++11-compat
-    -DIL_STD
-    -march=native
-    -Wno-c++98-compat
-    -Wno-sign-compare
-    -Weverything
-    -Wno-sign-compare
-    -Wno-sign-conversion
-    -Wno-c++98-compat-pedantic
-    -Wno-error=padded
-    -Wno-error=unused-variable
-    -Wno-shorten-64-to-32
-    -Wno-documentation-unknown-command)
 
 target_link_libraries(TCLAP INTERFACE cplex-library cplex-concert ilocplex)
 
