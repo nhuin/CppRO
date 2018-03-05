@@ -167,7 +167,7 @@ static double epsilon_value = 1e-6;
 
 template <typename T>
 struct epsilon_less {
-    constexpr bool operator()(const T& _lhs, const T& _rhs) {
+    constexpr bool operator()(const T& _lhs, const T& _rhs) const {
         return _lhs + epsilon_value < _rhs;
     }
     //static T epsilon_value;
@@ -175,7 +175,7 @@ struct epsilon_less {
 
 template <typename T>
 struct epsilon_equal {
-    constexpr bool operator()(const T& _lhs, const T& _rhs) {
+    constexpr bool operator()(const T& _lhs, const T& _rhs) const {
         return std::fabs(_lhs - _rhs) < epsilon_value;
     }
     //static T epsilon_value;
