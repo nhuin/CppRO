@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(CppRo VERSION 1.0.0 LANGUAGES CXX)
+project(CppRo VERSION 1.1.0 LANGUAGES CXX)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
 
 find_package(CPLEX REQUIRED MODULE)

@@ -14,3 +14,8 @@ add_executable(cplex_utility_test src/test_cplex_utility.cpp)
 target_compile_features(cplex_utility_test PRIVATE cxx_std_17)
 target_link_libraries(cplex_utility_test CppRo Catch2::Catch)
 add_test(cplex_utility_test cplex_utility_test)
+
+add_executable(utility_test src/test_utility.cpp)
+target_compile_features(utility_test PRIVATE cxx_std_17)
+target_link_libraries(utility_test CppRo Catch2::Catch)
+add_test(utility_test utility_test)

@@ -180,6 +180,22 @@ inline std::ostream& operator<<(std::ostream& _o, const unused& /*unused*/) {
     return _o;
 }
 
+/**
+* for each for tuple
+*/
+
+template <typename Tuple, typename F, std::size_t ...Indices>
+constexpr void for_each_impl(Tuple&& tuple, F&& f, std::index_sequence<Indices...>) {
+    (f(std::get<Indices>(std::forward<Tuple>(tuple))), ...);
+}
+
+template <typename Tuple, typename F>
+constexpr void for_each(Tuple&& tuple, F&& f) {
+    constexpr std::size_t N = std::tuple_size<std::remove_reference_t<Tuple>>::value;
+    for_each_impl(std::forward<Tuple>(tuple), std::forward<F>(f),
+                  std::make_index_sequence<N>{});
+}
+
 // template <typename RandomIterator, typename T>
 // std::pair<RandomIterator, RandomIterator>
 // find_consecutive_common_value(RandomIterator _first1, RandomIterator _last1,
