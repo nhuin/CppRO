@@ -30,7 +30,7 @@ std::string to_string_with_precision(const T& a_value, int n = 6);
 template <typename T>
 std::ostream& operator<<(std::ostream& _out, const std::vector<T>& _v);
 template <typename T, typename K>
-std::ostream& operator<<(std::ostream& _out, const std::map<T, K>& _v);
+std::ostream& operator<<(std::ostream& _out, const std::map<T, K>& _map);
 template <typename T>
 std::ostream& operator<<(std::ostream& _out, const std::deque<T>& _d);
 template <typename T, int SIZE>
@@ -46,7 +46,7 @@ std::ostream& operator<<(std::ostream& _out, const std::map<T, K>& _map) {
     }
     _out << '[';
     const auto end = std::prev(_map.end());
-    for (auto ite = _map.begin(); ite != ite; ++ite) {
+    for (auto ite = _map.begin(); ite != end; ++ite) {
         _out << '(' << ite->first << ", " << ite->second << ')';
     }
     return _out << '(' << end->first << ", " << end->second << ')';
@@ -140,22 +140,21 @@ int getMaxSetByte(T _v) {
 }
 
 template <class Ch, class Tr, class Tuple, std::size_t... Is>
-void print_tuple_impl(std::basic_ostream<Ch, Tr>& os,
-    const Tuple& t,
+void print_tuple_impl(std::basic_ostream<Ch, Tr>& os, const Tuple& t,
     std::index_sequence<Is...> /*unused*/) {
     ((os << (Is == 0 ? "" : ", ") << std::get<Is>(t)), ...);
 }
 
 template <class Ch, class Tr, class... Args>
-decltype(auto) operator<<(std::basic_ostream<Ch, Tr>& os,
-    const std::tuple<Args...>& t) {
+decltype(auto) operator<<(
+    std::basic_ostream<Ch, Tr>& os, const std::tuple<Args...>& t) {
     os << '(';
     print_tuple_impl(os, t, std::index_sequence_for<Args...>{});
     return os << ')';
 }
 
 template <typename T>
-inline std::string toString(const T& _obj) {
+std::string toString(const T& _obj) {
     std::stringstream sstr;
     sstr << _obj;
     return sstr.str();
@@ -181,44 +180,21 @@ inline std::ostream& operator<<(std::ostream& _o, const unused& /*unused*/) {
 }
 
 /**
-* for each for tuple
-*/
+ * for each for tuple
+ */
 
-template <typename Tuple, typename F, std::size_t ...Indices>
-constexpr void for_each_impl(Tuple&& tuple, F&& f, std::index_sequence<Indices...>) {
+template <typename Tuple, typename F, std::size_t... Indices>
+constexpr void for_each_impl(
+    Tuple&& tuple, F&& f, std::index_sequence<Indices...> /*unused*/) {
     (f(std::get<Indices>(std::forward<Tuple>(tuple))), ...);
 }
 
 template <typename Tuple, typename F>
 constexpr void for_each(Tuple&& tuple, F&& f) {
-    constexpr std::size_t N = std::tuple_size<std::remove_reference_t<Tuple>>::value;
+    constexpr std::size_t N =
+        std::tuple_size<std::remove_reference_t<Tuple>>::value;
     for_each_impl(std::forward<Tuple>(tuple), std::forward<F>(f),
-                  std::make_index_sequence<N>{});
+        std::make_index_sequence<N>{});
 }
 
-// template <typename RandomIterator, typename T>
-// std::pair<RandomIterator, RandomIterator>
-// find_consecutive_common_value(RandomIterator _first1, RandomIterator _last1,
-//     RandomIterator _first2,
-//     const T& _value, const int _size) {
-
-//     int counter = 0;
-//     for(RandomIterator window1 = _first1 + _size, window2 = _first2 + _size;
-//         ; window1 != _last1;
-//         window1 += _size, window2 += _size) {
-//         if(*window1 == _value && *window2 == _value) {
-//             for(
-//                 ; _first1 != _window1 && _first2 != _last1;
-//                 ++_first1, ++_first2) {
-
-//             }
-//         }
-//     }
-//     return {_first1, _first2};
-// }
-
-template <typename T, typename... Args>
-auto product(T _val, Args... _args) {
-    return _val * product(_args...);
-}
 #endif
