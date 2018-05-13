@@ -8,9 +8,10 @@
 #include <utility>
 
 class Time {
+  using wall_clock = std::chrono::steady_clock;
   private:
     std::clock_t m_cStart{};
-    std::chrono::high_resolution_clock::time_point m_tStart{};
+    wall_clock::time_point m_tStart{};
 
   public:
     Time() = default;
@@ -22,39 +23,40 @@ class Time {
 
     void start() {
         m_cStart = std::clock();
-        m_tStart = std::chrono::high_resolution_clock::now();
+        m_tStart = wall_clock::now();
     }
 
     [[deprecated]] std::pair<double, double> show() const {
         std::clock_t c_end = std::clock();
-        const auto t_end = std::chrono::high_resolution_clock::now();
+        const auto t_end = wall_clock::now();
         const double timeDifference = c_end - m_cStart;
-        std::cout
-            << std::fixed << std::setprecision(2)
-            << "CPU time used: " << 1000.0 * timeDifference / CLOCKS_PER_SEC
-            << " ms\nWall clock time passed: "
-            << std::chrono::duration<double, std::milli>(t_end - m_tStart).count()
-            << " ms\n";
-        return {
-            1000.0 * (timeDifference) / CLOCKS_PER_SEC,
-            std::chrono::duration<double, std::milli>(t_end - m_tStart).count()};
+        std::cout << std::fixed << std::setprecision(2) << "CPU time used: "
+                  << 1000.0 * timeDifference / CLOCKS_PER_SEC
+                  << " ms\nWall clock time passed: "
+                  << std::chrono::duration<double, std::milli>(t_end - m_tStart)
+                         .count()
+                  << " ms\n";
+        return {1000.0 * (timeDifference) / CLOCKS_PER_SEC,
+            std::chrono::duration<double, std::milli>(t_end - m_tStart)
+                .count()};
     }
 
     std::pair<double, double> get(bool verbose = true) const {
         std::clock_t c_end = std::clock();
-        const auto t_end = std::chrono::high_resolution_clock::now();
+        const auto t_end = wall_clock::now();
         const double timeDifference = c_end - m_cStart;
         if (verbose) {
-            std::cout
-                << std::fixed << std::setprecision(2)
-                << "CPU time used: " << 1000.0 * timeDifference / CLOCKS_PER_SEC
-                << " ms\nWall clock time passed: "
-                << std::chrono::duration<double, std::milli>(t_end - m_tStart).count()
-                << " ms\n";
+            std::cout << std::fixed << std::setprecision(2) << "CPU time used: "
+                      << 1000.0 * timeDifference / CLOCKS_PER_SEC
+                      << " ms\nWall clock time passed: "
+                      << std::chrono::duration<double, std::milli>(
+                             t_end - m_tStart)
+                             .count()
+                      << " ms\n";
         }
-        return {
-            1000.0 * (timeDifference) / CLOCKS_PER_SEC,
-            std::chrono::duration<double, std::milli>(t_end - m_tStart).count()};
+        return {1000.0 * (timeDifference) / CLOCKS_PER_SEC,
+            std::chrono::duration<double, std::milli>(t_end - m_tStart)
+                .count()};
     }
 };
 

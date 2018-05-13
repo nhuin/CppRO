@@ -58,7 +58,8 @@ class BinaryHeap {
 
     BinaryHeap& operator=(const BinaryHeap& _o) {
         m_maxSize = _o.m_maxSize;
-        m_array = static_cast<Node*>(realloc(m_array, sizeof(Node) * m_maxSize));
+        m_array =
+            static_cast<Node*>(realloc(m_array, sizeof(Node) * m_maxSize));
         m_handle =
             static_cast<Handle*>(realloc(m_handle, sizeof(Handle) * m_maxSize));
         m_nbElements = _o.m_nbElements;
@@ -90,13 +91,9 @@ class BinaryHeap {
         return *this;
     }
 
-    const T& top() {
-        return m_array[0].object;
-    }
+    const T& top() { return m_array[0].object; }
 
-    bool empty() const {
-        return m_nbElements == 0;
-    }
+    bool empty() const { return m_nbElements == 0; }
 
     Handle* push(const T& object) {
         Handle* h = m_handle + m_nbElements;
@@ -108,7 +105,9 @@ class BinaryHeap {
         if (m_nbElements > 0) {
             int obj = m_nbElements;
             int parent = (obj - 1) / 2;
-            while (obj != 0 && m_comparator(m_array[obj].object, m_array[parent].object)) {
+            while (
+                obj != 0
+                && m_comparator(m_array[obj].object, m_array[parent].object)) {
                 std::swap(m_array[obj], m_array[parent]);
                 m_array[obj].handle->index = obj;
                 m_array[parent].handle->index = parent;
@@ -155,7 +154,8 @@ class BinaryHeap {
     void decrease(Handle* h) {
         int obj = h->index;
         int parent = (obj - 1) / 2;
-        while (obj != 0 && m_comparator(m_array[obj].object, m_array[parent].object)) {
+        while (obj != 0
+               && m_comparator(m_array[obj].object, m_array[parent].object)) {
             std::swap(m_array[obj], m_array[parent]);
             m_array[obj].handle->index = obj;
             m_array[parent].handle->index = parent;

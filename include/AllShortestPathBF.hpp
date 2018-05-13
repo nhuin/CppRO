@@ -21,8 +21,8 @@ class AllShortestPathBellmanFord {
             return distance;
         }())
         , m_parent([&]() {
-            Matrix<Graph::Node> parent(m_graph.getOrder(), m_graph.getOrder(),
-                -1);
+            Matrix<Graph::Node> parent(
+                m_graph.getOrder(), m_graph.getOrder(), -1);
             for (Graph::Node u = 0; u < m_graph.getOrder(); ++u) {
                 parent(u, u) = u;
             }
@@ -30,11 +30,11 @@ class AllShortestPathBellmanFord {
         }()) {}
 
     AllShortestPathBellmanFord(const AllShortestPathBellmanFord&) = default;
-    AllShortestPathBellmanFord&
-    operator=(const AllShortestPathBellmanFord&) = default;
+    AllShortestPathBellmanFord& operator=(
+        const AllShortestPathBellmanFord&) = default;
     AllShortestPathBellmanFord(AllShortestPathBellmanFord&&) noexcept = default;
-    AllShortestPathBellmanFord&
-    operator=(AllShortestPathBellmanFord&&) noexcept = default;
+    AllShortestPathBellmanFord& operator=(
+        AllShortestPathBellmanFord&&) noexcept = default;
     ~AllShortestPathBellmanFord() = default;
 
     void getAllShortestPaths() {

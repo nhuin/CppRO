@@ -20,8 +20,8 @@ using Path = std::vector<Graph::Node>;
 using Edge = std::pair<Graph::Node, Graph::Node>;
 
 /**
-* Save the graph as a dot file for graphviz
-*/
+ * Save the graph as a dot file for graphviz
+ */
 template <typename G>
 void createDotFile(const G& _g, const std::string& _name) {
     std::string dotFilename = _name + ".dot";
@@ -36,29 +36,22 @@ void createDotFile(const G& _g, const std::string& _name) {
 template <typename G>
 struct BaseDFSVisitor {
     std::vector<Graph::Node> search{};
-    BaseDFSVisitor(const G& _g) {
-        search.reserve(_g.getOrder());
-    }
+    explicit BaseDFSVisitor(const G& _g) { search.reserve(_g.getOrder()); }
 
-    bool onGet(const Graph::Node /*unused*/) const {
-        return true;
-    }
+    bool onGet(const Graph::Node /*unused*/) const { return true; }
 
     bool onInsert(const Graph::Node _u) {
         search.push_back(_u);
         return true;
     }
 
-    bool alreadyPushed(const Graph::Node /*unused*/) const {
-        return true;
-    }
+    bool alreadyPushed(const Graph::Node /*unused*/) const { return true; }
 };
 
 template <typename G>
 class DFSContainer {
-    DFSContainer(const G& _g)
-        : inStack(_g.getOrder())
-        , stack() {
+    explicit DFSContainer(const G& _g)
+        : inStack(_g.getOrder()) {
         stack.reserve(_g.getOrder());
     }
 
@@ -75,9 +68,7 @@ class DFSContainer {
         return retval;
     }
 
-    bool empty() {
-        return stack.empty();
-    }
+    bool empty() { return stack.empty(); }
 
   private:
     std::vector<uint8_t> inStack;
@@ -89,30 +80,21 @@ struct DefaultNeighborView {
     DefaultNeighborView(G& _graph, const Graph::Node _u)
         : neighbors(_graph.getNeighbors(_u)) {}
 
-    auto begin() {
-        return neighbors.begin();
-    }
+    auto begin() { return neighbors.begin(); }
 
-    auto end() {
-        return neighbors.end();
-    }
+    auto end() { return neighbors.end(); }
 
-    auto cbegin() {
-        return neighbors.cbegin();
-    }
+    auto cbegin() { return neighbors.cbegin(); }
 
-    auto cend() {
-        return neighbors.cend();
-    }
+    auto cend() { return neighbors.cend(); }
 
     typename G::NeighborList neighbors;
 };
 
-template <typename G, typename Container, typename Visitor, typename NeighborView = DefaultNeighborView<G>>
-void graphTraversal(const G& _graph,
-    const Graph::Node _startNode,
-    Visitor& _visitor,
-    Container& _container) {
+template <typename G, typename Container, typename Visitor,
+    typename NeighborView = DefaultNeighborView<G>>
+void graphTraversal(const G& _graph, const Graph::Node _startNode,
+    Visitor& _visitor, Container& _container) {
 
     _container.insert(_startNode);
     if (!_visitor.onInsert(_startNode)) {

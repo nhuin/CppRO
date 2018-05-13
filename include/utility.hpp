@@ -197,4 +197,36 @@ constexpr void for_each(Tuple&& tuple, F&& f) {
         std::make_index_sequence<N>{});
 }
 
+template <typename InputIterator>
+typename std::ostream_iterator<typename std::iterator_traits<InputIterator>::value_type>::ostream_type&
+printContainer(typename std::ostream_iterator<typename std::iterator_traits<InputIterator>::value_type>::ostream_type& _out,
+    InputIterator _first, InputIterator _last,
+    const char* delimiter = ", ") {
+    if (std::distance(_first, _last) == 0) {
+        return _out;
+    }
+    using value_type = typename std::iterator_traits<InputIterator>::value_type;
+
+    const auto last = std::prev(_last);
+    std::copy(_first, last, std::ostream_iterator<value_type>(_out, delimiter));
+    return _out << *last;
+}
+
+template<typename Function>
+struct call_on_destroy {
+    call_on_destroy(Function _f)
+    : f(_f)
+    {}
+    call_on_destroy(const call_on_destroy&) = default;
+    call_on_destroy(call_on_destroy&&) noexcept = default;
+    call_on_destroy& operator=(const call_on_destroy&) = default;
+    call_on_destroy& operator=(call_on_destroy&&) noexcept = default;
+    ~call_on_destroy() {
+        f();
+    }
+    Function f;
+};
+
+using ::operator<<;
+
 #endif

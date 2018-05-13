@@ -34,21 +34,13 @@ class LinkedMatrix {
         Cell& operator=(const Cell&) = delete;
 
         T value;
-        int getRow() const {
-            return i;
-        }
+        int getRow() const { return i; }
 
-        int getColumn() const {
-            return j;
-        }
+        int getColumn() const { return j; }
 
-        Cell* getNextOnCol() const {
-            return nextOnCol;
-        }
+        Cell* getNextOnCol() const { return nextOnCol; }
 
-        Cell* getNextOnRow() const {
-            return nextOnRow;
-        }
+        Cell* getNextOnRow() const { return nextOnRow; }
     };
 
     LinkedMatrix(const int _nbRow, const int _nbCol)
@@ -82,13 +74,14 @@ class LinkedMatrix {
     }
 
     /**
-   * Copy assignment of LinkedMatrix
-   */
+     * Copy assignment of LinkedMatrix
+     */
     LinkedMatrix& operator=(const LinkedMatrix& _lm) {
         // @TODO: Improve
         for (int s = 0; s < rowSize(); ++s) {
             while (m_rowHeads[s]) {
-                this->remove(m_rowHeads[s]->getRow(), m_rowHeads[s]->getColumn());
+                this->remove(
+                    m_rowHeads[s]->getRow(), m_rowHeads[s]->getColumn());
             }
         }
 
@@ -100,13 +93,9 @@ class LinkedMatrix {
         return *this;
     }
 
-    int rowSize() const {
-        return m_rowHeads.size();
-    }
+    int rowSize() const { return m_rowHeads.size(); }
 
-    int columnSize() const {
-        return m_colHeads.size();
-    }
+    int columnSize() const { return m_colHeads.size(); }
 
     Cell* find(const int i, const int j) {
         Cell* cell = m_rowHeads[i];
@@ -135,8 +124,8 @@ class LinkedMatrix {
         assert(j < m_colHeads.size());
         // Add on row
         Cell* newCell;
-        if (!m_rowHeads[i]) { // No Cell on this row, the new cell become the new
-                              // head of the row
+        if (!m_rowHeads[i]) { // No Cell on this row, the new cell become the
+                              // new head of the row
             newCell = m_rowHeads[i] = new Cell(i, j, value, nullptr, nullptr);
         } else {
             // Search for the first available Cell position
@@ -153,7 +142,8 @@ class LinkedMatrix {
             }
             //
             if (last == nullptr) {
-                m_rowHeads[i] = newCell = new Cell(i, j, value, m_rowHeads[i], nullptr);
+                m_rowHeads[i] = newCell =
+                    new Cell(i, j, value, m_rowHeads[i], nullptr);
             } else {
                 newCell = new Cell(i, j, value, ptr, nullptr);
                 last->nextOnRow = newCell;
@@ -214,21 +204,13 @@ class LinkedMatrix {
         delete ptr;
     }
 
-    Cell* begin_row(const int i) {
-        return m_rowHeads[i];
-    }
+    Cell* begin_row(const int i) { return m_rowHeads[i]; }
 
-    const Cell* begin_row(const int i) const {
-        return m_rowHeads[i];
-    }
+    const Cell* begin_row(const int i) const { return m_rowHeads[i]; }
 
-    Cell* begin_column(const int i) {
-        return m_colHeads[i];
-    }
+    Cell* begin_column(const int i) { return m_colHeads[i]; }
 
-    const Cell* begin_column(const int i) const {
-        return m_colHeads[i];
-    }
+    const Cell* begin_column(const int i) const { return m_colHeads[i]; }
 
     class iterator {
       private:

@@ -15,8 +15,7 @@ template <typename T>
 class LSDRadixSort {
     static_assert(std::is_integral<T>::value,
         "Radix sort cannot be applied to non integral number");
-    static_assert(
-        std::is_unsigned<T>::value,
+    static_assert(std::is_unsigned<T>::value,
         "Radix sort cannot be applied to non unsigned number (for now)");
 
   public:
@@ -28,8 +27,7 @@ class LSDRadixSort {
         constexpr uint16_t baseModulo = base - 1;
 
         std::array<std::vector<T>, base> buckets;
-        for (int i = 0;
-             i < getMaxSetByte(*std::max_element(_begin, _end));
+        for (int i = 0; i < getMaxSetByte(*std::max_element(_begin, _end));
              ++i) {
             for (auto& b : buckets) {
                 b.clear();
@@ -54,8 +52,7 @@ template <typename T>
 class MSDRadixSort {
     static_assert(std::is_integral<T>::value,
         "Radix sort cannot be applied to non integral number");
-    static_assert(
-        std::is_unsigned<T>::value,
+    static_assert(std::is_unsigned<T>::value,
         "Radix sort cannot be applied to non unsigned number (for now)");
 
   public:
@@ -68,10 +65,10 @@ class MSDRadixSort {
 
         std::array<std::vector<T>, base> buckets;
         std::vector<std::tuple<RandomIterator, RandomIterator, int>> stack = {
-            std::make_tuple(_begin, _end,
-                getMaxSetByte(*std::max_element(_begin, _end)))};
+            std::make_tuple(
+                _begin, _end, getMaxSetByte(*std::max_element(_begin, _end)))};
         while (!stack.empty()) {
-            auto[begin, end, i] = stack.back();
+            auto [begin, end, i] = stack.back();
             // std::copy(begin, end, std::ostream_iterator<T>(std::cout, ", "));
             // std::cout << ", " << i << '\n';
             stack.pop_back();
@@ -107,8 +104,7 @@ template <typename T>
 class CountingLSDRadixSort {
     static_assert(std::is_integral<T>::value,
         "Radix sort cannot be applied to non integral number");
-    static_assert(
-        std::is_unsigned<T>::value,
+    static_assert(std::is_unsigned<T>::value,
         "Radix sort cannot be applied to non unsigned number (for now)");
 
   public:
@@ -140,8 +136,8 @@ class CountingLSDRadixSort {
             int bufferIndex = (buffer >> power) & baseModulo;
             auto cycleStart = _begin;
             auto ite = _begin + bucketIndices[(buffer >> power) & baseModulo];
-            auto itePlace =
-                inRightPlace.begin() + bucketIndices[(buffer >> power) & baseModulo];
+            auto itePlace = inRightPlace.begin()
+                            + bucketIndices[(buffer >> power) & baseModulo];
 
             for (int j = 0; j < std::distance(_begin, _end); ++j) {
                 bucketIndices[bufferIndex]++;
@@ -157,7 +153,8 @@ class CountingLSDRadixSort {
                     cycleStart = ite;
                 } else {
                     ite = _begin + bucketIndices[bufferIndex];
-                    itePlace = inRightPlace.begin() + bucketIndices[bufferIndex];
+                    itePlace =
+                        inRightPlace.begin() + bucketIndices[bufferIndex];
                 }
             }
         }
@@ -211,8 +208,7 @@ template <typename T>
 class CountingMSDRadixSort {
     static_assert(std::is_integral<T>::value,
         "Radix sort cannot be applied to non integral number");
-    static_assert(
-        std::is_unsigned<T>::value,
+    static_assert(std::is_unsigned<T>::value,
         "Radix sort cannot be applied to non unsigned number (for now)");
 
   public:
@@ -229,7 +225,7 @@ class CountingMSDRadixSort {
         std::vector<std::tuple<RandomIterator, RandomIterator, int>> stack = {
             std::make_tuple(_begin, _end, sizeof(T) - 1)};
         while (!stack.empty()) {
-            auto[begin, end, i] = stack.back();
+            auto [begin, end, i] = stack.back();
             stack.pop_back();
             const auto power = 8 * i;
             std::fill(nbValue.begin(), nbValue.end(), 0);
@@ -268,7 +264,8 @@ class CountingMSDRadixSort {
                     while (*itePlace == 1) {
                         ++ite;
                         ++itePlace;
-                        assert(ite != end); // Must find a number in the wrong place
+                        assert(ite
+                               != end); // Must find a number in the wrong place
                     }
                     buffer = *ite;
                     cycleStart = ite;

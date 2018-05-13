@@ -24,16 +24,16 @@ class DiGraph {
     explicit DiGraph(const int _order)
         : m_order(_order)
         , m_matrix(_order, _order, {false, 0})
-        , m_neighbors(m_order) {
-    }
+        , m_neighbors(m_order) {}
 
     DiGraph& operator=(const DiGraph&) = default;
     DiGraph(const DiGraph&) = default;
-    DiGraph& operator=(DiGraph&&) = default;
-    DiGraph(DiGraph&&) = default;
+    DiGraph& operator=(DiGraph&&) noexcept = default;
+    DiGraph(DiGraph&&) noexcept = default;
     ~DiGraph() = default;
 
-    void addEdge(const Graph::Node _u, const Graph::Node _v, const W& _w = W()) {
+    void addEdge(
+        const Graph::Node _u, const Graph::Node _v, const W& _w = W()) {
         assert(_u < m_matrix.size1());
         assert(_v < m_matrix.size2());
         if (!m_matrix(_u, _v).first) {
@@ -64,9 +64,7 @@ class DiGraph {
         }
     }
 
-    void removeEdge(const Graph::Edge& _p) {
-        removeEdge(_p.first, _p.second);
-    }
+    void removeEdge(const Graph::Edge& _p) { removeEdge(_p.first, _p.second); }
 
     const W& getEdgeWeight(const Graph::Node _u, const Graph::Node _v) const {
         assert(_u < m_order);
@@ -79,7 +77,8 @@ class DiGraph {
         return getEdgeWeight(_edge.first, _edge.second);
     }
 
-    inline void setEdgeWeight(const Graph::Node _u, const Graph::Node _v, const W& _w) {
+    inline void setEdgeWeight(
+        const Graph::Node _u, const Graph::Node _v, const W& _w) {
         m_matrix(_u, _v).second = _w;
     }
 
@@ -88,15 +87,16 @@ class DiGraph {
     }
 
     /**
-    * \brief Add _w to the weight of the edge (_u, _v)
-    */
-    inline void addEdgeWeight(const Graph::Node _u, const Graph::Node _v, const W& _w) {
+     * \brief Add _w to the weight of the edge (_u, _v)
+     */
+    inline void addEdgeWeight(
+        const Graph::Node _u, const Graph::Node _v, const W& _w) {
         m_matrix(_u, _v).second += _w;
     }
 
     /**
-    * \brief Add _w to the weight of the edge _e
-    */
+     * \brief Add _w to the weight of the edge _e
+     */
     inline void addEdgeWeight(const Graph::Edge& _e, const W& _w) {
         addEdgeWeight(_e.first, _e.second, _w);
     }
@@ -119,8 +119,8 @@ class DiGraph {
         return reverse;
     }
 
-    std::vector<Graph::Node>
-    getNeighborsIf(const Graph::Node _u, const std::function<bool(const Graph::Node)>& take_if) const {
+    std::vector<Graph::Node> getNeighborsIf(const Graph::Node _u,
+        const std::function<bool(const Graph::Node)>& take_if) const {
         std::vector<Graph::Node> neighbors;
         for (const auto& n : m_neighbors[_u]) {
             if (take_if(n)) {
@@ -135,8 +135,8 @@ class DiGraph {
     }
 
     /**
-    * \brief Returns the set of nodes v such that G has the edge (v, _u)
-    */
+     * \brief Returns the set of nodes v such that G has the edge (v, _u)
+     */
     std::vector<Graph::Node> getInNeighbors(const Graph::Node _u) const {
         std::vector<Graph::Node> inNeighbors;
         for (Graph::Node v = 0; v < m_order; ++v) {
@@ -165,13 +165,9 @@ class DiGraph {
         }
     }
 
-    int getOrder() const {
-        return m_order;
-    }
+    int getOrder() const { return m_order; }
 
-    int size() const {
-        return m_size;
-    }
+    int size() const { return m_size; }
 
     const std::vector<Graph::Edge>& getEdges() const {
         if (m_edgeChanges) {
@@ -234,8 +230,8 @@ class DiGraph {
         ofs << "}";
     }
 
-    static std::tuple<DiGraph, int, int>
-    loadFromFile(const std::string& _filename) {
+    static std::tuple<DiGraph, int, int> loadFromFile(
+        const std::string& _filename) {
         std::ifstream ifs(_filename, std::ifstream::in);
         if (!ifs) {
             std::cerr << _filename << " does not exists!\n";
@@ -265,17 +261,19 @@ class DiGraph {
     }
 
     /**
-   * Return the set of SCCs using Tarjan's algorithm
-   * \todo{Transform to iterative}
-   */
-    [[deprecated]] std::vector<std::vector<Graph::Node>> getStronglyConnectedComponent() const {
+     * Return the set of SCCs using Tarjan's algorithm
+     * \todo{Transform to iterative}
+     */
+    [[deprecated]]
+    std::vector<std::vector<Graph::Node>> getStronglyConnectedComponent() const {
         std::vector<std::vector<Graph::Node>> SCCs;
         int index = 0;
         std::vector<Graph::Node> S;
         std::vector<int> indexes(m_order, -1), lowLink(m_order);
         std::vector<bool> onStack(m_order, false);
 
-        const std::function<void(Graph::Node)> strongConnect = [&](const Graph::Node v) -> void {
+        const std::function<void(Graph::Node)> strongConnect =
+            [&](const Graph::Node v) -> void {
             // Set the depth index for v to the smallest unused index
             indexes[v] = lowLink[v] = index;
             ++index;
@@ -289,9 +287,6 @@ class DiGraph {
                     lowLink[v] = std::min(lowLink[v], lowLink[w]);
                 } else if (onStack[w]) {
                     // Successor w is in stack S and hence in the current SCC
-                    // Note: The next line may look odd - but is correct.
-                    // It says w.index not w.lowlink; that is deliberate and from the
-                    // original paper
                     lowLink[v] = std::min(lowLink[v], indexes[w]);
                 }
             }
@@ -317,7 +312,9 @@ class DiGraph {
         return SCCs;
     }
 
-    [[deprecated]] std::vector<DiGraph> getStronglyConnectedSubGraph() const {
+    [[deprecated]]
+    std::vector<DiGraph> getStronglyConnectedSubGraph()
+            const {
         const auto SCCs = getStronglyConnectedComponent();
         std::vector<DiGraph> subGraphs;
         subGraphs.reserve(SCCs.size());
@@ -349,16 +346,19 @@ class DiGraph {
 };
 
 template <typename W>
-std::ostream& operator<<(std::ostream&, const DiGraph<W>& _g);
+inline std::ostream& operator<<(std::ostream& _out, const DiGraph<W>& _g) {
+    return _out << _g.getOrder() << " nodes, " << _g.size()
+                << " edges: " << _g.getEdges() << '\n';
+}
 
 /**
-* Compare two graphs and return true if the two graphs have the same order
-* and the have the same set of nodes and edges.
-* \param _g1 The first graph to compare
-* \param _g2 The second graph to compare
-* \retval true If the graphs are equal
-* \retval false If the the graps are different
-*/
+ * Compare two graphs and return true if the two graphs have the same order
+ * and the have the same set of nodes and edges.
+ * \param _g1 The first graph to compare
+ * \param _g2 The second graph to compare
+ * \retval true If the graphs are equal
+ * \retval false If the the graps are different
+ */
 template <typename W1, typename W2>
 inline bool operator==(const DiGraph<W1>& _g1, const DiGraph<W2>& _g2) {
     // First, check size and order of both digraph
@@ -366,30 +366,34 @@ inline bool operator==(const DiGraph<W1>& _g1, const DiGraph<W2>& _g2) {
         // Second, check that all edge in _g1 belong to _g2
         // Since _g1.size() == _g2.size(),
         const auto edges = _g1.getEdges();
-        return std::all_of(std::begin(edges), std::end(edges), [&](auto&& __edge) {
-            return _g2.hasEdge(__edge) && _g1.getEdgeWeight(__edge) == _g2.getEdgeWeight(__edge);
-        });
+        return std::all_of(
+            std::begin(edges), std::end(edges), [&](auto&& __edge) {
+                return _g2.hasEdge(__edge)
+                       && _g1.getEdgeWeight(__edge)
+                              == _g2.getEdgeWeight(__edge);
+            });
     }
     return false;
 }
 
 /**
-* \brief Return true is _g is a directed acyclic graph
-* Compute a topological order and return true if the order is not empty
-* \param _g The graph to be tested 
-* \retval true _g is a DAG
-* \retval false _g is a DAG
-* \todo Move away from topological order to test the graph. Should be a simple DFS.
-*/
+ * \brief Return true is _g is a directed acyclic graph
+ * Compute a topological order and return true if the order is not empty
+ * \param _g The graph to be tested
+ * \retval true _g is a DAG
+ * \retval false _g is a DAG
+ * \todo Move away from topological order to test the graph. Should be a simple
+ * DFS.
+ */
 template <typename DG>
 inline bool isDAG(const DG& _g) {
     return !getTopologicalOrder(_g).empty();
 }
 
 /**
-* \brief Return the topological order of the digraph _g if _g is a DAG. Otherwise, return an empty vector.
-* \param _g The graph to be tested
-*/
+ * \brief Return the topological order of the digraph _g if _g is a DAG.
+ * Otherwise, return an empty vector. \param _g The graph to be tested
+ */
 template <typename DG>
 inline std::vector<Graph::Node> getTopologicalOrder(const DG& _g) {
     std::vector<Graph::Node> topo;
@@ -402,8 +406,7 @@ inline std::vector<Graph::Node> getTopologicalOrder(const DG& _g) {
     while (topo.size() < _g.getOrder()) {
         foundNullInDegree = false;
         for (int u = 0; u < _g.getOrder(); ++u) {
-            if (inDegrees[u] == 0
-                && !inOrder[u]) {
+            if (inDegrees[u] == 0 && !inOrder[u]) {
                 foundNullInDegree = true;
                 topo.push_back(u);
                 inOrder[u] = true;
@@ -451,11 +454,12 @@ inline std::vector<int> getInDegrees(const DG& _g) {
     return inDegrees;
 }
 /**
-* Return the set of SCCs using Tarjan's algorithm
-* \todo{Transform to iterative}
-*/
+ * Return the set of SCCs using Tarjan's algorithm
+ * \todo{Transform to iterative}
+ */
 template <typename DG>
-inline std::vector<std::vector<Graph::Node>> getStronglyConnectedComponent(const DG& _g) {
+inline std::vector<std::vector<Graph::Node>> getStronglyConnectedComponent(
+    const DG& _g) {
     std::vector<std::vector<Graph::Node>> SCCs;
     int index = 0;
     std::vector<Graph::Node> S;
@@ -463,39 +467,40 @@ inline std::vector<std::vector<Graph::Node>> getStronglyConnectedComponent(const
     std::vector<int> lowLink(_g.getOrder(), -1);
     std::vector<bool> onStack(_g.getOrder(), false);
 
-    const std::function<void(Graph::Node)> strongConnect = [&](const Graph::Node v) {
-        // Set the depth index for v to the smallest unused index
-        indexes[v] = lowLink[v] = index;
-        ++index;
-        S.push_back(v);
-        onStack[v] = true;
-        // Consider successors of v
-        for (const auto& w : _g.getNeighbors(v)) {
-            if (indexes[w] == -1) {
-                // Successor w has not yet been visited; recurse on it
-                strongConnect(w);
-                lowLink[v] = std::min(lowLink[v], lowLink[w]);
-            } else if (onStack[w]) {
-                // Successor w is in stack S and hence in the current SCC
-                // Note: The next line may look odd - but is correct.
-                // It says w.index not w.lowlink; that is deliberate and from the
-                // original paper
-                lowLink[v] = std::min(lowLink[v], indexes[w]);
+    const std::function<void(Graph::Node)> strongConnect =
+        [&](const Graph::Node v) {
+            // Set the depth index for v to the smallest unused index
+            indexes[v] = lowLink[v] = index;
+            ++index;
+            S.push_back(v);
+            onStack[v] = true;
+            // Consider successors of v
+            for (const auto& w : _g.getNeighbors(v)) {
+                if (indexes[w] == -1) {
+                    // Successor w has not yet been visited; recurse on it
+                    strongConnect(w);
+                    lowLink[v] = std::min(lowLink[v], lowLink[w]);
+                } else if (onStack[w]) {
+                    // Successor w is in stack S and hence in the current SCC
+                    // Note: The next line may look odd - but is correct.
+                    // It says w.index not w.lowlink; that is deliberate and
+                    // from the original paper
+                    lowLink[v] = std::min(lowLink[v], indexes[w]);
+                }
             }
-        }
 
-        // If v is a root node, pop the stack and generate an SCC
-        if (lowLink[v] == indexes[v]) {
-            SCCs.emplace_back();
-            Graph::Node w;
-            do {
-                w = S.back();
-                SCCs.back().push_back(w);
-                onStack[w] = false;
-                S.pop_back();
-            } while (w != v);
-        }
-    };
+            // If v is a root node, pop the stack and generate an SCC
+            if (lowLink[v] == indexes[v]) {
+                SCCs.emplace_back();
+                Graph::Node w;
+                do {
+                    w = S.back();
+                    SCCs.back().push_back(w);
+                    onStack[w] = false;
+                    S.pop_back();
+                } while (w != v);
+            }
+        };
 
     for (int v = 0; v < _g.getOrder(); ++v) {
         if (indexes[v] == -1) {
@@ -503,11 +508,6 @@ inline std::vector<std::vector<Graph::Node>> getStronglyConnectedComponent(const
         }
     }
     return SCCs;
-}
-
-template <typename W>
-inline std::ostream& operator<<(std::ostream& _out, const DiGraph<W>& _g) {
-    return _out << _g.getOrder() << " nodes, " << _g.size() << " edges: " << _g.getEdges() << '\n';
 }
 
 #endif

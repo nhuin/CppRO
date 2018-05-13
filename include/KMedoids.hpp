@@ -7,8 +7,8 @@
 #include "MyRandom.hpp"
 #include "utility.hpp"
 
-std::vector<int> getKMedoids(const int _k, const Matrix<double>& _dist,
-    const int _tMax = 100) {
+std::vector<int> getKMedoids(
+    const int _k, const Matrix<double>& _dist, const int _tMax = 100) {
     assert(_dist.size1() == _dist.size2());
     assert(_dist.size1() > 0);
     assert(_dist.size2() > 0);
@@ -22,8 +22,8 @@ std::vector<int> getKMedoids(const int _k, const Matrix<double>& _dist,
         for (auto& vect : clusters) {
             vect.clear();
         }
-        // For each elements, find the closest medoid and assign the element to the
-        // cluster of the corresponding medoid
+        // For each elements, find the closest medoid and assign the element to
+        // the cluster of the corresponding medoid
         for (int i = 0; i < _dist.size1(); ++i) {
             int minInd = 0;
             for (int j = 1; j < medoids.size(); ++j) {
@@ -64,8 +64,7 @@ std::vector<int> getKMedoids(const int _k, const Matrix<double>& _dist,
 }
 
 std::vector<int> getKMedoids(const int _k, const Matrix<double>& _dist,
-    const std::vector<int>& _capas,
-    const std::vector<double>& _charge,
+    const std::vector<int>& _capas, const std::vector<double>& _charge,
     const int _tMax = 100) {
     assert(_capas.size() == _dist.size1());
     assert(_charge.size() == _dist.size1());
@@ -83,14 +82,15 @@ std::vector<int> getKMedoids(const int _k, const Matrix<double>& _dist,
         for (auto& vect : clusters) {
             vect.clear();
         }
-        // For each element, find the closest medoid and assign the element to the
-        // cluster of the corresponding medoid
+        // For each element, find the closest medoid and assign the element to
+        // the cluster of the corresponding medoid
         for (int i = 0; i < _dist.size1(); ++i) {
             int minInd = 0;
             for (int j = 1; j < medoids.size(); ++j) {
-                if (_dist(i, medoids[j]) < _dist(i, medoids[minInd]) && // Update closest medoid if
-                                                                        // distance is smaller..
-                    usedCapas[j] < _capas[j]) {                         // and still as available capa
+                if (_dist(i, medoids[j]) < _dist(i, medoids[minInd])
+                    &&                          // Update closest medoid if
+                                                // distance is smaller..
+                    usedCapas[j] < _capas[j]) { // and still as available capa
                     minInd = j;
                 }
             }
@@ -118,7 +118,8 @@ std::vector<int> getKMedoids(const int _k, const Matrix<double>& _dist,
                     minDistInd = i;
                 }
             }
-            if (medoids[c] != clusters[c][minDistInd]) { // Medoids of cluster c is changed
+            if (medoids[c]
+                != clusters[c][minDistInd]) { // Medoids of cluster c is changed
                 changed = true;
                 medoids[c] = clusters[c][minDistInd];
             }

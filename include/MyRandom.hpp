@@ -53,8 +53,7 @@ std::vector<T> MyRandom::getShuffled(const T& _a, const T& _b) {
 }
 
 template <typename T>
-std::vector<T> MyRandom::getKShuffled(const int _k, const T& _a,
-    const T& _b) {
+std::vector<T> MyRandom::getKShuffled(const int _k, const T& _a, const T& _b) {
     auto result = getShuffled(_a, _b);
     result.erase(result.begin() + _k, result.end());
     return result;

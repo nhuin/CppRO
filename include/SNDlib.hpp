@@ -78,8 +78,8 @@ Matrix<int> loadNextHop(const std::string& _filename) {
     return nextHops;
 }
 
-std::tuple<double, double, double, double>
-loadEnergy(const std::string& _filename) {
+std::tuple<double, double, double, double> loadEnergy(
+    const std::string& _filename) {
     std::ifstream ifs(_filename, std::ifstream::in);
     if (!ifs) {
         std::cerr << _filename << " does not exists!" << std::endl;
@@ -90,7 +90,8 @@ loadEnergy(const std::string& _filename) {
     std::string line;
     std::getline(ifs, line, '\n');
     std::stringstream lineStream(line);
-    lineStream >> std::get<0>(energy) >> std::get<1>(energy) >> std::get<2>(energy) >> std::get<3>(energy);
+    lineStream >> std::get<0>(energy) >> std::get<1>(energy)
+        >> std::get<2>(energy) >> std::get<3>(energy);
     return energy;
 }
 
@@ -125,8 +126,8 @@ Matrix<int> loadTunnels(const std::string& _filename) {
     return tunnels;
 }
 
-std::vector<int> loadSDNs(const std::string& _filename, const int& nbSDNs,
-    int _type) {
+std::vector<int> loadSDNs(
+    const std::string& _filename, const int& nbSDNs, int _type) {
     std::ifstream ifs(_filename, std::ifstream::in);
     if (!ifs) {
         std::cerr << _filename << " does not exists!" << std::endl;
@@ -156,8 +157,8 @@ std::vector<int> loadSDNs(const std::string& _filename, const int& nbSDNs,
     return SDNs;
 }
 
-std::vector<int> loadSDNsMaxCover(const std::string& _filename,
-    const int& _nbSDNs) {
+std::vector<int> loadSDNsMaxCover(
+    const std::string& _filename, const int& _nbSDNs) {
     std::ifstream ifs(_filename, std::ifstream::in);
     if (!ifs) {
         std::cerr << _filename << " does not exists!" << std::endl;

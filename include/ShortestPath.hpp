@@ -8,11 +8,13 @@
 #include "Graph.hpp"
 #include "utility.hpp"
 
-template <typename G, typename DistanceComparator = std::less<typename G::weight_type>>
+template <typename G,
+    typename DistanceComparator = std::less<typename G::weight_type>>
 class ShortestPath {
   public:
     using weight_type = typename G::weight_type;
-    explicit ShortestPath(const G& _graph, DistanceComparator _distComp = DistanceComparator())
+    explicit ShortestPath(
+        const G& _graph, DistanceComparator _distComp = DistanceComparator())
         : m_graph(&_graph)
         , m_distComp(_distComp)
         , m_distance(_graph.getOrder(), std::numeric_limits<weight_type>::max())
@@ -30,17 +32,18 @@ class ShortestPath {
     ShortestPath& operator=(const ShortestPath& _other) {
         if (this != &_other) {
             m_graph = _other.m_graph;
-            m_distance = std::vector<weight_type>(m_graph->getOrder(),
-                std::numeric_limits<weight_type>::max());
+            m_distance = std::vector<weight_type>(
+                m_graph->getOrder(), std::numeric_limits<weight_type>::max());
             m_parent = std::vector<int>(m_graph->getOrder(), -1);
             m_color = std::vector<char>(m_graph->getOrder(), 0);
-            m_handles = std::vector<typename BinaryHeap<
-                int, std::function<bool(const Graph::Node, const Graph::Node)>>::
-                    Handle*>(m_graph->getOrder());
-            m_heap = BinaryHeap<
-                int, std::function<bool(const Graph::Node, const Graph::Node)>>(
+            m_handles = std::vector<
+                typename BinaryHeap<int, std::function<bool(const Graph::Node,
+                                             const Graph::Node)>>::Handle*>(
+                m_graph->getOrder());
+            m_heap = BinaryHeap<int,
+                std::function<bool(const Graph::Node, const Graph::Node)>>(
                 m_graph->getOrder(),
-                [=](const Graph::Node __u, const Graph::Node __v) {
+                [&](const Graph::Node __u, const Graph::Node __v) {
                     return m_distComp(m_distance[__u], m_distance[__v]);
                 });
         }
@@ -55,7 +58,7 @@ class ShortestPath {
         , m_color(std::move(_other.m_color))
         , m_handles(m_graph->getOrder())
         , m_heap(m_graph->getOrder(),
-              [=](const Graph::Node __u, const Graph::Node __v) {
+              [&](const Graph::Node __u, const Graph::Node __v) {
                   return m_distComp(m_distance[__u], m_distance[__v]);
               }) {}
 
@@ -65,13 +68,14 @@ class ShortestPath {
             m_distance = std::move(_other.m_distance);
             m_parent = std::move(_other.m_parent);
             m_color = std::move(_other.m_color);
-            m_handles = std::vector<typename BinaryHeap<
-                int, std::function<bool(const Graph::Node, const Graph::Node)>>::
-                    Handle*>(m_graph->getOrder());
-            m_heap = BinaryHeap<
-                int, std::function<bool(const Graph::Node, const Graph::Node)>>(
+            m_handles = std::vector<
+                typename BinaryHeap<int, std::function<bool(const Graph::Node,
+                                             const Graph::Node)>>::Handle*>(
+                m_graph->getOrder());
+            m_heap = BinaryHeap<int,
+                std::function<bool(const Graph::Node, const Graph::Node)>>(
                 m_graph->getOrder(),
-                [=](const Graph::Node __u, const Graph::Node __v) {
+                [&](const Graph::Node __u, const Graph::Node __v) {
                     return m_distComp(m_distance[__u], m_distance[__v]);
                 });
         }
@@ -136,7 +140,8 @@ class ShortestPath {
         return path;
     }
 
-    Graph::Path getShortestPathNbArcs(const Graph::Node _s, const Graph::Node _t) {
+    Graph::Path getShortestPathNbArcs(
+        const Graph::Node _s, const Graph::Node _t) {
         clear();
         m_parent[_s] = _s;
         m_distance[_s] = 0;
@@ -181,8 +186,7 @@ class ShortestPath {
     }
 
     template <typename NeighborPredicate, typename WeightFunction>
-    Graph::Path
-    getShortestPath(const Graph::Node _s, const Graph::Node _t,
+    Graph::Path getShortestPath(const Graph::Node _s, const Graph::Node _t,
         NeighborPredicate _np, WeightFunction _wf) {
         clear();
         m_parent[_s] = _s;
@@ -227,9 +231,8 @@ class ShortestPath {
     }
 
     template <typename NeighborPredicate>
-    Graph::Path
-    getShortestPathNbArcs(const Graph::Node _s, const Graph::Node _t,
-        NeighborPredicate _np) {
+    Graph::Path getShortestPathNbArcs(
+        const Graph::Node _s, const Graph::Node _t, NeighborPredicate _np) {
         clear();
 
         m_parent[_s] = _s;
@@ -273,8 +276,8 @@ class ShortestPath {
         return path;
     }
 
-    std::vector<Graph::Path> getKShortestPath(const Graph::Node _u, const Graph::Node _v,
-        const int _k) {
+    std::vector<Graph::Path> getKShortestPath(
+        const Graph::Node _u, const Graph::Node _v, const int _k) {
         std::vector<Graph::Path> paths;
         if (_k == 0) {
             return paths;
@@ -288,7 +291,8 @@ class ShortestPath {
             auto& lastPath = paths[k - 1];
             auto ite = lastPath.begin();
             for (int i = 0; i < lastPath.size() - 1; ++i, ++ite) {
-                // Spur node is retrieved from the previous k-shortest path, k − 1.
+                // Spur node is retrieved from the previous k-shortest path, k
+                // − 1.
                 Graph::Node spurNode = *ite;
                 // The sequence of nodes from the source to the spur node of the
                 // previous k-shortest path.
@@ -309,8 +313,8 @@ class ShortestPath {
                         }
                     }
                     if (same) {
-                        // Remove the links that are part of the previous shortest paths which share the
-                        // same root path.
+                        // Remove the links that are part of the previous
+                        // shortest paths which share the same root path.
                         graphCopy.removeEdge(*std::prev(ite2), *ite2);
                     }
                 }
@@ -322,7 +326,8 @@ class ShortestPath {
                 }
                 // Calculate the spur path from the spur node to the sink.
                 Graph::Path spurPath =
-                    ShortestPath<G>(graphCopy).getShortestPathNbArcs(spurNode, _v);
+                    ShortestPath<G>(graphCopy).getShortestPathNbArcs(
+                        spurNode, _v);
                 if (!spurPath.empty()) {
                     assert(spurPath.front() == spurNode);
                     rootPath.insert(rootPath.end(), std::next(spurPath.begin()),
@@ -354,11 +359,11 @@ class ShortestPath {
     std::vector<weight_type> m_distance;
     std::vector<Graph::Node> m_parent;
     std::vector<char> m_color;
-    std::vector<typename BinaryHeap<
-        Graph::Node,
+    std::vector<typename BinaryHeap<Graph::Node,
         std::function<bool(const Graph::Node, const Graph::Node)>>::Handle*>
         m_handles;
-    BinaryHeap<Graph::Node, std::function<bool(const Graph::Node, const Graph::Node)>>
+    BinaryHeap<Graph::Node,
+        std::function<bool(const Graph::Node, const Graph::Node)>>
         m_heap;
 };
 

@@ -29,13 +29,9 @@ class Matrix {
     Matrix& operator=(Matrix&& _other) noexcept = default;
     ~Matrix() = default;
 
-    int size1() const {
-        return m_nbRow;
-    }
+    int size1() const { return m_nbRow; }
 
-    int size2() const {
-        return m_nbColumn;
-    }
+    int size2() const { return m_nbColumn; }
 
     const T& operator()(const int _i, const int _j) const {
         assert(0 <= _i && _i < m_nbRow);
