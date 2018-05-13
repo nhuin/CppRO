@@ -69,8 +69,8 @@ TEST_CASE("Test copy constructor", "[]") {
 		array2 = array3;
 	}
 	REQUIRE(array2.size() == 5);
-	for(int i = 0; i < array2.size(); ++i) {
-		REQUIRE(epsilon_equal<double>()(array2[i], 6));
+	for(const auto v : array2) {
+		REQUIRE(epsilon_equal<double>()(v, 6));
 	}
 
 } 
@@ -80,4 +80,15 @@ TEST_CASE("Test conversion operator", "[]") {
 	IloWrapper<IloNumArray> array(env, 10);
 	std::fill(array.begin(), array.end(), 5);
 	REQUIRE(epsilon_equal<double>()(IloSum(array), 5*10));
+}
+
+TEST_CASE("isInteger", "[]") {
+	REQUIRE(isInteger(23.0000));
+	REQUIRE(!isInteger(23.0001));
+}
+
+TEST_CASE("isMostFractional", "[]") {
+	REQUIRE(!isMostFractional(23.0000, 23.0000));
+	REQUIRE(!isMostFractional(23.0000, 23.0001));
+	REQUIRE(isMostFractional(23.0001, 23.0000));
 }

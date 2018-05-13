@@ -3,8 +3,9 @@
 
 #include <ilcplex/ilocplex.h>
 #include <numeric>
-#include <utility>
 #include <type_traits>
+#include <utility>
+#include <cmath>
 
 template <typename IloObject>
 inline void setIloName(const IloObject& _ilo, const std::string& _str) {
@@ -14,7 +15,8 @@ inline void setIloName(const IloObject& _ilo, const std::string& _str) {
 inline void displayConstraint(const IloCplex& _solver, const IloRange& _range) {
     std::cout << _range << '\n';
     for (auto ite = _range.getLinearIterator(); ite.ok() != 0; ++ite) {
-        std::cout << ite.getVar() << " -> " << _solver.getValue(ite.getVar()) << '\n';
+        std::cout << ite.getVar() << " -> " << _solver.getValue(ite.getVar())
+                  << '\n';
     }
 }
 
@@ -44,9 +46,7 @@ class IloArrayIterator {
     IloArrayIterator& operator=(IloArrayIterator&&) = default;
     ~IloArrayIterator() = default;
 
-    reference operator*() {
-        return m_array[m_position];
-    }
+    reference operator*() { return m_array[m_position]; }
 
     // Pre-incrementable
     IloArrayIterator& operator++() {
@@ -73,8 +73,7 @@ class IloArrayIterator {
     }
 
     bool operator==(const IloArrayIterator& _rhs) const {
-        return &m_array == &_rhs.m_array
-               && m_position == _rhs.m_position;
+        return &m_array == &_rhs.m_array && m_position == _rhs.m_position;
     }
 
     bool operator!=(const IloArrayIterator& _rhs) const {
@@ -111,7 +110,7 @@ class IloArrayIterator {
         return newIte;
     }
 
-    //Relational less-than
+    // Relational less-than
     bool operator<(const IloArrayIterator& _ite) {
         return m_position < _ite.m_position;
     }
@@ -131,14 +130,12 @@ class IloArrayIterator {
     }
 
     // Subscripting
-    value_type operator[](int _idx) {
-        return m_array[_idx];
-    }
+    value_type operator[](int _idx) { return m_array[_idx]; }
 
   private:
     Array& m_array;
     size_type m_position;
-}; 
+};
 
 template <typename Array>
 IloArrayIterator<Array> begin(Array& _arr) {
@@ -153,14 +150,13 @@ IloArrayIterator<Array> end(Array& _arr) {
 template <typename Array>
 Array copy(const Array& _array) {
     Array retval(_array.getEnv(), _array.getSize());
-    std::copy(begin(_array), end(_array),
-        begin(retval));
+    std::copy(begin(_array), end(_array), begin(retval));
     return retval;
 }
 
-template <typename Array>
-Array move(Array&& _array) {
-    return Array(_array.getImpl());
+template <typename IloObject>
+IloObject move(IloObject&& _array) {
+    return IloObject(_array.getImpl());
 }
 
 static double epsilon_value = 1e-6;
@@ -170,7 +166,7 @@ struct epsilon_less {
     constexpr bool operator()(const T& _lhs, const T& _rhs) const {
         return _lhs + epsilon_value < _rhs;
     }
-    //static T epsilon_value;
+    // static T epsilon_value;
 };
 
 template <typename T>
@@ -178,15 +174,16 @@ struct epsilon_equal {
     constexpr bool operator()(const T& _lhs, const T& _rhs) const {
         return std::fabs(_lhs - _rhs) < epsilon_value;
     }
-    //static T epsilon_value;
+    // static T epsilon_value;
 };
 
 template <typename Array, bool OWNING = false>
 class IloWrapper {
   public:
     // using const_array = const Array;
-  	using reference = decltype(std::declval<Array>().operator[](0));
-    // using const_reference = typename std::result_of<decltype(&const_array::operator[])(Array, IloInt)>::type;
+    using reference = decltype(std::declval<Array>().operator[](0));
+    // using const_reference = typename
+    // std::result_of<decltype(&const_array::operator[])(Array, IloInt)>::type;
     using const_reference = decltype(std::declval<const Array>().operator[](0));
     using size_type = decltype(Array().getSize());
     using value_type = typename std::remove_reference<reference>::type;
@@ -194,30 +191,19 @@ class IloWrapper {
     using iterator_category = std::bidirectional_iterator_tag;
     using pointer = value_type*;
 
-    template <typename FirstArg, 
-    	typename... Args, 
-    	typename = typename std::enable_if_t<
-		                std::conjunction_v<
-		                    typename std::is_constructible<Array, FirstArg, Args...>,
-		                    std::conjunction<
-		                    	typename std::negation<
-		                    		typename std::is_same<std::decay_t<FirstArg>, std::decay_t<Array>>
-		                    	>,
-		                    	typename std::negation<
-		                    		typename std::is_same<std::decay_t<FirstArg>, std::decay_t<IloWrapper>>
-		                    	>
-		                    >
-		                >
-                   >
-    >
+    template <typename FirstArg, typename... Args,
+        typename = typename std::enable_if_t<std::conjunction_v<
+            typename std::is_constructible<Array, FirstArg, Args...>,
+            std::conjunction<typename std::negation<typename std::is_same<
+                                 std::decay_t<FirstArg>, std::decay_t<Array>>>,
+                typename std::negation<typename std::is_same<
+                    std::decay_t<FirstArg>, std::decay_t<IloWrapper>>>>>>>
     IloWrapper(FirstArg&& arg, Args&&... args)
-        : m_array(std::forward<FirstArg>(arg), std::forward<Args>(args)...)
-	{}
+        : m_array(std::forward<FirstArg>(arg), std::forward<Args>(args)...) {}
 
     // Copy
     IloWrapper(const IloWrapper& _other)
-        : m_array(copy(_other.m_array)) {
-    }
+        : m_array(copy(_other.m_array)) {}
 
     IloWrapper& operator=(const IloWrapper& _other) {
         if (this != &_other) {
@@ -237,16 +223,11 @@ class IloWrapper {
     }
 
     IloWrapper(IloWrapper&& _other)
-        : m_array(move(std::move(_other.m_array)))
-	{}
+        : m_array(move(std::move(_other.m_array))) {}
 
-    operator Array() {
-        return Array(m_array.getImpl());
-    }
+    operator Array() { return Array(m_array.getImpl()); }
 
-    operator const Array&() const {
-        return m_array;
-    }
+    operator const Array&() const { return m_array; }
 
     ~IloWrapper() {
         if constexpr (OWNING) {
@@ -255,45 +236,49 @@ class IloWrapper {
         m_array.end();
     }
 
-    reference operator[](int _idx) {
-        return m_array[_idx];
-    }
+    reference operator[](int _idx) { return m_array[_idx]; }
 
-    const_reference operator[](int _idx) const {
-        return m_array[_idx];
-    }
+    const_reference operator[](int _idx) const { return m_array[_idx]; }
 
-    int size() const {
-        return m_array.getSize();
-    }
+    int size() const { return m_array.getSize(); }
 
-    IloArrayIterator<Array> begin() {
-        return ::begin(m_array);
-    }
+    IloArrayIterator<Array> begin() { return ::begin(m_array); }
 
-    IloArrayIterator<Array> end() {
-        return ::end(m_array);
-    }
+    IloArrayIterator<Array> end() { return ::end(m_array); }
 
-    IloArrayIterator<Array> cbegin() const {
-        return ::begin(m_array);
-    }
+    IloArrayIterator<Array> cbegin() const { return ::begin(m_array); }
 
-    IloArrayIterator<Array> cend() const {
-        return ::end(m_array);
-    }
+    IloArrayIterator<Array> cend() const { return ::end(m_array); }
 
   private:
     Array m_array;
 };
 
+template<typename T>
+bool isInteger(T _val) {
+    return epsilon_equal<T>()(_val, std::round(_val));
+}
+
+template<typename T>
+bool isMostFractional(T _val1, T _val2) {
+    const auto ceil1 = std::ceil(_val1), floor1 = std::floor(_val1);
+    const auto ceil2 = std::ceil(_val2), floor2 = std::floor(_val2);
+    if(isInteger(_val1)) {
+        return false;
+    }
+    if(isInteger(_val2)) {
+        return true;
+    }
+    return std::fabs(_val1 - (ceil1+floor1)/2) < std::fabs(_val2 - (ceil2+floor2)/2);
+};
+
 /**
-*
-*/
-template<typename ValArray, typename ConstraintArray>
+ *
+ */
+template <typename ValArray, typename ConstraintArray>
 ValArray getDuals(IloCplex& _solver, const ConstraintArray& _constArr) {
-	ValArray retval(_constArr.getEnv());
-	_solver.getDuals(retval, _constArr);
-	return retval;
+    ValArray retval(_constArr.getEnv());
+    _solver.getDuals(retval, _constArr);
+    return retval;
 }
 #endif
