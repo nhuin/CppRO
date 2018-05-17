@@ -8,7 +8,7 @@
 #include <cmath>
 
 template <typename IloObject>
-inline void setIloName(const IloObject& _ilo, const std::string& _str) {
+inline void setIloName(IloObject& _ilo, const std::string& _str) {
     _ilo.setName(_str.c_str());
 }
 

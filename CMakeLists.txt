@@ -1,11 +1,12 @@
 cmake_minimum_required(VERSION 3.5)
-project(CppRo VERSION 1.1.0 LANGUAGES CXX)
+project(CppRo VERSION 1.2.0 LANGUAGES CXX)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
 
-find_package(CPLEX REQUIRED MODULE)
 include(cmake/clang-extra-tools.cmake)
 
 option(CppRO_ENABLE_TEST "Enable test" 0)
+option(CppRO_ENABLE_CPLEX "Enable CPLEX support" 0)
+
 ##############################################
 # Create target and set properties
 add_library(CppRo
@@ -22,7 +23,13 @@ target_include_directories(CppRo
 
 target_compile_features(CppRo INTERFACE cxx_std_17)
 
-target_link_libraries(CppRo INTERFACE cplex-library cplex-concert ilocplex)
+if(CppRO_ENABLE_CPLEX)
+    find_package(CppRo REQUIRED MODULE)
+    target_compile_definitions(CppRo PRIVATE CPLEX_ENABLED)
+    target_link_libraries(CppRo INTERFACE cplex-library cplex-concert ilocplex cplex_support)
+endif()
+
+#### TCLAP ####
 
 # Create target and set properties
 add_library(TCLAP
