@@ -12,6 +12,7 @@
 #include <sstream>
 #include <tuple>
 #include <vector>
+#include <iterator>
 
 #if defined(NDEBUG) || defined(PROFILE)
 #define DBOUT(x)
