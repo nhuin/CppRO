@@ -42,7 +42,7 @@ add_library(CppRo::TCLAP ALIAS TCLAP)
 target_include_directories(TCLAP
     INTERFACE 
     $<INSTALL_INTERFACE:include/tclap>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}include/tclap>)
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 
 target_compile_features(TCLAP INTERFACE cxx_std_17)
 
