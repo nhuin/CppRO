@@ -46,8 +46,6 @@ target_include_directories(TCLAP
 
 target_compile_features(TCLAP INTERFACE cxx_std_17)
 
-target_link_libraries(TCLAP INTERFACE cplex-library cplex-concert ilocplex)
-
 ##############################################
 # Installation instructions
 
