@@ -25,7 +25,7 @@ target_compile_features(CppRo INTERFACE cxx_std_17)
 
 if(CppRO_ENABLE_CPLEX)
     find_package(CPLEX REQUIRED)
-    target_link_libraries(CppRo INTERFACE cplex-library cplex-concert ilocplex cplex_support)
+    target_link_libraries(CppRo INTERFACE cplex-library cplex-concert ilocplex)
 endif()
 
 #### TCLAP ####
