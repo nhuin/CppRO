@@ -28,6 +28,63 @@ TEST_CASE("Test epsilon_less", "[]") {
 	REQUIRE(epsilon_less<double>()(-1e-5, 0.0));
 }
 
+TEST_CASE("Test epsilon_less_equal", "[]") {
+	REQUIRE(epsilon_less_equal<double>()(0.0, 1.0));
+	REQUIRE(!epsilon_less_equal<double>()(1.0, 0.0));
+
+	REQUIRE(epsilon_less_equal<double>()(1.0, 1.0));
+	
+	REQUIRE(epsilon_less_equal<double>()(1.0, 1.0+1e-5));
+	REQUIRE(!epsilon_less_equal<double>()(1.0+1e-5, 1.0));
+
+	REQUIRE(!epsilon_less_equal<double>()(1.0, 1.0-1e-5));
+	REQUIRE(epsilon_less_equal<double>()(1.0-1e-5, 1.0));
+
+	REQUIRE(!epsilon_less_equal<double>()(1000, 1.0));
+	REQUIRE(epsilon_less_equal<double>()(1.0, 10000));
+
+	REQUIRE(epsilon_less_equal<double>()(-1e-5, 0.0));
+	REQUIRE(epsilon_less_equal<double>()(-1e-9, 0.0));
+} 
+
+TEST_CASE("Test epsilon_greater", "[]") {
+	REQUIRE(!epsilon_greater<double>()(0.0, 1.0));
+	REQUIRE(epsilon_greater<double>()(1.0, 0.0));
+
+	REQUIRE(epsilon_greater<double>()(1.0, 1.0));
+	
+	REQUIRE(!epsilon_greater<double>()(1.0, 1.0+1e-5));
+	REQUIRE(epsilon_greater<double>()(1.0+1e-5, 1.0));
+
+	REQUIRE(epsilon_greater<double>()(1.0, 1.0-1e-5));
+	REQUIRE(!epsilon_greater<double>()(1.0-1e-5, 1.0));
+
+	REQUIRE(epsilon_greater<double>()(1000, 1.0));
+	REQUIRE(!epsilon_greater<double>()(1.0, 10000));
+
+	REQUIRE(!epsilon_greater<double>()(-1e-5, 0.0));
+}
+
+TEST_CASE("Test epsilon_greater_equal", "[]") {
+	REQUIRE(!epsilon_greater_equal<double>()(0.0, 1.0));
+	REQUIRE(epsilon_greater_equal<double>()(1.0, 0.0));
+
+	REQUIRE(epsilon_greater_equal<double>()(1.0, 1.0));
+	
+	REQUIRE(!epsilon_greater_equal<double>()(1.0, 1.0+1e-5));
+	REQUIRE(epsilon_greater_equal<double>()(1.0+1e-5, 1.0));
+
+	REQUIRE(epsilon_greater_equal<double>()(1.0, 1.0-1e-5));
+	REQUIRE(!epsilon_greater_equal<double>()(1.0-1e-5, 1.0));
+
+	REQUIRE(epsilon_greater_equal<double>()(1000, 1.0));
+	REQUIRE(!epsilon_greater_equal<double>()(1.0, 10000));
+
+	REQUIRE(!epsilon_greater_equal<double>()(-1e-5, 0.0));
+	REQUIRE(epsilon_greater_equal<double>()(1e-5, 0.0));
+	REQUIRE(epsilon_greater_equal<double>()(-1e-9, 0.0));
+}
+
 TEST_CASE("Test begin and end functions", "[]") {
 	IloEnv env;
 	IloWrapper<IloNumArray> array(env, 10);

@@ -159,22 +159,72 @@ IloObject move(IloObject&& _array) {
     return IloObject(_array.getImpl());
 }
 
-static double epsilon_value = 1e-6;
-
 template <typename T>
 struct epsilon_less {
-    constexpr bool operator()(const T& _lhs, const T& _rhs) const {
+    constexpr epsilon_less(const T& _value = T(1e-6))
+    : epsilon_value(_value)
+    {}
+
+    ~epsilon_less() = default;
+    
+    constexpr bool operator()( const T& _lhs, const T& _rhs ) const {
         return _lhs + epsilon_value < _rhs;
     }
-    // static T epsilon_value;
+    T epsilon_value;
+};
+
+template <typename T>
+struct epsilon_less_equal {
+    constexpr epsilon_less_equal(const T& _value = T(1e-6))
+    : epsilon_value(_value)
+    {}
+    
+    ~epsilon_less_equal() = default;
+    
+    constexpr bool operator()( const T& _lhs, const T& _rhs ) const {
+        return _lhs + epsilon_value < _rhs || std::fabs(_lhs - _rhs) < epsilon_value;
+    }
+    T epsilon_value;
+};
+
+template <typename T>
+struct epsilon_greater {
+    constexpr epsilon_greater(const T& _value = T(1e-6))
+    : epsilon_value(_value)
+    {}
+
+    ~epsilon_greater() = default;
+    
+    constexpr bool operator()( const T& _lhs, const T& _rhs ) const {
+        return _lhs + epsilon_value > _rhs;
+    }
+    T epsilon_value;
+};
+
+template <typename T>
+struct epsilon_greater_equal {
+    constexpr epsilon_greater_equal(const T& _value = T(1e-6))
+    : epsilon_value(_value)
+    {}
+    
+    ~epsilon_greater_equal() = default;
+    
+    constexpr bool operator()( const T& _lhs, const T& _rhs ) const {
+        return _lhs + epsilon_value > _rhs || std::fabs(_lhs - _rhs) < epsilon_value;
+    }
+    T epsilon_value;
 };
 
 template <typename T>
 struct epsilon_equal {
+    constexpr epsilon_equal(const T& _value = T(1e-6))
+    : epsilon_value(_value)
+    {}
+
     constexpr bool operator()(const T& _lhs, const T& _rhs) const {
         return std::fabs(_lhs - _rhs) < epsilon_value;
     }
-    // static T epsilon_value;
+    T epsilon_value;
 };
 
 template <typename Array, bool OWNING = false>
