@@ -196,7 +196,7 @@ struct epsilon_greater {
     ~epsilon_greater() = default;
     
     constexpr bool operator()( const T& _lhs, const T& _rhs ) const {
-        return _lhs + epsilon_value > _rhs;
+        return _lhs - _rhs > epsilon_value;
     }
     T epsilon_value;
 };
