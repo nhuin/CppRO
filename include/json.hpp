@@ -1947,8 +1947,6 @@ class lexer {
         case token_type::parse_error: return "<parse error>";
         case token_type::end_of_input: return "end of input";
         case token_type::literal_or_value: return "'[', '{', or a literal";
-        default:                    // catch non-enum values
-            return "unknown token"; // LCOV_EXCL_LINE
         }
     }
 
