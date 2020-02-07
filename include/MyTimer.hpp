@@ -8,7 +8,8 @@
 #include <utility>
 
 class Time {
-  using wall_clock = std::chrono::steady_clock;
+    using wall_clock = std::chrono::steady_clock;
+
   private:
     std::clock_t m_cStart{};
     wall_clock::time_point m_tStart{};
@@ -29,7 +30,7 @@ class Time {
     [[deprecated]] std::pair<double, double> show() const {
         std::clock_t c_end = std::clock();
         const auto t_end = wall_clock::now();
-        const double timeDifference = c_end - m_cStart;
+        const auto timeDifference = double(c_end - m_cStart);
         std::cout << std::fixed << std::setprecision(2) << "CPU time used: "
                   << 1000.0 * timeDifference / CLOCKS_PER_SEC
                   << " ms\nWall clock time passed: "
@@ -44,7 +45,7 @@ class Time {
     std::pair<double, double> get(bool verbose = true) const {
         std::clock_t c_end = std::clock();
         const auto t_end = wall_clock::now();
-        const double timeDifference = c_end - m_cStart;
+        const auto timeDifference = double(c_end - m_cStart);
         if (verbose) {
             std::cout << std::fixed << std::setprecision(2) << "CPU time used: "
                       << 1000.0 * timeDifference / CLOCKS_PER_SEC

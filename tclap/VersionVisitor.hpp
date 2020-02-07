@@ -1,23 +1,23 @@
 // -*- Mode: c++; c-basic-offset: 4; tab-width: 4; -*-
 
-/****************************************************************************** 
- * 
+/******************************************************************************
+ *
  *  file:  VersionVisitor.h
- * 
+ *
  *  Copyright (c) 2003, Michael E. Smoot .
  *  All rights reverved.
- * 
+ *
  *  See the file COPYING in the top directory of this distribution for
  *  more information.
- *  
- *  THE SOFTWARE IS PROVIDED _AS IS_, WITHOUT WARRANTY OF ANY KIND, EXPRESS 
- *  OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
- *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL 
- *  THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
- *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
- *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
- *  DEALINGS IN THE SOFTWARE.  
- *  
+ *
+ *  THE SOFTWARE IS PROVIDED _AS IS_, WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ *  OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+ *  THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ *  DEALINGS IN THE SOFTWARE.
+ *
  *****************************************************************************/
 
 #ifndef TCLAP_VERSION_VISITOR_H
@@ -28,8 +28,6 @@
 #include "CmdLineOutput.hpp"
 #include "Visitor.hpp"
 
-
-
 namespace TCLAP {
 
 /**
@@ -39,21 +37,21 @@ namespace TCLAP {
 class VersionVisitor : public Visitor {
   protected:
     /**
-		 * The CmdLine of interest.
-		 */
+     * The CmdLine of interest.
+     */
     CmdLineInterface& _cmd;
 
     /**
-		 * The output object. 
-		 */
+     * The output object.
+     */
     CmdLineOutput& _out;
 
   public:
     /**
-		 * Constructor.
-		 * \param cmd - The CmdLine the output is generated for. 
-		 * \param out - The type of output. 
-		 */
+     * Constructor.
+     * \param cmd - The CmdLine the output is generated for.
+     * \param out - The type of output.
+     */
     VersionVisitor(CmdLineInterface& cmd, CmdLineOutput& out)
         :
 
@@ -63,13 +61,13 @@ class VersionVisitor : public Visitor {
     VersionVisitor(const VersionVisitor&) = delete;
     VersionVisitor& operator=(const VersionVisitor&) = delete;
     VersionVisitor(VersionVisitor&&) = default;
-    VersionVisitor& operator=(VersionVisitor&&) = default;
+    VersionVisitor& operator=(VersionVisitor&&) = delete;
     ~VersionVisitor() override = default;
 
     /**
-		 * Calls the version method of the output object using the
-		 * specified CmdLine.
-		 */
+     * Calls the version method of the output object using the
+     * specified CmdLine.
+     */
     void visit() override {
         _out.version(_cmd);
         throw ExitException(0);
