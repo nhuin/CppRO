@@ -1,11 +1,11 @@
 #ifndef ILOUTILITY_HPP
 #define ILOUTILITY_HPP
 
+#include <cmath>
 #include <ilcplex/ilocplex.h>
 #include <numeric>
 #include <type_traits>
 #include <utility>
-#include <cmath>
 
 template <typename IloObject>
 inline void setIloName(IloObject& _ilo, const std::string& _str) {
@@ -162,12 +162,11 @@ IloObject move(IloObject&& _array) {
 template <typename T>
 struct epsilon_less {
     constexpr epsilon_less(const T& _value = T(1e-6))
-    : epsilon_value(_value)
-    {}
+        : epsilon_value(_value) {}
 
     ~epsilon_less() = default;
-    
-    constexpr bool operator()( const T& _lhs, const T& _rhs ) const {
+
+    constexpr bool operator()(const T& _lhs, const T& _rhs) const {
         return _lhs + epsilon_value < _rhs;
     }
     T epsilon_value;
@@ -176,13 +175,13 @@ struct epsilon_less {
 template <typename T>
 struct epsilon_less_equal {
     constexpr epsilon_less_equal(const T& _value = T(1e-6))
-    : epsilon_value(_value)
-    {}
-    
+        : epsilon_value(_value) {}
+
     ~epsilon_less_equal() = default;
-    
-    constexpr bool operator()( const T& _lhs, const T& _rhs ) const {
-        return _lhs + epsilon_value < _rhs || std::fabs(_lhs - _rhs) < epsilon_value;
+
+    constexpr bool operator()(const T& _lhs, const T& _rhs) const {
+        return _lhs + epsilon_value < _rhs
+               || std::fabs(_lhs - _rhs) < epsilon_value;
     }
     T epsilon_value;
 };
@@ -190,12 +189,11 @@ struct epsilon_less_equal {
 template <typename T>
 struct epsilon_greater {
     constexpr epsilon_greater(const T& _value = T(1e-6))
-    : epsilon_value(_value)
-    {}
+        : epsilon_value(_value) {}
 
     ~epsilon_greater() = default;
-    
-    constexpr bool operator()( const T& _lhs, const T& _rhs ) const {
+
+    constexpr bool operator()(const T& _lhs, const T& _rhs) const {
         return _lhs - _rhs > epsilon_value;
     }
     T epsilon_value;
@@ -204,13 +202,13 @@ struct epsilon_greater {
 template <typename T>
 struct epsilon_greater_equal {
     constexpr epsilon_greater_equal(const T& _value = T(1e-6))
-    : epsilon_value(_value)
-    {}
-    
+        : epsilon_value(_value) {}
+
     ~epsilon_greater_equal() = default;
-    
-    constexpr bool operator()( const T& _lhs, const T& _rhs ) const {
-        return _lhs + epsilon_value > _rhs || std::fabs(_lhs - _rhs) < epsilon_value;
+
+    constexpr bool operator()(const T& _lhs, const T& _rhs) const {
+        return _lhs + epsilon_value > _rhs
+               || std::fabs(_lhs - _rhs) < epsilon_value;
     }
     T epsilon_value;
 };
@@ -218,8 +216,7 @@ struct epsilon_greater_equal {
 template <typename T>
 struct epsilon_equal {
     constexpr epsilon_equal(const T& _value = T(1e-6))
-    : epsilon_value(_value)
-    {}
+        : epsilon_value(_value) {}
 
     constexpr bool operator()(const T& _lhs, const T& _rhs) const {
         return std::fabs(_lhs - _rhs) < epsilon_value;
@@ -304,23 +301,24 @@ class IloWrapper {
     Array m_array;
 };
 
-template<typename T>
+template <typename T>
 bool isInteger(T _val) {
     return epsilon_equal<T>()(_val, std::round(_val));
 }
 
-template<typename T>
+template <typename T>
 bool isMostFractional(T _val1, T _val2) {
     const auto ceil1 = std::ceil(_val1), floor1 = std::floor(_val1);
     const auto ceil2 = std::ceil(_val2), floor2 = std::floor(_val2);
-    if(isInteger(_val1)) {
+    if (isInteger(_val1)) {
         return false;
     }
-    if(isInteger(_val2)) {
+    if (isInteger(_val2)) {
         return true;
     }
-    return std::fabs(_val1 - (ceil1+floor1)/2) < std::fabs(_val2 - (ceil2+floor2)/2);
-};
+    return std::fabs(_val1 - (ceil1 + floor1) / 2)
+           < std::fabs(_val2 - (ceil2 + floor2) / 2);
+}
 
 /**
  *
