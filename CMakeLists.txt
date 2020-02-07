@@ -11,6 +11,8 @@ option(CppRO_ENABLE_CPLEX "Enable CPLEX support" 0)
 # Create target and set properties
 add_library(CppRo
 	INTERFACE)
+target_compile_features(CppRo INTERFACE cxx_std_17)
+
 
 #Add an alias so that library can be used inside the build tree, e.g. when testing
 add_library(CppRo::CppRo ALIAS CppRo)
