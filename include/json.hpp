@@ -3503,9 +3503,9 @@ class parser {
         JSON_THROW(parse_error::create(101, m_lexer.get_position(), error_msg));
     }
 
-    private :
-        /// current level of recursion
-        int depth = 0;
+  private:
+    /// current level of recursion
+    int depth = 0;
     /// callback function
     const parser_callback_t callback = nullptr;
     /// the type of the last read token
@@ -8014,7 +8014,7 @@ class serializer {
             return;
         }
 
-        const bool is_negative = (x <= 0) and (x != 0); // see issue #755
+        const bool is_negative = (x <= 0); // see issue #755
         std::size_t i = 0;
 
         while (x != 0) {
@@ -9825,10 +9825,9 @@ class basic_json {
             default: {
                 object = nullptr; // silence warning, see #821
                 if (JSON_UNLIKELY(t == value_t::null)) {
-                    JSON_THROW(
-                        other_error::create(
-                            500, "961c151d2e87f2686a955a9be24d316f1362bf21 "
-                                 "3.1.0")); // LCOV_EXCL_LINE
+                    JSON_THROW(other_error::create(500,
+                        "961c151d2e87f2686a955a9be24d316f1362bf21 "
+                        "3.1.0")); // LCOV_EXCL_LINE
                 }
                 break;
             }
