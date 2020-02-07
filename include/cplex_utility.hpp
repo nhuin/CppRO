@@ -26,8 +26,10 @@ inline void displayValue(const IloCplex& _solver, const IloNumVar& _var) {
 
 template <typename Array>
 class IloArrayIterator {
-    friend IloArrayIterator<Array> begin(Array& _arr);
-    friend IloArrayIterator<Array> end(Array& _arr);
+    template <typename ArrayType>
+    friend IloArrayIterator<ArrayType> begin(Array& _arr);
+    template <typename ArrayType>
+    friend IloArrayIterator<ArrayType> end(Array& _arr);
 
   public:
     using reference = decltype(Array().operator[](0));
