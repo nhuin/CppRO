@@ -7,15 +7,17 @@ include(cmake/clang-extra-tools.cmake)
 option(CppRO_ENABLE_TEST "Enable test" 0)
 option(CppRO_ENABLE_CPLEX "Enable CPLEX support" 0)
 
+find_package(OpenMP REQUIRED)
 ##############################################
 # Create target and set properties
 add_library(CppRo
 	INTERFACE)
 target_compile_features(CppRo INTERFACE cxx_std_17)
 
-
 #Add an alias so that library can be used inside the build tree, e.g. when testing
 add_library(CppRo::CppRo ALIAS CppRo)
+
+target_link_libraries(CppRo INTERFACE OpenMP::OpenMP_CXX)
 
 #Set target properties
 target_include_directories(CppRo
@@ -30,23 +32,6 @@ if(CppRO_ENABLE_CPLEX)
     target_link_libraries(CppRo INTERFACE cplex-library cplex-concert ilocplex)
 endif()
 
-#### TCLAP ####
-
-# Create target and set properties
-add_library(TCLAP
-    INTERFACE)
-
-#Add an alias so that library can be used inside the build tree, e.g. when testing
-add_library(CppRo::TCLAP ALIAS TCLAP)
-
-#Set target properties
-target_include_directories(TCLAP
-    INTERFACE 
-    $<INSTALL_INTERFACE:include/tclap>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
-
-target_compile_features(TCLAP INTERFACE cxx_std_17)
-
 ##############################################
 # Installation instructions
 
@@ -54,12 +39,6 @@ include(GNUInstallDirs)
 set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/CppRo)
 
 install(TARGETS CppRo
-    EXPORT CppRo-targets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-)
-
-install(TARGETS TCLAP
     EXPORT CppRo-targets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}

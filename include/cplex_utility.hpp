@@ -331,4 +331,13 @@ ValArray getDuals(IloCplex& _solver, const ConstraintArray& _constArr) {
     _solver.getDuals(retval, _constArr);
     return retval;
 }
+
+template <typename T>
+struct ColumnPair {
+    ColumnPair(IloNumVar _var, T _obj)
+        : var(_var)
+        , obj(std::move(_obj)) {}
+    IloNumVar var;
+    T obj;
+};
 #endif
