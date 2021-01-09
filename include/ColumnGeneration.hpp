@@ -55,16 +55,19 @@ ParallelPricer<PricingProblemType, PricingInputIterator>::ParallelPricer(
 template <typename PricingProblemType, typename PricingInputIterator>
 template <typename DualValues>
 void ParallelPricer<PricingProblemType, PricingInputIterator>::generateColumnns(
-    const DualValues& _values) {
+    const DualValues& _dualValues) {
+    const auto subtask = [](auto& _subPricing, const auto _ites,
+                             auto& _values) {
+        *_ites.second = _subPricing(*_ites.first, _values);
+    };
 #pragma omp parallel num_threads(m_pricings.size())
     for (auto ites = std::make_pair(m_inputIters.first, m_columns.begin());
          ites.first != m_inputIters.second; ++ites.first, ++ites.second) {
-#pragma omp task
-        {
-            const std::size_t thread_id = omp_get_thread_num();
-            *ites.second = m_pricings[thread_id](*ites.first, _values);
-        }
+#pragma omp task default(shared) firstprivate(ites)
+        subtask(m_pricings[static_cast<std::size_t>(omp_get_thread_num())],
+            ites, _dualValues);
     }
+#pragma omp taskwait
 }
 
 template <typename RMP, typename DualValues, typename PricingProblemType,
