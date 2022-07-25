@@ -27,11 +27,21 @@ class ParallelPricer {
         std::pair<PricingInputIterator, PricingInputIterator> _inputIters,
         Args&&... _args);
 
+    template <typename DualValues, typename RMP>
+    void generateColumnnsUntilFound(
+        const DualValues& _dualValues, const RMP& _rmp);
+
     template <typename DualValues>
-    void generateColumnns(const DualValues& _values);
+    void generateColumnns(const DualValues& _dualValues);
 
     const std::vector<std::vector<ColumnType>>& getColumns() const {
         return m_columns;
+    }
+
+    void clearColumns() {
+        for (auto& cols : m_columns) {
+            cols.clear();
+        }
     }
 };
 
@@ -53,6 +63,36 @@ ParallelPricer<PricingProblemType, PricingInputIterator>::ParallelPricer(
     , m_columns(_nbPricing)
 
 {}
+
+template <typename PricingProblemType, typename PricingInputIterator>
+template <typename DualValues, typename RMP>
+void ParallelPricer<PricingProblemType, PricingInputIterator>::
+    generateColumnnsUntilFound(const DualValues& _dualValues, const RMP& _rmp) {
+#pragma omp parallel num_threads(m_pricings.size()) default(none)              \
+    shared(m_pricings, _rmp, _dualValues)
+    {
+        bool foundColumn = false;
+#pragma omp single nowait
+        for (auto inputIte = m_inputIters.first;
+             inputIte != m_inputIters.second; ++inputIte) {
+#pragma omp task default(none) firstprivate(inputIte)                          \
+    shared(m_pricings, _rmp, _dualValues, foundColumn)
+            {
+                if (!foundColumn) {
+                    const auto threadId =
+                        static_cast<std::size_t>(omp_get_thread_num());
+                    auto col = m_pricings[threadId](*inputIte, _dualValues);
+                    if (_rmp.isImprovingColumn(col, _dualValues)) {
+                        m_columns[threadId].emplace_back(std::move(col));
+#pragma omp critical
+                        foundColumn = true;
+                    }
+                }
+            }
+        }
+    }
+#pragma omp taskwait
+}
 
 template <typename PricingProblemType, typename PricingInputIterator>
 template <typename DualValues>
@@ -91,6 +131,7 @@ std::size_t moveColumns(RMP& _rmp,
             }
         }
     }
+    _pricer.clearColumns();
     return nbAddedColumns;
 }
 
@@ -112,12 +153,14 @@ bool solve(RMP& _rmp, SolverFunc&& _solverFunc,
     GenerateColumnFunc&& _genColFunc, bool _verbose) {
     std::size_t nbIte = 0;
     std::size_t nbAddedColumns = 0;
+    decltype(_solverFunc(_rmp)) dualValues;
     do {
         ++nbIte;
         if (_verbose) {
             std::cout << "#ite: " << nbIte << "...Solving RMP..." << std::flush;
         }
-        if (auto dualValues = _solverFunc(_rmp); dualValues) {
+        dualValues = _solverFunc(_rmp);
+        if (dualValues) {
             if (_verbose) {
                 std::cout << "#cols:" << _rmp.getNbColumns() << '\n';
                 std::cout << "Searching for new columns..." << std::flush;
