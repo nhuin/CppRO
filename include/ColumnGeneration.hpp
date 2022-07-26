@@ -1,7 +1,6 @@
 #ifndef COLUMN_GENERATION_HPP
 #define COLUMN_GENERATION_HPP
 
-#include <bits/c++config.h>
 #include <ilcplex/ilocplexi.h>
 #include <iomanip>
 #include <iostream>
