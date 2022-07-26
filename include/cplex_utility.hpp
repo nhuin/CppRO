@@ -226,6 +226,27 @@ struct epsilon_equal {
     T epsilon_value;
 };
 
+/**
+ * Wrapper around an IloEnv object.
+ * Used to delete default copy constructor and copy assigment, and for RAII
+ */
+class IloEnvWrapper {
+    IloEnv env{};
+
+  public:
+    IloEnvWrapper(IloEnv _env)
+        : env(_env) {}
+
+    IloEnvWrapper() = default;
+    IloEnvWrapper(const IloEnvWrapper&) = delete;
+    IloEnvWrapper(IloEnvWrapper&&) = default;
+    IloEnvWrapper& operator=(const IloEnvWrapper&) = delete;
+    IloEnvWrapper& operator=(IloEnvWrapper&&) = default;
+    ~IloEnvWrapper() { env.end(); }
+
+    operator IloEnv() const { return env; }
+};
+
 template <typename Array, bool OWNING = false>
 class IloWrapper {
   public:
