@@ -17,6 +17,84 @@ namespace CppRO::ColumnGeneration {
  * and stores the generated columns by these pricings.
  */
 template <typename PricingProblemType, typename PricingInputIterator>
+class SimplePricer {
+    using ColumnType = typename PricingProblemType::ColumnType;
+    PricingProblemType m_pricer;
+    std::pair<PricingInputIterator, PricingInputIterator> m_inputIters;
+    std::vector<ColumnType> m_columns;
+
+  public:
+    template <typename... Args>
+    explicit SimplePricer(
+        std::pair<PricingInputIterator, PricingInputIterator> _inputIters,
+        Args&&... _args);
+
+    template <typename DualValues, typename RMP>
+    void generateColumnsUntilFound(
+        const DualValues& _dualValues, const RMP& _rmp);
+
+    template <typename DualValues>
+    void generateColumns(const DualValues& _dualValues);
+
+    const std::vector<ColumnType>& getColumns() const { return m_columns; }
+
+    void clearColumns() { m_columns.clear(); }
+};
+
+template <typename PricingProblemType, typename PricingInputIterator>
+template <typename... Args>
+SimplePricer<PricingProblemType, PricingInputIterator>::SimplePricer(
+    std::pair<PricingInputIterator, PricingInputIterator> _inputIters,
+    Args&&... _args)
+    : m_pricer(std::forward<Args>(_args)...)
+    , m_inputIters(std::move(_inputIters))
+
+{}
+
+template <typename PricingProblemType, typename PricingInputIterator>
+template <typename DualValues, typename RMP>
+void SimplePricer<PricingProblemType, PricingInputIterator>::
+    generateColumnsUntilFound(const DualValues& _dualValues, const RMP& _rmp) {
+    bool foundColumn = false;
+    for (auto inputIte = m_inputIters.first; inputIte != m_inputIters.second;
+         ++inputIte) {
+        if (!foundColumn) {
+            auto col = m_pricer(*inputIte, _dualValues);
+            if (_rmp.isImprovingColumn(col, _dualValues)) {
+                m_columns.emplace_back(std::move(col));
+                foundColumn = true;
+            }
+        }
+    }
+}
+
+template <typename PricingProblemType, typename PricingInputIterator>
+template <typename DualValues>
+void SimplePricer<PricingProblemType, PricingInputIterator>::generateColumns(
+    const DualValues& _dualValues) {
+    for (auto inputIte = m_inputIters.first; inputIte != m_inputIters.second;
+         ++inputIte) {
+        m_columns.emplace_back(m_pricer(*inputIte, _dualValues));
+    }
+}
+
+template <typename RMP, typename DualValues, typename PricingProblemType,
+    typename PricingInputIterator>
+std::size_t moveColumns(RMP& _rmp,
+    SimplePricer<PricingProblemType, PricingInputIterator>& _pricer,
+    const DualValues& _values) {
+    std::size_t nbAddedColumns = 0;
+    for (const auto& col : _pricer.getColumns()) {
+        if (_rmp.isImprovingColumn(col, _values)) {
+            _rmp.addColumn(col);
+            ++nbAddedColumns;
+        }
+    }
+    _pricer.clearColumns();
+    return nbAddedColumns;
+}
+
+template <typename PricingProblemType, typename PricingInputIterator>
 class ParallelPricer {
     using ColumnType = typename PricingProblemType::ColumnType;
     std::vector<PricingProblemType> m_pricings;
@@ -30,11 +108,11 @@ class ParallelPricer {
         Args&&... _args);
 
     template <typename DualValues, typename RMP>
-    void generateColumnnsUntilFound(
+    void generateColumnsUntilFound(
         const DualValues& _dualValues, const RMP& _rmp);
 
     template <typename DualValues>
-    void generateColumnns(const DualValues& _dualValues);
+    void generateColumns(const DualValues& _dualValues);
 
     const std::vector<std::vector<ColumnType>>& getColumns() const {
         return m_columns;
@@ -45,6 +123,8 @@ class ParallelPricer {
             cols.clear();
         }
     }
+
+    [[nodiscard]] std::size_t getNbPricers() const { return m_pricings.size(); }
 };
 
 template <typename PricingProblemType, typename PricingInputIterator>
@@ -69,7 +149,7 @@ ParallelPricer<PricingProblemType, PricingInputIterator>::ParallelPricer(
 template <typename PricingProblemType, typename PricingInputIterator>
 template <typename DualValues, typename RMP>
 void ParallelPricer<PricingProblemType, PricingInputIterator>::
-    generateColumnnsUntilFound(const DualValues& _dualValues, const RMP& _rmp) {
+    generateColumnsUntilFound(const DualValues& _dualValues, const RMP& _rmp) {
 #pragma omp parallel num_threads(m_pricings.size()) default(none)              \
     shared(m_pricings, _rmp, _dualValues)
     {
@@ -98,7 +178,7 @@ void ParallelPricer<PricingProblemType, PricingInputIterator>::
 
 template <typename PricingProblemType, typename PricingInputIterator>
 template <typename DualValues>
-void ParallelPricer<PricingProblemType, PricingInputIterator>::generateColumnns(
+void ParallelPricer<PricingProblemType, PricingInputIterator>::generateColumns(
     const DualValues& _dualValues) {
 #pragma omp parallel num_threads(m_pricings.size()) default(none)              \
     shared(m_pricings, _dualValues)
