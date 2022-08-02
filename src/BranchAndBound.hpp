@@ -7,6 +7,10 @@
 #include <optional>
 #include <vector>
 
+#include "CppRO.hpp"
+#include "utility.hpp"
+
+namespace CppRO::LinearProgramming {
 template <typename Model>
 void clearBranches(Model& _model) {
     return _model.clearBranches();
@@ -57,8 +61,8 @@ class BABTree {
         ~BABNode() = default;
         BABNode(const BABNode&) = default;
         BABNode& operator=(const BABNode&) = default;
-        BABNode(BABNode&&) = default;
-        BABNode& operator=(BABNode&&) = default;
+        BABNode(BABNode&&) noexcept = default;
+        BABNode& operator=(BABNode&&) noexcept = default;
 
         const BABNode& getParent() const {
             CppRO_ASSERT(parent != -1);
@@ -72,7 +76,7 @@ class BABTree {
             return tree->nodes[parent];
         }
 
-        bool hasParent() const { return parent != -1; }
+        [[nodiscard]] bool hasParent() const { return parent != -1; }
 
         void kill() {
             CppRO_ASSERT(visited);
@@ -111,7 +115,7 @@ class BABTree {
 
     class Node {
       public:
-        Node(BABNode& _node)
+        explicit Node(BABNode& _node)
             : m_tree(_node.tree)
             , m_pos(_node.id) {}
 
@@ -148,7 +152,7 @@ class BABTree {
         nodes.emplace_back(nodes.size(), _parentLB, this, _obj, _parent);
     }
 
-    const Node back() const {
+    Node back() const {
         CppRO_ASSERT(!empty());
         return {this, size() - 1};
     }
@@ -158,14 +162,14 @@ class BABTree {
         return {this, size() - 1};
     }
 
-    int size() const { return nodes.size(); }
+    [[nodiscard]] int size() const { return nodes.size(); }
 
-    int getNbOpenNodes() const {
+    [[nodiscard]] int getNbOpenNodes() const {
         return std::count_if(nodes.begin(), nodes.end(),
             [](auto&& _node) { return !_node.visited; });
     }
 
-    double getBestBound() const {
+    [[nodiscard]] double getBestBound() const {
         const auto isValid = [](auto&& _n) { return !_n.closed; };
         const auto comp = [](auto&& _n1, auto&& _n2) {
             isValid(_n1) && _n1.lowerBound < _n2.lowerBound;
@@ -175,7 +179,7 @@ class BABTree {
         return std::min_element(ite, nodes.end(), comp)->lowerBound;
     }
 
-    bool empty() const { return nodes.empty(); }
+    [[nodiscard]] bool empty() const { return nodes.empty(); }
 
     void pop_back() {
         CppRO_ASSERT(!empty());
@@ -259,7 +263,7 @@ struct BaseBranchAndPriceParameters {
 
 template <typename BranchType>
 struct BranchAndPriceParameters : public BaseBranchAndPriceParameters {
-    BranchAndPriceParameters(const BaseBranchAndPriceParameters& _base)
+    explicit BranchAndPriceParameters(const BaseBranchAndPriceParameters& _base)
         : BaseBranchAndPriceParameters(_base) {}
     using Branch = BranchType;
 };
@@ -453,4 +457,5 @@ auto branchAndPriceOnMaster(RMP& _rmp, SolveFunction _solveFunction,
 
     return bestSolution;
 }
+} // namespace CppRO::LinearProgramming
 #endif // BRANCH_AND_BOUND_HPP
