@@ -1,93 +1,83 @@
-cmake_minimum_required(VERSION 3.5)
-project(CppRo VERSION 1.2.0 LANGUAGES CXX)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
+cmake_minimum_required(VERSION 3.15)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
+set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 
-include(cmake/clang-extra-tools.cmake)
+# Set the project name to your project name, my project isn't very descriptive
+project(CppRO LANGUAGES CXX VERSION 0.1)
+include(cmake/StandardProjectSettings.cmake)
+include(cmake/PreventInSourceBuilds.cmake)
 
-option(CppRO_ENABLE_TEST "Enable test" 0)
-option(CppRO_ENABLE_CPLEX "Enable CPLEX support" 0)
+# Link this 'library' to set the c++ standard / compile-time options requested
+add_library(CppRO_options INTERFACE)
+target_compile_features(CppRO_options INTERFACE cxx_std_20)
 
-find_package(OpenMP REQUIRED)
-##############################################
-# Create target and set properties
-add_library(CppRo
-	INTERFACE)
-target_compile_features(CppRo INTERFACE cxx_std_17)
-
-#Add an alias so that library can be used inside the build tree, e.g. when testing
-add_library(CppRo::CppRo ALIAS CppRo)
-
-target_link_libraries(CppRo INTERFACE OpenMP::OpenMP_CXX)
-
-#Set target properties
-target_include_directories(CppRo
-	INTERFACE 
-	$<INSTALL_INTERFACE:include>
-	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
-
-target_compile_features(CppRo INTERFACE cxx_std_17)
-
-if(CppRO_ENABLE_CPLEX)
-    find_package(CPLEX REQUIRED)
-    target_link_libraries(CppRo INTERFACE cplex-library cplex-concert ilocplex)
+if(CMAKE_CXX_COMPILER_ID MATCHES ".*Clang")
+  option(ENABLE_BUILD_WITH_TIME_TRACE "Enable -ftime-trace to generate time tracing .json files on clang" OFF)
+  if(ENABLE_BUILD_WITH_TIME_TRACE)
+      target_compile_options(CppRO_options INTERFACE -ftime-trace)
+  endif()
 endif()
 
-##############################################
-# Installation instructions
+# Link this 'library' to use the warnings specified in CompilerWarnings.cmake
+add_library(CppRO_warnings INTERFACE)
 
-include(GNUInstallDirs)
-set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/CppRo)
+# enable cache system
+include(cmake/Cache.cmake)
 
-install(TARGETS CppRo
-    EXPORT CppRo-targets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-)
+# Add linker configuration
+include(cmake/Linker.cmake)
+configure_linker(CppRO_options)
 
-install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-install(DIRECTORY tclap/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/tclap)
+# standard compiler warnings
+include(cmake/CompilerWarnings.cmake)
+set_project_warnings(CppRO_warnings)
 
-#Export the targets to a script
-install(EXPORT CppRo-targets
-  FILE
-    CppRoTargets.cmake
-  NAMESPACE
-    CppRo::
-  DESTINATION
-    ${INSTALL_CONFIGDIR}
-)
+# sanitizer options if supported by compiler
+include(cmake/Sanitizers.cmake)
+enable_sanitizers(CppRO_options)
 
-#Create a ConfigVersion.cmake file
-include(CMakePackageConfigHelpers)
-write_basic_package_version_file(
-    ${CMAKE_CURRENT_BINARY_DIR}/CppRoConfigVersion.cmake
-    VERSION ${PROJECT_VERSION}
-    COMPATIBILITY AnyNewerVersion
-)
+# enable doxygen
+include(cmake/Doxygen.cmake)
+enable_doxygen()
 
-configure_package_config_file(${CMAKE_CURRENT_LIST_DIR}/cmake/CppRoConfig.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/CppRoConfig.cmake
-    INSTALL_DESTINATION ${INSTALL_CONFIGDIR}
-)
+# allow for static analysis options
+include(cmake/StaticAnalyzers.cmake)
 
-#Install the config, configversion and custom find modules
-install(FILES
-	${CMAKE_CURRENT_LIST_DIR}/cmake/FindCPLEX.cmake
-	${CMAKE_CURRENT_LIST_DIR}/cmake/clang-extra-tools.cmake
-    ${CMAKE_CURRENT_BINARY_DIR}/CppRoConfig.cmake
-    ${CMAKE_CURRENT_BINARY_DIR}/CppRoConfigVersion.cmake
-    DESTINATION ${INSTALL_CONFIGDIR}
-)
+option(BUILD_SHARED_LIBS "Enable compilation of shared libraries" OFF)
+option(ENABLE_TESTING "Enable Test Builds" ON)
+option(ENABLE_FUZZING "Enable Fuzzing Builds" OFF)
 
-##############################################
-## Exporting from the build tree
-
-export(EXPORT CppRo-targets FILE ${CMAKE_CURRENT_BINARY_DIR}/CppRoTargets.cmake NAMESPACE CppRo::)
-
-#Register package in user's package registry
-export(PACKAGE CppRo)
-
-if(CppRO_ENABLE_TEST)
-    enable_testing()
-    add_subdirectory(test)
+# Very basic PCH example
+option(ENABLE_PCH "Enable Precompiled Headers" OFF)
+if(ENABLE_PCH)
+  # This sets a global PCH parameter, each project will build its own PCH, which is a good idea if any #define's change
+  #
+  # consider breaking this out per project as necessary
+  target_precompile_headers(
+      CppRO_options
+    INTERFACE
+    <vector>
+    <string>
+    <map>
+    <utility>)
 endif()
+
+if(ENABLE_TESTING)
+  enable_testing()
+  message("Building Tests. Be sure to check out test/constexpr_tests for constexpr testing")
+  add_subdirectory(test)
+endif()
+
+if(ENABLE_FUZZING)
+  message("Building Fuzz Tests, using fuzzing sanitizer https://www.llvm.org/docs/LibFuzzer.html")
+  add_subdirectory(fuzz_test)
+endif()
+
+add_subdirectory(src)
+
+option(ENABLE_UNITY "Enable Unity builds of projects" OFF)
+if(ENABLE_UNITY)
+  # Add for any project you want to apply unity builds for
+  set_target_properties(intro PROPERTIES UNITY_BUILD ON)
+endif()
+
