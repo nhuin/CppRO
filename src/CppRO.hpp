@@ -1,6 +1,8 @@
 #ifndef CPPRO_HPP
 #define CPPRO_HPP
 
+#include <cassert>
+
 #ifndef DISABLE_CPPRO_ASSERT
 #define CppRO_ASSERT(x) assert(x)
 #else
