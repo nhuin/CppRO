@@ -1,8 +1,6 @@
 #ifndef COLUMN_GENERATION_HPP
 #define COLUMN_GENERATION_HPP
 
-#include <bits/c++config.h>
-#include <ilcplex/ilocplexi.h>
 #include <iomanip>
 #include <iostream>
 #include <optional>
@@ -31,7 +29,7 @@ class ParallelPricer {
         Args&&... _args);
 
     template <typename DualValues>
-    void generateColumnns(const DualValues& _values);
+    void generateColumnns(const DualValues& _dualValues);
 
     const std::vector<std::vector<ColumnType>>& getColumns() const {
         return m_columns;
@@ -97,6 +95,7 @@ std::size_t moveColumns(RMP& _rmp,
     return nbAddedColumns;
 }
 
+/*
 template <typename RMP, typename DualValues>
 std::optional<DualValues> solve(const RMP& _rmp, IloCplex& _solver) {
     if (_solver.solve()) {
@@ -104,6 +103,7 @@ std::optional<DualValues> solve(const RMP& _rmp, IloCplex& _solver) {
     }
     return std::nullopt;
 }
+*/
 
 /**
  * Run the column generation algorithm on a reduced master problem
