@@ -7,9 +7,9 @@
 #include "MyRandom.hpp"
 #include "utility.hpp"
 
-template<typename DistanceMap>
+template <typename DistanceMap>
 std::vector<int> getKMedoids(
-        const int _k, const DistanceMap& _dist, const int _tMax = 100) {
+    const int _k, const DistanceMap& _dist, const int _tMax = 100) {
 
     std::vector<std::vector<int>> clusters(_k);
     // Init medoids
@@ -35,8 +35,8 @@ std::vector<int> getKMedoids(
         // Search medoid for each cluster
         for (int c = 0; c < clusters.size(); ++c) {
             // Compute distance between all elements of the cluster
-            if(clusters[c].empty()) {
-                if(medoids[c] != -1) {
+            if (clusters[c].empty()) {
+                if (medoids[c] != -1) {
                     medoids[c] = -1;
                     changed = true;
                 }
@@ -69,13 +69,13 @@ std::vector<int> getKMedoids(
     return medoids;
 }
 
-template<typename DistanceMap>
+template <typename DistanceMap>
 std::vector<int> getKMedoids(const int _k, const DistanceMap& _dist,
     const std::vector<double>& _capas, const std::vector<double>& _charge,
     const int _tMax = 100) {
-    assert(_capas.size() == _dist.shape()[0]);
-    assert(_charge.size() == _dist.shape()[0]);
-    assert(_dist.shape()[0] == _dist.shape()[1]);
+    CppRO_ASSERT(_capas.size() == _dist.shape()[0]);
+    CppRO_ASSERT(_charge.size() == _dist.shape()[0]);
+    CppRO_ASSERT(_dist.shape()[0] == _dist.shape()[1]);
 
     std::vector<std::vector<int>> clusters(_k);
     // Init medoids
@@ -107,8 +107,8 @@ std::vector<int> getKMedoids(const int _k, const DistanceMap& _dist,
         // Search medoid for each cluster
         for (int c = 0; c < clusters.size(); ++c) {
             // Compute distance between all elements of the cluster
-            if(clusters[c].empty()) {
-                if(medoids[c] != -1) {
+            if (clusters[c].empty()) {
+                if (medoids[c] != -1) {
                     medoids[c] = -1;
                     changed = true;
                 }

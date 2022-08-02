@@ -2,7 +2,6 @@
 #define RADIXSORT_HPP
 
 #include <algorithm>
-#include <cassert>
 #include <iostream>
 #include <iterator>
 #include <ostream>
@@ -90,7 +89,7 @@ class MSDRadixSort {
                 }
                 auto sub_end = ite;
                 if (std::distance(sub_begin, sub_end) > 1) {
-                    assert(i > 0);
+                    CppRO_ASSERT(i > 0);
                     stack.emplace_back(sub_begin, sub_end, i - 1);
                 }
             }
@@ -264,8 +263,9 @@ class CountingMSDRadixSort {
                     while (*itePlace == 1) {
                         ++ite;
                         ++itePlace;
-                        assert(ite
-                               != end); // Must find a number in the wrong place
+                        CppRO_ASSERT(
+                            ite
+                            != end); // Must find a number in the wrong place
                     }
                     buffer = *ite;
                     cycleStart = ite;

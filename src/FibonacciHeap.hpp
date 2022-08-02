@@ -3,7 +3,6 @@
 
 #include "FixedSizeAllocator.hpp"
 #include <algorithm>
-#include <cassert>
 #include <list>
 #include <vector>
 
@@ -47,14 +46,14 @@ class FibonacciHeap {
         Node* n = m_allocator.allocate();
         new (n) Node(value);
         addToRootList(n);
-        assert((n == m_heap && n->next == n) || n->next != n);
+        CppRO_ASSERT((n == m_heap && n->next == n) || n->next != n);
         return n;
     }
 
     void pop() {
-        assert(m_min);
+        CppRO_ASSERT(m_min);
         Node* toPop = m_min;
-        assert(!toPop->parent);
+        CppRO_ASSERT(!toPop->parent);
 
         if (toPop->firstChild) { // Has children
             replaceWithChildrenInRootList(toPop);
@@ -88,7 +87,7 @@ class FibonacciHeap {
     }
 
     void decrease(Node* n, const T& value) {
-        assert(n->value > value);
+        CppRO_ASSERT(n->value > value);
         n->value = value;
         decrease(n);
     }
@@ -111,7 +110,7 @@ class FibonacciHeap {
 
     void cutToRootList(Node* n) {
         Node* parent = n->parent;
-        assert(parent);
+        CppRO_ASSERT(parent);
         removeFromChildren(n);
         addToRootList(n);
         updateRank(parent);
@@ -120,7 +119,7 @@ class FibonacciHeap {
         } else if (parent->parent) {
             parent->marked = true;
         }
-        assert(!n->parent);
+        CppRO_ASSERT(!n->parent);
     }
 
     void updateRank(Node* n) {
@@ -144,7 +143,7 @@ class FibonacciHeap {
     }
 
     Node* findMin() const {
-        assert(m_heap);
+        CppRO_ASSERT(m_heap);
         Node* min = m_heap;
         if (m_heap != m_heap->next) { // Multiple roots
             Node* ptr = m_heap->next;
@@ -159,7 +158,7 @@ class FibonacciHeap {
     }
 
     void removeFromChildren(Node* n) {
-        assert(n->parent);
+        CppRO_ASSERT(n->parent);
         // Connect prev and next
         n->prev->next = n->next;
         n->next->prev = n->prev;
@@ -177,7 +176,7 @@ class FibonacciHeap {
     }
 
     void removeFromRoot(Node* n) {
-        assert(!n->parent);
+        CppRO_ASSERT(!n->parent);
         m_nodesAtRank[n->rank] -= 1;
 
         // Connect prev and next
@@ -201,7 +200,7 @@ class FibonacciHeap {
 
             n->prev->next = n;
             n->next->prev = n;
-            assert(m_heap->prev == n && m_heap->prev->prev == n->prev);
+            CppRO_ASSERT(m_heap->prev == n && m_heap->prev->prev == n->prev);
             if (m_comparator(n->value, m_heap->value)) {
                 m_heap = n;
             }
@@ -209,11 +208,11 @@ class FibonacciHeap {
             m_heap = m_min = n;
             m_heap->next = m_heap->prev = m_heap;
         }
-        assert(!n->parent);
+        CppRO_ASSERT(!n->parent);
     }
 
     void replaceWithChildrenInRootList(Node* father) {
-        assert(m_heap && !father->parent && father->firstChild);
+        CppRO_ASSERT(m_heap && !father->parent && father->firstChild);
 
         if (father->lastChild != father->firstChild) { // Multiple children
             Node* ptr = father->firstChild;
@@ -249,7 +248,7 @@ class FibonacciHeap {
     }
 
     void addChild(Node* f, Node* n) {
-        assert(!n->parent);
+        CppRO_ASSERT(!n->parent);
         n->parent = f;        // Change parent
         if (!f->firstChild) { // If f is a node
             f->firstChild = f->lastChild = n->next = n->prev = n;
@@ -268,14 +267,14 @@ class FibonacciHeap {
     }
 
     void merge(Node* n1, Node* n2) {
-        assert(n1 != n2);
-        assert(!n1->parent && !n2->parent);
+        CppRO_ASSERT(n1 != n2);
+        CppRO_ASSERT(!n1->parent && !n2->parent);
         if (m_comparator(n2->value, n1->value)) {
             std::swap(n1, n2); // Make sure n1 is lowest value
         }
         removeFromRoot(n2);
         addChild(n1, n2);
-        // assert(m_lastNode->next == m_firstNode);
+        // CppRO_ASSERT(m_lastNode->next == m_firstNode);
     }
 
     void consolidate() {

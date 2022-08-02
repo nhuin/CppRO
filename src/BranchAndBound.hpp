@@ -7,9 +7,6 @@
 #include <optional>
 #include <vector>
 
-#include "ColumnGeneration.hpp"
-#include "cplex_utility.hpp"
-
 template <typename Model>
 void clearBranches(Model& _model) {
     return _model.clearBranches();
@@ -64,21 +61,21 @@ class BABTree {
         BABNode& operator=(BABNode&&) = default;
 
         const BABNode& getParent() const {
-            assert(parent != -1);
-            assert(parent < tree->size());
+            CppRO_ASSERT(parent != -1);
+            CppRO_ASSERT(parent < tree->size());
             return tree->nodes[parent];
         }
 
         BABNode& getParent() {
-            assert(parent != -1);
-            assert(parent < tree->size());
+            CppRO_ASSERT(parent != -1);
+            CppRO_ASSERT(parent < tree->size());
             return tree->nodes[parent];
         }
 
         bool hasParent() const { return parent != -1; }
 
         void kill() {
-            assert(visited);
+            CppRO_ASSERT(visited);
             closed = true;
         }
 
@@ -94,7 +91,7 @@ class BABTree {
         }
 
         void addChild(const ContaineeType& _obj, double _LB) {
-            assert(!epsilon_less<double>()(_LB, parentLB));
+            CppRO_ASSERT(!epsilon_less<double>()(_LB, parentLB));
             nbOpenChildren++;
             tree->push_back(_obj, _LB, id);
         }
@@ -152,12 +149,12 @@ class BABTree {
     }
 
     const Node back() const {
-        assert(!empty());
+        CppRO_ASSERT(!empty());
         return {this, size() - 1};
     }
 
     Node back() {
-        assert(!empty());
+        CppRO_ASSERT(!empty());
         return {this, size() - 1};
     }
 
@@ -174,14 +171,14 @@ class BABTree {
             isValid(_n1) && _n1.lowerBound < _n2.lowerBound;
         };
         const auto ite = std::find_if(nodes.begin(), nodes.end(), isValid);
-        assert(ite != nodes.end());
+        CppRO_ASSERT(ite != nodes.end());
         return std::min_element(ite, nodes.end(), comp)->lowerBound;
     }
 
     bool empty() const { return nodes.empty(); }
 
     void pop_back() {
-        assert(!empty());
+        CppRO_ASSERT(!empty());
         nodes.pop_back();
     }
 
@@ -189,7 +186,7 @@ class BABTree {
     Node getBestNode(ExplorationPolicy&& _explorationPolicy) {
         const auto firstValidNodeIte = std::find_if(nodes.begin(), nodes.end(),
             [](auto&& _node) { return !_node.visited; });
-        assert(firstValidNodeIte != nodes.end());
+        CppRO_ASSERT(firstValidNodeIte != nodes.end());
 
         const auto minIte = std::min_element(
             firstValidNodeIte, nodes.end(), [&](auto&& _node1, auto&& _node2) {
@@ -199,7 +196,7 @@ class BABTree {
 
         const auto bestId = std::distance(nodes.begin(), minIte);
         // std::cout << "Best node has id: " << bestId << '\n';
-        assert(!nodes[bestId].visited);
+        CppRO_ASSERT(!nodes[bestId].visited);
         return {this, bestId};
     }
 
@@ -219,8 +216,8 @@ struct DeepestBestBoundExplorationPolicy {
     bool compareNode(const Node& _node1, const Node& _node2) {
         return _node1.depth > _node2.depth
                || (_node1.depth == _node2.depth
-                      && !epsilon_less<double>()(
-                             _node2.parentLB, _node1.parentLB));
+                   && !epsilon_less<double>()(
+                       _node2.parentLB, _node1.parentLB));
     }
 };
 
@@ -229,8 +226,8 @@ struct HighestBestBoundExplorationPolicy {
     bool compareNode(const Node& _node1, const Node& _node2) {
         return _node1.depth < _node2.depth
                || (_node1.depth == _node2.depth
-                      && !epsilon_less<double>()(
-                             _node2.parentLB, _node1.parentLB));
+                   && !epsilon_less<double>()(
+                       _node2.parentLB, _node1.parentLB));
     }
 };
 
@@ -311,8 +308,7 @@ auto branchAndPriceOnMaster(RMP& _rmp, SolveFunction _solveFunction,
             if (auto tmpSol = _upperFunction(_rmp);
                 tmpSol.has_value()
                 && (!bestSolution
-                       || bestSolution->getObjValue()
-                              > tmpSol->getObjValue())) {
+                    || bestSolution->getObjValue() > tmpSol->getObjValue())) {
                 bestSolution = std::move(*tmpSol);
                 bestSolution->setLowerBound(lowerBound);
                 upperBound = bestSolution->getObjValue();
@@ -364,7 +360,7 @@ auto branchAndPriceOnMaster(RMP& _rmp, SolveFunction _solveFunction,
                   << ", Depth: " << currentLeaf->depth << "...";
         currentLeaf->visit();
 
-        assert([&]() {
+        CppRO_ASSERT([&]() {
             if (epsilon_less_equal<double>()(
                     lowerBound, currentLeaf->parentLB)) {
                 return true;
@@ -427,8 +423,8 @@ auto branchAndPriceOnMaster(RMP& _rmp, SolveFunction _solveFunction,
                 if (auto tmpSol = _upperFunction(_rmp);
                     tmpSol.has_value()
                     && (!bestSolution
-                           || bestSolution->getObjValue()
-                                  > tmpSol->getObjValue())) {
+                        || bestSolution->getObjValue()
+                               > tmpSol->getObjValue())) {
                     bestSolution = std::move(*tmpSol);
                     bestSolution->setLowerBound(lowerBound);
                     upperBound = bestSolution->getObjValue();
