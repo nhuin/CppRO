@@ -12,3 +12,4 @@ target_link_libraries(CppRO
     CPLEX::CP
 )
 
+add_library(CppRO::CppRO ALIAS CppRO)
