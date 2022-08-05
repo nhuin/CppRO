@@ -180,7 +180,7 @@ template <typename PricingProblemType, typename PricingInputIterator>
 template <typename DualValues>
 void ParallelPricer<PricingProblemType, PricingInputIterator>::generateColumns(
     const DualValues& _dualValues) {
-#pragma omp parallel num_threads(m_pricings.size()) default(none)              \
+#pragma omp parallel num_threads(m_pricings.size())                            \
     shared(m_pricings, _dualValues)
     {
 #pragma omp single nowait
