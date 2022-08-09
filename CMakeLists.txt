@@ -34,7 +34,7 @@ include(${_project_options_SOURCE_DIR}/Index.cmake)
 
 # Set the project name and language
 project(
-  myproject
+  CppRO
   VERSION 0.0.1
   DESCRIPTION ""
   HOMEPAGE_URL "%%myurl%%"
@@ -114,8 +114,8 @@ dynamic_project_options(
 
 target_compile_features(project_options INTERFACE cxx_std_${CMAKE_CXX_STANDARD})
 # TODO: The INTERFACE library NAMESPACE ALIAS are missing! CK
-add_library(myproject::project_options INTERFACE IMPORTED)
-add_library(myproject::project_warnings INTERFACE IMPORTED)
+add_library(CppRO::project_options INTERFACE IMPORTED)
+add_library(CppRO::project_warnings INTERFACE IMPORTED)
 
 # configure files based on CMake configuration options
 add_subdirectory(configured_files)
@@ -165,15 +165,9 @@ endif()
 
 # Add other targets that you want installed here, be default we just package the
 # one executable we know we want to ship
-package_project(
-  TARGETS
-  CppRO
-  project_options
-  project_warnings
-  INTERFACE_DEPENDENCIES_CONFIGURED
-  ${DEPENDENCIES_CONFIGURED}
-  INTERFACE_INCLUDES
-  ${INCLUDE_DIR})
+
+package_project(TARGETS CppRO project_options project_warnings
+                INTERFACE_INCLUDES ${INCLUDE_DIR})
 
 # Experience shows that explicit package naming can help make it easier to sort
 # out potential ABI related issues before they start, while helping you track a
