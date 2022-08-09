@@ -25,7 +25,8 @@ set(OPT_WARNINGS_AS_ERRORS_DEVELOPER_DEFAULT TRUE)
 include(FetchContent)
 FetchContent_Declare(
   _project_options
-  URL https://github.com/aminya/project_options/archive/refs/tags/v0.20.0.zip)
+  GIT_REPOSITORY https://github.com/aminya/project_options
+  GIT_TAG v0.24.0)
 FetchContent_MakeAvailable(_project_options)
 include(${_project_options_SOURCE_DIR}/Index.cmake)
 
@@ -37,7 +38,6 @@ project(
   CppRO
   VERSION 0.0.1
   DESCRIPTION ""
-  HOMEPAGE_URL "%%myurl%%"
   LANGUAGES CXX C)
 
 # This variable is set by project() in CMake 3.21+
@@ -124,7 +124,7 @@ add_subdirectory(configured_files)
 add_subdirectory(src)
 
 # Adding the tests:
-option(ENABLE_TESTING "Enable the tests" ${PROJECT_IS_TOP_LEVEL})
+option(ENABLE_TESTING "Enable the tests" OFF)
 if(ENABLE_TESTING)
   enable_testing()
   message(
@@ -166,8 +166,39 @@ endif()
 # Add other targets that you want installed here, be default we just package the
 # one executable we know we want to ship
 
-package_project(TARGETS CppRO project_options project_warnings
-                INTERFACE_INCLUDES ${INCLUDE_DIR})
+add_library(CppRO INTERFACE)
+target_link_libraries(CppRO INTERFACE project_options project_warnings
+)# link project_options/warnings
+
+# Includes
+set(CppRO_INCLUDE_DIR
+    "${CMAKE_CURRENT_SOURCE_DIR}/include"
+    CACHE STRING "")
+target_include_directories(
+  CppRO INTERFACE "$<BUILD_INTERFACE:${CppRO_INCLUDE_DIR}>"
+                  "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")
+
+# Find dependencies:
+set(CppRO_DEPENDENCIES_CONFIGURED
+    OpenMP
+    CACHE STRING "")
+
+foreach(DEPENDENCY ${CppRO_DEPENDENCIES_CONFIGURED})
+  find_package(${DEPENDENCY} REQUIRED)
+endforeach()
+
+# Link dependencies:
+target_link_system_libraries(CppRO INTERFACE OpenMP::OpenMP_CXX)
+
+package_project(
+  TARGETS
+  CppRO
+  project_options
+  project_warnings
+  INTERFACE_DEPENDENCIES_CONFIGURED
+  ${CppRO_DEPENDENCIES_CONFIGURED}
+  INTERFACE_INCLUDES
+  ${CppRO_INCLUDE_DIR})
 
 # Experience shows that explicit package naming can help make it easier to sort
 # out potential ABI related issues before they start, while helping you track a

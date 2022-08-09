@@ -20,7 +20,7 @@ class CppROConan(ConanFile):
     exports_sources =  "CMakeLists.txt", "src/*", "include/*", "conanfile.txt", "test/*", "configured_files/*"
     #no_copy_source = True
 
-    requires = [("catch2/2.13.9@")]
+    requires = [("catch2/3.1.0@")]
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -41,6 +41,3 @@ class CppROConan(ConanFile):
     def package(self):
         cmake = CMake(self)
         cmake.install()
-
-    def package_info(self):
-        self.cpp_info.libs = ["CppRO"]

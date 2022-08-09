@@ -17,7 +17,7 @@ endif()
 
 # ---- Dependencies ----
 
-find_package(Catch2 CONFIG REQUIRED)
+find_package(Catch2 3 REQUIRED)
 
 include(Catch)
 
