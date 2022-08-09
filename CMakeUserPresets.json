@@ -1,0 +1,9 @@
+{
+    "version": 4,
+    "vendor": {
+        "conan": {}
+    },
+    "include": [
+        "/home/kosa/src/CppRO/build/generators/CMakePresets.json"
+    ]
+}
