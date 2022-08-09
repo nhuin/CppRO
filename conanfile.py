@@ -31,6 +31,7 @@ class CppROConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.cache_variables['ENABLE_DEVELOPER_MODE'] = False
         tc.generate()
 
     def build(self):
