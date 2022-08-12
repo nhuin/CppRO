@@ -1,9 +1,11 @@
-image: conanio/clang14-ubuntu16.04
+image: nhuin/clang14-ubuntu20.04:latest
 
 create_package:
   stage: deploy
   script:
     - conan remote add gitlab ${CI_API_V4_URL}/projects/$CI_PROJECT_ID/packages/conan
-    - conan create .
+    - conan remote list
+    - apt install -y libomp-14-dev
+    - CC=clang-14 CXX=clang++-14 conan create . --build=missing -s compiler=clang -s compiler.version=14
     - CONAN_LOGIN_USERNAME=ci_user CONAN_PASSWORD=${CI_JOB_TOKEN} conan upload CppRO/0.0.1 --remote=gitlab --confirm
 
