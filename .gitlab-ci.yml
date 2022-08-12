@@ -4,7 +4,7 @@ create_package:
   stage: deploy
   script:
     - conan remote add gitlab ${CI_API_V4_URL}/projects/$CI_PROJECT_ID/packages/conan
-    - conan new CppRO/0.0.1 -t
-    - conan create . CppRO/stable
-    - CONAN_LOGIN_USERNAME=ci_user CONAN_PASSWORD=${CI_JOB_TOKEN} conan upload CppRO/0.0.1@CppRO/stable --all --remote=gitlab
+    - conan new CppRO/0.0.1
+    - conan create .
+    - CONAN_LOGIN_USERNAME=ci_user CONAN_PASSWORD=${CI_JOB_TOKEN} conan upload CppRO/0.0.1 --all --remote=gitlab
 
