@@ -22,8 +22,8 @@ class ShortestPath {
         , m_color(_graph.getOrder(), 0)
         , m_handles(_graph.getOrder())
         , m_heap(_graph.getOrder(),
-              [&](const Graph::Node __u, const Graph::Node __v) {
-                  return m_distComp(m_distance[__u], m_distance[__v]);
+              [&](const Graph::Node _u, const Graph::Node _v) {
+                  return m_distComp(m_distance[_u], m_distance[_v]);
               }) {}
     // Copy
     ShortestPath(const ShortestPath& _other)
@@ -43,8 +43,8 @@ class ShortestPath {
             m_heap = BinaryHeap<int,
                 std::function<bool(const Graph::Node, const Graph::Node)>>(
                 m_graph->getOrder(),
-                [&](const Graph::Node __u, const Graph::Node __v) {
-                    return m_distComp(m_distance[__u], m_distance[__v]);
+                [&](const Graph::Node _u, const Graph::Node _v) {
+                    return m_distComp(m_distance[_u], m_distance[_v]);
                 });
         }
         return *this;
@@ -58,8 +58,8 @@ class ShortestPath {
         , m_color(std::move(_other.m_color))
         , m_handles(m_graph->getOrder())
         , m_heap(m_graph->getOrder(),
-              [&](const Graph::Node __u, const Graph::Node __v) {
-                  return m_distComp(m_distance[__u], m_distance[__v]);
+              [&](const Graph::Node _u, const Graph::Node _v) {
+                  return m_distComp(m_distance[_u], m_distance[_v]);
               }) {}
 
     ShortestPath& operator=(ShortestPath&& _other) noexcept {
@@ -75,8 +75,8 @@ class ShortestPath {
             m_heap = BinaryHeap<int,
                 std::function<bool(const Graph::Node, const Graph::Node)>>(
                 m_graph->getOrder(),
-                [&](const Graph::Node __u, const Graph::Node __v) {
-                    return m_distComp(m_distance[__u], m_distance[__v]);
+                [&](const Graph::Node _u, const Graph::Node _v) {
+                    return m_distComp(m_distance[_u], m_distance[_v]);
                 });
         }
         return *this;
@@ -106,7 +106,7 @@ class ShortestPath {
         Graph::Path path;
         while (_t != m_heap.top()) {
             if (m_heap.empty()) {
-                return Graph::Path();
+                return {};
             }
             const auto u = m_heap.top();
             m_heap.pop();
@@ -197,7 +197,7 @@ class ShortestPath {
         Graph::Path path;
         while (_t != m_heap.top()) {
             if (m_heap.empty()) {
-                return Graph::Path();
+                return {};
             }
             const auto u = m_heap.top();
             m_heap.pop();

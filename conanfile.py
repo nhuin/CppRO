@@ -1,10 +1,18 @@
+"""
+File: conanfile.py
+Author: Nicolas HUIN
+Email: nicolas.huin@imt-atlantique.fr
+Github: https://github.com/nhuin
+Description: Provides conan configuration
+"""
+
 from conan import ConanFile
 from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout
 
 
 class CppROConan(ConanFile):
     name = "CppRO"
-    version = "0.0.1"
+    version = "0.0.2"
 
     # Optional metadata
     license = "Mozilla Public License 2.0"
@@ -16,11 +24,15 @@ class CppROConan(ConanFile):
     # Binary configuration
     settings = "os", "compiler", "build_type", "arch"
 
+    generators = "cmake_find_package_multi"
+
     # Sources are located in the same place as this recipe, copy them to the recipe
-    exports_sources =  "CMakeLists.txt", "src/*", "include/*", "conanfile.txt", "test/*", "configured_files/*"
+    exports_sources = "CMakeLists.txt", "src/*", "include/*", "conanfile.txt", "test/*", "configured_files/*"
     #no_copy_source = True
 
-    requires = [("catch2/3.1.0@")]
+    def requirements(self):
+        self.requires("catch2/2.13.9")
+
 
     def config_options(self):
         if self.settings.os == "Windows":
