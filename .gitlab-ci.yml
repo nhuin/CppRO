@@ -1,4 +1,4 @@
-image: nhuin/clang14-ubuntu20.04:latest
+image: kernelci/clang-15:latest
 
 create_package:
   stage: deploy
