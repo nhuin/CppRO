@@ -1,11 +1,11 @@
-image: nhuin/clang14-ubuntu20.04:latest
+image: python-bindings-compile
 
 create_package:
   stage: deploy
   script:
+    - python3 -m pip install conan
     - conan remote add gitlab ${CI_API_V4_URL}/projects/$CI_PROJECT_ID/packages/conan
     - conan remote list
-    - apt install -y libomp-14-dev
-    - CC=clang-14 CXX=clang++-14 conan create . --build=missing -s compiler=clang -s compiler.version=14
-    - CONAN_LOGIN_USERNAME=ci_user CONAN_PASSWORD=${CI_JOB_TOKEN} conan upload CppRO/0.0.1 --remote=gitlab --confirm
+    - CC=clang-15 CXX=clang++-15 conan create . --build=missing -s compiler=clang -s compiler.version=15
+    - CONAN_LOGIN_USERNAME=ci_user CONAN_PASSWORD=${CI_JOB_TOKEN} conan upload CppRO/0.0.2 --remote=gitlab --confirm
 
