@@ -27,7 +27,7 @@ class CppROConan(ConanFile):
     generators = "cmake_find_package_multi"
 
     # Sources are located in the same place as this recipe, copy them to the recipe
-    exports_sources = "CMakeLists.txt", "src/*", "include/*", "conanfile.txt", "test/*", "configured_files/*"
+    exports_sources = "CMakeLists.txt", "src/*", "include/*", "conanfile.py", "test/*", "configured_files/*"
     #no_copy_source = True
 
     def requirements(self):
