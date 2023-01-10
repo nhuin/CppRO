@@ -168,6 +168,7 @@ endif()
 package_project(TARGETS CppRO project_options project_warnings
   # FIXME: this does not work! CK
   # PRIVATE_DEPENDENCIES_CONFIGURED project_options project_warnings
+  INTERFACE_INCLUDES ${INCLUDE_DIR}
 )
 
 # Experience shows that explicit package naming can help make it easier to sort
