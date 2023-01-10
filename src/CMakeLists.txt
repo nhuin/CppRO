@@ -1,14 +1,13 @@
 find_package(OpenMP REQUIRED)
-# Generic test that uses conan libs
+find_package(CPLEX REQUIRED Concert IloCplex CP)
 
 add_library(CppRO INTERFACE)
-target_link_libraries(CppRO INTERFACE project_options project_warnings)
+target_link_libraries(
+    CppRO INTERFACE project_options project_warnings CPLEX::CPLEX
+                    CPLEX::Concert CPLEX::IloCplex)
 target_link_system_libraries(CppRO INTERFACE OpenMP::OpenMP_CXX)
-
-# Includes
-set(CppRO_INCLUDE_DIR
-    "${CMAKE_CURRENT_SOURCE_DIR}/include"
-    CACHE STRING "")
+message(STATUS "Include dir set to ${CppRO_INCLUDE_DIR}")
 target_include_directories(
-    CppRO INTERFACE "$<BUILD_INTERFACE:${CppRO_INCLUDE_DIR}>"
-                    "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")
+    CppRO INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+                    $<INSTALL_INTERFACE:include> # <prefix>/include/
+)

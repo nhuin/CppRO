@@ -6,13 +6,13 @@
 #include <deque>
 #include <iomanip>
 #include <iostream>
+#include <iterator>
 #include <list>
 #include <map>
 #include <set>
 #include <sstream>
 #include <tuple>
 #include <vector>
-#include <iterator>
 
 #if defined(NDEBUG) || defined(PROFILE)
 #define DBOUT(x)
@@ -27,7 +27,7 @@ std::ostream& operator<<(std::ostream& _out, const std::pair<A, B>& _p);
 template <typename T>
 std::ostream& operator<<(std::ostream& _out, const std::set<T>& _set);
 template <typename T>
-std::string to_string_with_precision(const T& a_value, int n = 6);
+std::string toStringWithPrecision(const T& _value, int _n = 6);
 template <typename T>
 std::ostream& operator<<(std::ostream& _out, const std::vector<T>& _v);
 template <typename T, typename K>
@@ -37,8 +37,13 @@ std::ostream& operator<<(std::ostream& _out, const std::deque<T>& _d);
 template <typename T, int SIZE>
 std::ostream& operator<<(std::ostream& _out, const std::array<T, SIZE>& _a);
 
-struct unused {};
-std::ostream& operator<<(std::ostream& _o, const unused& /*unused*/);
+struct Unused {
+    Unused(const Unused&) = default;
+    Unused(Unused&&) = default;
+    Unused& operator=(const Unused&) = default;
+    Unused& operator=(Unused&&) = default;
+};
+std::ostream& operator<<(std::ostream& _o, const Unused& /*unused*/);
 
 template <typename T, typename K>
 std::ostream& operator<<(std::ostream& _out, const std::map<T, K>& _map) {
@@ -78,9 +83,9 @@ inline std::ostream& operator<<(std::ostream& _out, const std::set<T>& _set) {
 }
 
 template <typename T>
-inline std::string to_string_with_precision(const T a_value, const int n) {
+inline std::string toStringWithPrecision(const T _value, const int _n) {
     std::ostringstream out;
-    out << std::fixed << std::setprecision(n) << a_value;
+    out << std::fixed << std::setprecision(_n) << _value;
     return out.str();
 }
 
@@ -141,17 +146,17 @@ int getMaxSetByte(T _v) {
 }
 
 template <class Ch, class Tr, class Tuple, std::size_t... Is>
-void print_tuple_impl(std::basic_ostream<Ch, Tr>& os, const Tuple& t,
+void printTupleImpl(std::basic_ostream<Ch, Tr>& _os, const Tuple& _t,
     std::index_sequence<Is...> /*unused*/) {
-    ((os << (Is == 0 ? "" : ", ") << std::get<Is>(t)), ...);
+    ((_os << (Is == 0 ? "" : ", ") << std::get<Is>(_t)), ...);
 }
 
 template <class Ch, class Tr, class... Args>
 decltype(auto) operator<<(
-    std::basic_ostream<Ch, Tr>& os, const std::tuple<Args...>& t) {
-    os << '(';
-    print_tuple_impl(os, t, std::index_sequence_for<Args...>{});
-    return os << ')';
+    std::basic_ostream<Ch, Tr>& _os, const std::tuple<Args...>& _t) {
+    _os << '(';
+    print_tuple_impl(_os, _t, std::index_sequence_for<Args...>{});
+    return _os << ')';
 }
 
 template <typename T>
@@ -162,21 +167,21 @@ std::string toString(const T& _obj) {
 }
 
 template <typename T>
-T binomialCoeff(const T& n, T k) {
+T binomialCoeff(const T& _n, T _k) {
     T res = 1;
     // Since C(n, k) = C(n, n-k)
-    if (k > n - k) {
-        k = n - k;
+    if (_k > _n - _k) {
+        _k = _n - _k;
     }
 
-    for (T i = 0; i < k; ++i) {
-        res *= (n - i);
+    for (T i = 0; i < _k; ++i) {
+        res *= (_n - i);
         res /= (i + 1);
     }
     return res;
 }
 
-inline std::ostream& operator<<(std::ostream& _o, const unused& /*unused*/) {
+inline std::ostream& operator<<(std::ostream& _o, const Unused& /*unused*/) {
     return _o;
 }
 
@@ -185,49 +190,46 @@ inline std::ostream& operator<<(std::ostream& _o, const unused& /*unused*/) {
  */
 
 template <typename Tuple, typename F, std::size_t... Indices>
-constexpr void for_each_impl(
-    Tuple&& tuple, F&& f, std::index_sequence<Indices...> /*unused*/) {
-    (f(std::get<Indices>(std::forward<Tuple>(tuple))), ...);
+constexpr void forEachImpl(
+    Tuple&& _tuple, F&& _f, std::index_sequence<Indices...> /*unused*/) {
+    (_f(std::get<Indices>(std::forward<Tuple>(_tuple))), ...);
 }
 
 template <typename Tuple, typename F>
-constexpr void for_each(Tuple&& tuple, F&& f) {
+constexpr void forEach(Tuple&& _tuple, F&& _f) {
     constexpr std::size_t N =
         std::tuple_size<std::remove_reference_t<Tuple>>::value;
-    for_each_impl(std::forward<Tuple>(tuple), std::forward<F>(f),
+    forEachImpl(std::forward<Tuple>(_tuple), std::forward<F>(_f),
         std::make_index_sequence<N>{});
 }
 
 template <typename InputIterator>
-typename std::ostream_iterator<typename std::iterator_traits<InputIterator>::value_type>::ostream_type&
-printContainer(typename std::ostream_iterator<typename std::iterator_traits<InputIterator>::value_type>::ostream_type& _out,
-    InputIterator _first, InputIterator _last,
-    const char* delimiter = ", ") {
+typename std::ostream_iterator<
+    typename std::iterator_traits<InputIterator>::value_type>::ostream_type&
+printContainer(typename std::ostream_iterator<typename std::iterator_traits<
+                   InputIterator>::value_type>::ostream_type& _out,
+    InputIterator _first, InputIterator _last, const char* _delimiter = ", ") {
     if (std::distance(_first, _last) == 0) {
         return _out;
     }
     using value_type = typename std::iterator_traits<InputIterator>::value_type;
 
     const auto last = std::prev(_last);
-    std::copy(_first, last, std::ostream_iterator<value_type>(_out, delimiter));
+    std::copy(
+        _first, last, std::ostream_iterator<value_type>(_out, _delimiter));
     return _out << *last;
 }
 
-template<typename Function>
-struct call_on_destroy {
-    call_on_destroy(Function _f)
-    : f(_f)
-    {}
-    call_on_destroy(const call_on_destroy&) = default;
-    call_on_destroy(call_on_destroy&&) noexcept = default;
-    call_on_destroy& operator=(const call_on_destroy&) = default;
-    call_on_destroy& operator=(call_on_destroy&&) noexcept = default;
-    ~call_on_destroy() {
-        f();
-    }
+template <typename Function>
+struct CallOnDestroy {
+    explicit CallOnDestroy(Function _f)
+        : f(_f) {}
+    CallOnDestroy(const CallOnDestroy&) = default;
+    CallOnDestroy(CallOnDestroy&&) noexcept = default;
+    CallOnDestroy& operator=(const CallOnDestroy&) = default;
+    CallOnDestroy& operator=(CallOnDestroy&&) noexcept = default;
+    ~CallOnDestroy() { f(); }
     Function f;
 };
-
-using ::operator<<;
 
 #endif

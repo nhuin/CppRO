@@ -7,6 +7,8 @@
 #include <type_traits>
 #include <utility>
 
+constexpr double DEFAULT_EPSILON = 1e-6;
+
 template <typename IloObject>
 inline void setIloName(IloObject& _ilo, const std::string& _str) {
     _ilo.setName(_str.c_str());
@@ -44,8 +46,8 @@ class IloArrayIterator {
     IloArrayIterator(const IloArrayIterator&) = default;
     IloArrayIterator& operator=(const IloArrayIterator&) = default;
     // Move
-    IloArrayIterator(IloArrayIterator&&) = default;
-    IloArrayIterator& operator=(IloArrayIterator&&) = default;
+    IloArrayIterator(IloArrayIterator&&) noexcept = default;
+    IloArrayIterator& operator=(IloArrayIterator&&) noexcept = default;
     ~IloArrayIterator() = default;
 
     reference operator*() { return m_array[m_position]; }
@@ -135,7 +137,7 @@ class IloArrayIterator {
     value_type operator[](int _idx) { return m_array[_idx]; }
 
   private:
-    Array& m_array;
+    Array& m_array{};
     size_type m_position;
 };
 
@@ -163,10 +165,8 @@ IloObject move(IloObject&& _array) {
 
 template <typename T>
 struct epsilon_less {
-    constexpr epsilon_less(const T& _value = T(1e-6))
+    constexpr epsilon_less(const T& _value = T(DEFAULT_EPSILON))
         : epsilon_value(_value) {}
-
-    ~epsilon_less() = default;
 
     constexpr bool operator()(const T& _lhs, const T& _rhs) const {
         return _lhs + epsilon_value < _rhs;
@@ -176,7 +176,7 @@ struct epsilon_less {
 
 template <typename T>
 struct epsilon_less_equal {
-    constexpr epsilon_less_equal(const T& _value = T(1e-6))
+    constexpr epsilon_less_equal(const T& _value = T(DEFAULT_EPSILON))
         : epsilon_value(_value) {}
 
     ~epsilon_less_equal() = default;
@@ -190,7 +190,7 @@ struct epsilon_less_equal {
 
 template <typename T>
 struct epsilon_greater {
-    constexpr epsilon_greater(const T& _value = T(1e-6))
+    constexpr epsilon_greater(const T& _value = T(DEFAULT_EPSILON))
         : epsilon_value(_value) {}
 
     ~epsilon_greater() = default;
@@ -203,7 +203,7 @@ struct epsilon_greater {
 
 template <typename T>
 struct epsilon_greater_equal {
-    constexpr epsilon_greater_equal(const T& _value = T(1e-6))
+    constexpr epsilon_greater_equal(const T& _value = T(DEFAULT_EPSILON))
         : epsilon_value(_value) {}
 
     ~epsilon_greater_equal() = default;
@@ -217,7 +217,7 @@ struct epsilon_greater_equal {
 
 template <typename T>
 struct epsilon_equal {
-    constexpr epsilon_equal(const T& _value = T(1e-6))
+    constexpr epsilon_equal(const T& _value = T(DEFAULT_EPSILON))
         : epsilon_value(_value) {}
 
     constexpr bool operator()(const T& _lhs, const T& _rhs) const {
@@ -252,6 +252,7 @@ class IloWrapper {
   public:
     // using const_array = const Array;
     using reference = decltype(std::declval<Array>().operator[](0));
+    static_assert(std::is_reference<reference>::value);
     // using const_reference = typename
     // std::result_of<decltype(&const_array::operator[])(Array, IloInt)>::type;
     using const_reference = decltype(std::declval<const Array>().operator[](0));
@@ -310,7 +311,7 @@ class IloWrapper {
 
     const_reference operator[](int _idx) const { return m_array[_idx]; }
 
-    int size() const { return m_array.getSize(); }
+    [[nodiscard]] long size() const { return m_array.getSize(); }
 
     IloArrayIterator<Array> begin() { return ::begin(m_array); }
 

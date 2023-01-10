@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.16...3.23)
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 # Not ideal to use this global variable, but necessary to make sure
+
 # that tooling and projects use the same version
 set(CMAKE_CXX_STANDARD 20)
 
@@ -168,7 +170,7 @@ endif()
 package_project(TARGETS CppRO project_options project_warnings
   # FIXME: this does not work! CK
   # PRIVATE_DEPENDENCIES_CONFIGURED project_options project_warnings
-  INTERFACE_INCLUDES ${INCLUDE_DIR}
+  INTERFACE_INCLUDES ${CppRO_INCLUDE_DIR}
 )
 
 # Experience shows that explicit package naming can help make it easier to sort
