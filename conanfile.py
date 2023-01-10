@@ -26,13 +26,13 @@ class CppROConan(ConanFile):
 
     generators = "cmake_find_package_multi"
 
+    cmake = None
+
     # Sources are located in the same place as this recipe, copy them to the recipe
-    exports_sources = "CMakeLists.txt", "src/*", "include/*", "conanfile.py", "test/*", "configured_files/*"
-    #no_copy_source = True
+    exports_sources = "CMakeLists.txt", "src/*", "include/*", "test/*", "configured_files/*", "conanfile.txt"
 
     def requirements(self):
         self.requires("catch2/2.13.9")
-
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -47,10 +47,12 @@ class CppROConan(ConanFile):
         tc.generate()
 
     def build(self):
-        cmake = CMake(self)
-        cmake.configure()
-        cmake.build()
+        self.cmake = CMake(self)
+        self.cmake.configure()
+        self.cmake.build()
 
     def package(self):
-        cmake = CMake(self)
-        cmake.install()
+        self.cmake.install()
+
+    def package_info(self):
+        self.cpp_info.includedirs = ["include"]
