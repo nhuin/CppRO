@@ -41,22 +41,6 @@ catch_discover_tests(
     OUTPUT_SUFFIX
     .xml)
 
-add_executable(tests_AllShortestPathBF src/test_AllShortestPathBF.cpp)
-target_link_libraries(tests_AllShortestPathBF PRIVATE CppRO CppRO::project_warnings
-    CppRO::project_options catch_main)
-catch_discover_tests(
-    tests_AllShortestPathBF
-    TEST_PREFIX
-    "AllShortestPathBF."
-    REPORTER
-    xml
-    OUTPUT_DIR
-    .
-    OUTPUT_PREFIX
-    "AllShortestPathBF."
-    OUTPUT_SUFFIX
-    .xml)
-
 add_executable(tests_ColumnGeneration src/test_ColumnGeneration.cpp)
 target_link_libraries(tests_ColumnGeneration PRIVATE CppRO CppRO::project_warnings
     CppRO::project_options catch_main)

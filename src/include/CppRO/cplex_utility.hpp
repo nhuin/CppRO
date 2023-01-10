@@ -115,26 +115,26 @@ class IloArrayIterator {
     }
 
     // Relational less-than
-    bool operator<(const IloArrayIterator& _ite) {
+    bool operator<(const IloArrayIterator& _ite) const {
         return m_position < _ite.m_position;
     }
 
     // Relational greather-than
-    bool operator>(const IloArrayIterator& _ite) {
+    bool operator>(const IloArrayIterator& _ite) const {
         return m_position > _ite.m_position;
     }
 
     // Relational less-than-or-equal
-    bool operator<=(const IloArrayIterator& _ite) {
+    bool operator<=(const IloArrayIterator& _ite) const {
         return m_position <= _ite.m_position;
     }
     // Relational greater-than-or-equal
-    bool operator>=(const IloArrayIterator& _ite) {
+    bool operator>=(const IloArrayIterator& _ite) const {
         return m_position >= _ite.m_position;
     }
 
     // Subscripting
-    value_type operator[](int _idx) { return m_array[_idx]; }
+    reference operator[](int _idx) const { return m_array[_idx]; }
 
   private:
     Array& m_array{};
@@ -165,65 +165,74 @@ IloObject move(IloObject&& _array) {
 
 template <typename T>
 struct epsilon_less {
-    constexpr epsilon_less(const T& _value = T(DEFAULT_EPSILON))
+    explicit constexpr epsilon_less(const T& _value)
         : epsilon_value(_value) {}
+
+    constexpr epsilon_less() = default;
+    ~epsilon_less() = default;
 
     constexpr bool operator()(const T& _lhs, const T& _rhs) const {
         return _lhs + epsilon_value < _rhs;
     }
-    T epsilon_value;
+    T epsilon_value{DEFAULT_EPSILON};
 };
 
 template <typename T>
 struct epsilon_less_equal {
-    constexpr epsilon_less_equal(const T& _value = T(DEFAULT_EPSILON))
+    explicit constexpr epsilon_less_equal(const T& _value)
         : epsilon_value(_value) {}
 
+    constexpr epsilon_less_equal() = default;
     ~epsilon_less_equal() = default;
 
     constexpr bool operator()(const T& _lhs, const T& _rhs) const {
         return _lhs + epsilon_value < _rhs
                || std::fabs(_lhs - _rhs) < epsilon_value;
     }
-    T epsilon_value;
+    T epsilon_value{DEFAULT_EPSILON};
 };
 
 template <typename T>
 struct epsilon_greater {
-    constexpr epsilon_greater(const T& _value = T(DEFAULT_EPSILON))
+    explicit constexpr epsilon_greater(const T& _value)
         : epsilon_value(_value) {}
 
+    constexpr epsilon_greater() = default;
     ~epsilon_greater() = default;
 
     constexpr bool operator()(const T& _lhs, const T& _rhs) const {
         return _lhs - _rhs > epsilon_value;
     }
-    T epsilon_value;
+    T epsilon_value{DEFAULT_EPSILON};
 };
 
 template <typename T>
 struct epsilon_greater_equal {
-    constexpr epsilon_greater_equal(const T& _value = T(DEFAULT_EPSILON))
+    explicit constexpr epsilon_greater_equal(const T& _value)
         : epsilon_value(_value) {}
 
+    constexpr epsilon_greater_equal() = default;
     ~epsilon_greater_equal() = default;
 
     constexpr bool operator()(const T& _lhs, const T& _rhs) const {
         return _lhs + epsilon_value > _rhs
                || std::fabs(_lhs - _rhs) < epsilon_value;
     }
-    T epsilon_value;
+    T epsilon_value{DEFAULT_EPSILON};
 };
 
 template <typename T>
 struct epsilon_equal {
-    constexpr epsilon_equal(const T& _value = T(DEFAULT_EPSILON))
+    explicit constexpr epsilon_equal(const T& _value)
         : epsilon_value(_value) {}
+
+    constexpr epsilon_equal() = default;
+    ~epsilon_equal() = default;
 
     constexpr bool operator()(const T& _lhs, const T& _rhs) const {
         return std::fabs(_lhs - _rhs) < epsilon_value;
     }
-    T epsilon_value;
+    T epsilon_value{DEFAULT_EPSILON};
 };
 
 /**
@@ -234,7 +243,7 @@ class IloEnvWrapper {
     IloEnv env{};
 
   public:
-    IloEnvWrapper(IloEnv _env)
+    explicit IloEnvWrapper(IloEnv _env)
         : env(_env) {}
 
     IloEnvWrapper() = default;
@@ -250,17 +259,16 @@ class IloEnvWrapper {
 template <typename Array, bool OWNING = false>
 class IloWrapper {
   public:
-    // using const_array = const Array;
-    using reference = decltype(std::declval<Array>().operator[](0));
-    static_assert(std::is_reference<reference>::value);
-    // using const_reference = typename
-    // std::result_of<decltype(&const_array::operator[])(Array, IloInt)>::type;
-    using const_reference = decltype(std::declval<const Array>().operator[](0));
+    using value_type =
+        typename std::remove_cvref<decltype(std::declval<Array>().operator[](
+            0))>::type;
+    using reference = value_type&;
+    using const_reference = const value_type&;
+    using pointer = value_type*;
+
     using size_type = decltype(Array().getSize());
-    using value_type = typename std::remove_reference<reference>::type;
     using difference_type = IloInt;
     using iterator_category = std::bidirectional_iterator_tag;
-    using pointer = value_type*;
 
     template <typename FirstArg, typename... Args,
         typename = typename std::enable_if_t<std::conjunction_v<
@@ -269,8 +277,8 @@ class IloWrapper {
                                  std::decay_t<FirstArg>, std::decay_t<Array>>>,
                 typename std::negation<typename std::is_same<
                     std::decay_t<FirstArg>, std::decay_t<IloWrapper>>>>>>>
-    IloWrapper(FirstArg&& arg, Args&&... args)
-        : m_array(std::forward<FirstArg>(arg), std::forward<Args>(args)...) {}
+    explicit IloWrapper(FirstArg&& _arg, Args&&... _args)
+        : m_array(std::forward<FirstArg>(_arg), std::forward<Args>(_args)...) {}
 
     // Copy
     IloWrapper(const IloWrapper& _other)
@@ -330,10 +338,12 @@ bool isInteger(T _val) {
     return epsilon_equal<T>()(_val, std::round(_val));
 }
 
-template <typename T>
+template <std::floating_point T>
 bool isMostFractional(T _val1, T _val2) {
-    const auto ceil1 = std::ceil(_val1), floor1 = std::floor(_val1);
-    const auto ceil2 = std::ceil(_val2), floor2 = std::floor(_val2);
+    const auto ceil1 = std::ceil(_val1);
+    const auto floor1 = std::floor(_val1);
+    const auto ceil2 = std::ceil(_val2);
+    const auto floor2 = std::floor(_val2);
     if (isInteger(_val1)) {
         return false;
     }
