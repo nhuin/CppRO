@@ -28,61 +28,47 @@ target_link_libraries(catch_main PRIVATE CppRO CppRO::project_options)
 add_executable(tests_cplex_utility src/test_cplex_utility.cpp)
 target_link_libraries(tests_cplex_utility PRIVATE CppRO CppRO::project_warnings
     CppRO::project_options catch_main)
-
-# automatically discover tests that are defined in catch based test files you
-# can modify the unittests. Set TEST_PREFIX to whatever you want, or use
-# different for different binaries
 catch_discover_tests(
     tests_cplex_utility
     TEST_PREFIX
-    "unittests."
+    "cplex_utility."
     REPORTER
     xml
     OUTPUT_DIR
     .
     OUTPUT_PREFIX
-    "unittests."
+    "cplex_utility."
     OUTPUT_SUFFIX
     .xml)
 
-# Add a file containing a set of constexpr tests
-add_executable(constexpr_tests constexpr_tests.cpp)
-target_link_libraries(
-    constexpr_tests PRIVATE CppRO::project_options
-    CppRO::project_warnings catch_main)
-
+add_executable(tests_AllShortestPathBF src/test_AllShortestPathBF.cpp)
+target_link_libraries(tests_AllShortestPathBF PRIVATE CppRO CppRO::project_warnings
+    CppRO::project_options catch_main)
 catch_discover_tests(
-    constexpr_tests
+    tests_AllShortestPathBF
     TEST_PREFIX
-    "constexpr."
+    "AllShortestPathBF."
     REPORTER
     xml
     OUTPUT_DIR
     .
     OUTPUT_PREFIX
-    "constexpr."
+    "AllShortestPathBF."
     OUTPUT_SUFFIX
     .xml)
 
-# Disable the constexpr portion of the test, and build again this allows us to
-# have an executable that we can debug when things go wrong with the constexpr
-# testing
-add_executable(relaxed_constexpr_tests constexpr_tests.cpp)
-target_link_libraries(
-    relaxed_constexpr_tests PRIVATE CppRO::project_options
-    CppRO::project_warnings catch_main)
-target_compile_definitions(relaxed_constexpr_tests
-                           PRIVATE -DCATCH_CONFIG_RUNTIME_STATIC_REQUIRE)
-
+add_executable(tests_ColumnGeneration src/test_ColumnGeneration.cpp)
+target_link_libraries(tests_ColumnGeneration PRIVATE CppRO CppRO::project_warnings
+    CppRO::project_options catch_main)
 catch_discover_tests(
-    relaxed_constexpr_tests
+    tests_ColumnGeneration
     TEST_PREFIX
-    "relaxed_constexpr."
+    "ColumnGeneration"
     REPORTER
     xml
     OUTPUT_DIR
     .
     OUTPUT_PREFIX
-    "relaxed_constexpr."
+    "ColumnGeneration"
     OUTPUT_SUFFIX
     .xml)
