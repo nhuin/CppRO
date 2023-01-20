@@ -32,7 +32,7 @@ class CppROConan(ConanFile):
     exports_sources = "CMakeLists.txt", "src/*", "include/*", "test/*", "configured_files/*", "conanfile.txt", "conanfile.py"
 
     def requirements(self):
-        self.requires("catch2/2.13.9")
+        self.requires("catch2/2.13.9", "boost/1.81.0")
 
     def config_options(self):
         if self.settings.os == "Windows":
