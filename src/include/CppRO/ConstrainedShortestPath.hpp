@@ -15,6 +15,9 @@ class CompactConstrainedShortestPathModel {
     std::vector<IloRange> m_flowConservationConstraints;
     IloRange m_delayConstraint;
 
+    std::size_t m_currentSource{0};
+    std::size_t m_currentTarget{0};
+
   public:
     /**
      * Build a model according to the graph and the delay of the link
@@ -23,8 +26,7 @@ class CompactConstrainedShortestPathModel {
      * \tparam DelayPropertyMap A class representing a property map of delays
      **/
     template <typename Graph, typename DelayPropertyMap>
-    CompactConstrainedShortestPathModel(IloEnv& _env, const Graph& _graph,
-        const DelayPropertyMap& _delayPropertyMap);
+    CompactConstrainedShortestPathModel(IloEnv& _env, const Graph& _graph);
 
     /**
      * Set the source and destination of the constrained shortest path
@@ -53,8 +55,7 @@ class CompactConstrainedShortestPathModel {
 
 template <typename Graph, typename DelayPropertyMap>
 CompactConstrainedShortestPathModel::CompactConstrainedShortestPathModel(
-    IloEnv& _env, const Graph& _graph,
-    const DelayPropertyMap& _delayPropertyMap)
+    IloEnv& _env, const Graph& _graph)
     : m_model(_env)
     , m_flowVars(num_edges(_graph),
           IloAdd(m_model, IloNumVar(m_model.getEnv(), 0, 1, ILOBOOL)))
@@ -74,16 +75,30 @@ CompactConstrainedShortestPathModel::CompactConstrainedShortestPathModel(
         }
         return retval;
     }())
-    , m_delayConstraints([&] {
-        IloExpr arcSumExpr;
-        for (const auto ed : boost::make_iterator_range(edges(_graph))) {
-            arcSumExpr += get(_delayPropertyMap, ed, _graph)
-                          * m_flowVars[get(boost::edge_index, ed, _graph)];
-        }
-        return IloAdd(m_model, IloRange(arcSum <= 0.0));
-    }())
+    , m_delayConstraints(IloAdd(m_model, IloRange(m_model.getEnv())))
 
-{} // namespace CppRO
+{}
+
+void CompactConstrainedShortestPathModel::setNodePair(
+    std::size_t _source, std::size_t _target) {
+    m_flowConservationConstraints[m_currentTarget].setBounds(0.0, 0.0);
+    m_flowConservationConstraints[m_currentSource].setBounds(0.0, 0.0);
+    m_currentSource = _source;
+    m_currentTarget = _target;
+    m_flowConservationConstraints[m_currentTarget].setBounds(1.0, 1.0);
+    m_flowConservationConstraints[m_currentSource].setBounds(1.0, 1.0);
+}
+
+template <typename DelayPropertyMap>
+void CompactConstrainedShortestPathModel::setDelays(
+    const DelayPropertyMap& _delayMap) {
+    IloExpr arcSumExpr;
+    for (const auto ed : boost::make_iterator_range(edges(_graph))) {
+        arcSumExpr += get(_delayPropertyMap, ed, _graph)
+                      * m_flowVars[get(boost::edge_index, ed, _graph)];
+    }
+    m_delayConstraint.setExpr(arcSumExpr);
+}
 
 } // namespace CppRO
 #endif
