@@ -25,7 +25,8 @@ TEST_CASE("ILP model returns optimal solution") {
         DELAYS.begin(), get(boost::edge_index, testGraph));
 
     IloEnv env;
-    CppRO::CompactConstrainedShortestPathModel cspModel(env, testGraph, DELAYS);
+    CppRO::CompactConstrainedShortestPathModel cspModel(env, testGraph);
+    cspModel.setDelays(DELAYS);
 
     IloExpr objExpression(env);
     for (const auto ed : boost::make_iterator_range(edges(testGraph))) {
@@ -34,7 +35,7 @@ TEST_CASE("ILP model returns optimal solution") {
     }
     IloObjective obj(env);
     obj.setExpr(objExpression);
-    IloModel model;
+    const IloModel model;
     model.add(cspModel.getModel());
     model.add(obj);
     IloCplex solver(model);

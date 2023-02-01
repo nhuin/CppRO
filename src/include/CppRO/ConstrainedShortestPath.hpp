@@ -2,7 +2,9 @@
 #define CPPRO_CONSTRAINEDSHORTESTPATH
 
 #include <CppRO/cplex_utility.hpp>
+#include <boost/graph/adjacency_list.hpp>
 #include <boost/range.hpp>
+#include <boost/range/combine.hpp>
 #include <vector>
 
 namespace CppRO {
@@ -25,7 +27,7 @@ class CompactConstrainedShortestPathModel {
      * \tparam Graph A class representing a graph
      * \tparam DelayPropertyMap A class representing a property map of delays
      **/
-    template <typename Graph, typename DelayPropertyMap>
+    template <typename Graph>
     CompactConstrainedShortestPathModel(IloEnv& _env, const Graph& _graph);
 
     /**
@@ -33,8 +35,8 @@ class CompactConstrainedShortestPathModel {
      */
     void setNodePair(std::size_t _source, std::size_t _target);
 
-    template <typename DelayPropertyMap>
-    void setDelays(const DelayPropertyMap& _delayMap);
+    template <typename DelayRange>
+    void setDelays(const DelayRange& _delayRange);
 
     /**
      * Returns the built model
@@ -53,7 +55,7 @@ class CompactConstrainedShortestPathModel {
     }
 };
 
-template <typename Graph, typename DelayPropertyMap>
+template <typename Graph>
 CompactConstrainedShortestPathModel::CompactConstrainedShortestPathModel(
     IloEnv& _env, const Graph& _graph)
     : m_model(_env)
@@ -65,17 +67,18 @@ CompactConstrainedShortestPathModel::CompactConstrainedShortestPathModel(
             IloExpr expr(m_model.getEnv());
             for (const auto ed :
                 boost::make_iterator_range(out_edges(u, _graph))) {
-                expr += m_flowVars[get(boost::edge_index_t, ed, _graph)];
+                expr += m_flowVars[get(boost::edge_index, _graph, ed)];
             }
             for (const auto ed :
                 boost::make_iterator_range(out_edges(u, _graph))) {
-                expr -= m_flowVars[get(boost::edge_index_t, ed, _graph)];
+                expr -= m_flowVars[get(boost::edge_index, _graph, ed)];
             }
             retval.emplace_back(IloAdd(m_model, IloRange(expr == 0)));
         }
         return retval;
     }())
-    , m_delayConstraints(IloAdd(m_model, IloRange(m_model.getEnv())))
+    , m_delayConstraint(
+          IloAdd(m_model, IloRange(m_model.getEnv(), -IloInfinity, 0.0)))
 
 {}
 
@@ -89,13 +92,13 @@ void CompactConstrainedShortestPathModel::setNodePair(
     m_flowConservationConstraints[m_currentSource].setBounds(1.0, 1.0);
 }
 
-template <typename DelayPropertyMap>
+template <typename DelayRange>
 void CompactConstrainedShortestPathModel::setDelays(
-    const DelayPropertyMap& _delayMap) {
+    const DelayRange& _delayRange) {
     IloExpr arcSumExpr;
-    for (const auto ed : boost::make_iterator_range(edges(_graph))) {
-        arcSumExpr += get(_delayPropertyMap, ed, _graph)
-                      * m_flowVars[get(boost::edge_index, ed, _graph)];
+    for (const auto& [delay, var] : boost::combine(_delayRange, m_flowVars)) {
+        arcSumExpr += static_cast<IloNum>(delay)
+                      * var; // cast to IloNum to avoid ambiguous overload
     }
     m_delayConstraint.setExpr(arcSumExpr);
 }
