@@ -33,12 +33,15 @@ TEST_CASE("ILP model returns optimal solution") {
         objExpression +=
             1.0 * cspModel.getFlowVars()[get(boost::edge_index, testGraph, ed)];
     }
+    cspModel.setNodePair(A, C);
+    cspModel.setMaxDelay(10000);
     IloObjective obj(env);
     obj.setExpr(objExpression);
-    const IloModel model;
+    const IloModel model(env);
     model.add(cspModel.getModel());
     model.add(obj);
     IloCplex solver(model);
     auto res = solver.solve();
     REQUIRE(res == IloTrue);
+    env.end();
 }

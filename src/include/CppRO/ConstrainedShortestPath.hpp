@@ -95,7 +95,7 @@ void CompactConstrainedShortestPathModel::setNodePair(
 template <typename DelayRange>
 void CompactConstrainedShortestPathModel::setDelays(
     const DelayRange& _delayRange) {
-    IloExpr arcSumExpr;
+    IloExpr arcSumExpr(m_model.getEnv());
     for (const auto& [delay, var] : boost::combine(_delayRange, m_flowVars)) {
         arcSumExpr += static_cast<IloNum>(delay)
                       * var; // cast to IloNum to avoid ambiguous overload
