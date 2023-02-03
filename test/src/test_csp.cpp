@@ -1,5 +1,6 @@
 #include <CppRO/ConstrainedShortestPath.hpp>
 #include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/graph_selectors.hpp>
 #include <catch2/catch.hpp>
 
 TEST_CASE("ILP model returns optimal solution") {
@@ -20,12 +21,16 @@ TEST_CASE("ILP model returns optimal solution") {
         boost::vecS>;
     const auto NB_VERTICES = 6;
 
-    DiGraph testGraph(edgeList.begin(), edgeList.end(), NB_VERTICES);
-    auto delayMap = boost::iterator_property_map(
-        DELAYS.begin(), get(boost::edge_index, testGraph));
+    std::vector<std::size_t> edge_index{0, 1, 2, 3, 4, 5, 6};
+    DiGraph testGraph(
+        edgeList.begin(), edgeList.end(), edge_index.begin(), NB_VERTICES);
 
-    IloEnv env;
+    IloEnvWrapper env;
     CppRO::CompactConstrainedShortestPathModel cspModel(env, testGraph);
+    REQUIRE(cspModel.getFlowVars().size() == edgeList.size());
+    for (const auto& v : cspModel.getFlowVars()) {
+        std::cout << v << '\n';
+    }
     cspModel.setDelays(DELAYS);
 
     IloExpr objExpression(env);
@@ -41,7 +46,10 @@ TEST_CASE("ILP model returns optimal solution") {
     model.add(cspModel.getModel());
     model.add(obj);
     IloCplex solver(model);
+    solver.exportModel("csp.lp");
     auto res = solver.solve();
     REQUIRE(res == IloTrue);
-    env.end();
+    cspModel.setMaxDelay(10000);
+    res = solver.solve();
+    REQUIRE(res == IloTrue);
 }
