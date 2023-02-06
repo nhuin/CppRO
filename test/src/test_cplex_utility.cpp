@@ -91,7 +91,7 @@ TEST_CASE("Test epsilon_greater_equal", "[]") {
 }
 
 TEST_CASE("Test begin and end functions", "[]") {
-    const IloEnv env;
+    IloEnvWrapper env;
     IloWrapper<IloNumArray> array(env, 10);
     std::fill(array.begin(), array.end(), 5);
     for (const auto& val : array) {
@@ -100,7 +100,7 @@ TEST_CASE("Test begin and end functions", "[]") {
 }
 
 TEST_CASE("Test operator[]", "[]") {
-    const IloEnv env;
+    IloEnvWrapper env;
     IloWrapper<IloNumArray> array(env, 10);
     REQUIRE(array.size() == 10);
     std::fill(array.begin(), array.end(), 5);
@@ -118,7 +118,7 @@ TEST_CASE("Test operator[]", "[]") {
 }
 
 TEST_CASE("Test copy constructor", "[]") {
-    const IloEnv env;
+    IloEnvWrapper env;
     IloWrapper<IloNumArray> array1(env, 10);
     std::fill(array1.begin(), array1.end(), 0);
     IloWrapper<IloNumArray> array2 = array1;
@@ -139,7 +139,7 @@ TEST_CASE("Test copy constructor", "[]") {
 }
 
 TEST_CASE("Test conversion operator", "[]") {
-    const IloEnv env;
+    IloEnvWrapper env;
     IloWrapper<IloNumArray> array(env, 10);
     std::fill(array.begin(), array.end(), 5);
     REQUIRE(epsilon_equal<double>()(IloSum(array), 5 * 10));
