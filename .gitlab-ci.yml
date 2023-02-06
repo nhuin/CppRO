@@ -12,6 +12,7 @@ build_job:
 deploy_job:
   stage: deploy
   script:
+    - export CONAN_USER_HOME=/conan
     - conan remote add gitlab ${CI_API_V4_URL}/projects/$CI_PROJECT_ID/packages/conan
     - CONAN_LOGIN_USERNAME=ci_user CONAN_PASSWORD=${CI_JOB_TOKEN} conan upload CppRO/0.1.0 --remote=gitlab --confirm
 
