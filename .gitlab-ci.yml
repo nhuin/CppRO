@@ -1,11 +1,19 @@
 image: nhuin/python-bindings
 
-create_package:
+stages: 
+  build
+  deploy
+
+build_job:
+  stage: build
+  script:
+    - export CONAN_USER_HOME=/conan
+    - python3 -m pip install conan
+    - CONAN_REVISIONS_ENABLED=1 CC=clang-15 CXX=clang++-15 conan create . --build=missing -s compiler=clang -s compiler.version=15
+
+deploy_job:
   stage: deploy
   script:
-    - python3 -m pip install conan
     - conan remote add gitlab ${CI_API_V4_URL}/projects/$CI_PROJECT_ID/packages/conan
-    - conan remote list
-    - CC=clang-15 CXX=clang++-15 conan create . --build=missing -s compiler=clang -s compiler.version=15
-    - CONAN_LOGIN_USERNAME=ci_user CONAN_PASSWORD=${CI_JOB_TOKEN} conan upload CppRO/0.0.2 --remote=gitlab --confirm
+    - CONAN_LOGIN_USERNAME=ci_user CONAN_PASSWORD=${CI_JOB_TOKEN} conan upload CppRO/0.1.0 --remote=gitlab --confirm
 
