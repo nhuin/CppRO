@@ -30,7 +30,7 @@ class CppROConan(ConanFile):
     requires = ["catch2/2.13.9", "boost/1.81.0"]
 
     # Sources are located in the same place as this recipe, copy them to the recipe
-    exports_sources = "CMakeLists.txt", "src/*", "include/*", "test/*", "configured_files/*", "conanfile.txt", "conanfile.py", "cmake/**"
+    exports_sources = "CMakeLists.txt", "src/*", "include/*", "test/*", "configured_files/*", "conanfile.txt", "conanfile.py", "cmake/*"
 
     def config_options(self):
         if self.settings.os == "Windows":
