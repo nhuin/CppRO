@@ -53,4 +53,4 @@ class CppROConan(ConanFile):
         self.cmake.install()
 
     def package_info(self):
-        self.cpp_info.includedirs = ["src"]
+        self.cpp_info.includedirs = ['.']
