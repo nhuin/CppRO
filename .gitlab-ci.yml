@@ -1,8 +1,6 @@
 image: nhuin/python-bindings
 
-stages: 
-  build
-  deploy
+stages: [build, deploy]
 
 build_job:
   stage: build
