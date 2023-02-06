@@ -68,7 +68,7 @@ target_link_libraries(
 catch_discover_tests(
     tests_csp
     TEST_PREFIX
-    "CSO"
+    "CSP"
     REPORTER
     xml
     OUTPUT_DIR
