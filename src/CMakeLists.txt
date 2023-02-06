@@ -5,8 +5,8 @@ add_library(CppRO INTERFACE)
 target_link_libraries(CppRO INTERFACE project_options project_warnings)
 target_link_system_libraries(CppRO INTERFACE OpenMP::OpenMP_CXX CPLEX::CPLEX
                              CPLEX::Concert CPLEX::IloCplex)
+set(INCLUDE_DIR "") # must be relative paths
 target_include_directories(
-    CppRO INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-                    $<INSTALL_INTERFACE:src/> # <prefix>/include/
-)
-message(STATUS "Include dir set to ${CppRO_INCLUDE_DIR}")
+    CppRO
+    INTERFACE "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${INCLUDE_DIR}>"
+              "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")

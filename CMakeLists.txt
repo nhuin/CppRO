@@ -177,7 +177,7 @@ package_project(
     # FIXME: this does not work! CK PRIVATE_DEPENDENCIES_CONFIGURED
     # project_options project_warnings
     INTERFACE_INCLUDES
-    ${CppRO_INCLUDE_DIR})
+    ${INCLUDE_DIR})
 
 # Experience shows that explicit package naming can help make it easier to sort
 # ou#t potential ABI related issues before they start, while helping you track a
