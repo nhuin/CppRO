@@ -254,7 +254,6 @@ class IloEnvWrapper {
     ~IloEnvWrapper() { env.end(); }
 
     operator IloEnv() const { return env; }
-    operator IloEnv&() { return env; }
 };
 
 template <typename Array, bool OWNING = false>
