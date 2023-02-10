@@ -27,8 +27,9 @@ class CompactConstrainedShortestPathModel {
      * \tparam Graph A class representing a graph
      * \tparam DelayPropertyMap A class representing a property map of delays
      **/
-    template <typename Graph>
-    CompactConstrainedShortestPathModel(IloEnv _env, const Graph& _graph);
+    template <typename Graph, typename EdgeIndexPropertyMap>
+    CompactConstrainedShortestPathModel(IloEnv _env, const Graph& _graph,
+        const EdgeIndexPropertyMap& _edgeIndices);
 
     /**
      * Set the source and destination of the constrained shortest path
@@ -62,9 +63,9 @@ class CompactConstrainedShortestPathModel {
     }
 };
 
-template <typename Graph>
+template <typename Graph, typename EdgeIndexPropertyMap>
 CompactConstrainedShortestPathModel::CompactConstrainedShortestPathModel(
-    IloEnv _env, const Graph& _graph)
+    IloEnv _env, const Graph& _graph, const EdgeIndexPropertyMap& _edgeIndices)
     : m_model(_env)
     , m_flowVars([&] {
         std::vector<IloNumVar> retval;
@@ -81,11 +82,11 @@ CompactConstrainedShortestPathModel::CompactConstrainedShortestPathModel(
             IloExpr expr(m_model.getEnv());
             for (const auto ed :
                 boost::make_iterator_range(out_edges(u, _graph))) {
-                expr += m_flowVars[get(boost::edge_index, _graph, ed)];
+                expr += m_flowVars[get(_edgeIndices, ed)];
             }
             for (const auto ed :
                 boost::make_iterator_range(in_edges(u, _graph))) {
-                expr -= m_flowVars[get(boost::edge_index, _graph, ed)];
+                expr -= m_flowVars[get(_edgeIndices, ed)];
             }
             retval.emplace_back(IloAdd(m_model, IloRange(expr == 0)));
             expr.end();

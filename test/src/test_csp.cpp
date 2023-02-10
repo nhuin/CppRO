@@ -28,7 +28,8 @@ SCENARIO("ILP model returns optimal solution") {
             edgeList.begin(), edgeList.end(), edge_index.begin(), NB_VERTICES);
 
         IloEnvWrapper env;
-        CppRO::CompactConstrainedShortestPathModel cspModel(env, testGraph);
+        CppRO::CompactConstrainedShortestPathModel cspModel(
+            env, testGraph, get(boost::edge_index, testGraph));
         for (const auto& v : cspModel.getFlowVars()) {
             std::cout << v << '\n';
         }
