@@ -27,8 +27,9 @@ class CompactConstrainedShortestPathModel {
      * \tparam Graph A class representing a graph
      * \tparam DelayPropertyMap A class representing a property map of delays
      **/
-    template <typename Graph>
-    CompactConstrainedShortestPathModel(IloEnv _env, const Graph& _graph);
+    template <typename Graph, typename EdgeIndicesRange>
+    CompactConstrainedShortestPathModel(
+        IloEnv _env, const Graph& _graph, const EdgeIndicesRange& _edgeIndices);
 
     /**
      * Set the source and destination of the constrained shortest path
@@ -62,9 +63,9 @@ class CompactConstrainedShortestPathModel {
     }
 };
 
-template <typename Graph>
+template <typename Graph, typename EdgeIndicesRange>
 CompactConstrainedShortestPathModel::CompactConstrainedShortestPathModel(
-    IloEnv _env, const Graph& _graph)
+    IloEnv _env, const Graph& _graph, const EdgeIndicesRange& _edgeIndices)
     : m_model(_env)
     , m_flowVars([&] {
         std::vector<IloNumVar> retval;
