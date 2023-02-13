@@ -26,8 +26,9 @@ target_link_libraries(catch_main PUBLIC Catch2::Catch2)
 target_link_libraries(catch_main PRIVATE CppRO CppRO::project_options)
 
 add_executable(tests_cplex_utility src/test_cplex_utility.cpp)
-target_link_libraries(tests_cplex_utility PRIVATE CppRO CppRO::project_warnings
-    CppRO::project_options catch_main)
+target_link_libraries(
+    tests_cplex_utility PRIVATE CppRO CppRO::project_warnings
+                                CppRO::project_options catch_main)
 catch_discover_tests(
     tests_cplex_utility
     TEST_PREFIX
@@ -42,8 +43,9 @@ catch_discover_tests(
     .xml)
 
 add_executable(tests_ColumnGeneration src/test_ColumnGeneration.cpp)
-target_link_libraries(tests_ColumnGeneration PRIVATE CppRO CppRO::project_warnings
-    CppRO::project_options catch_main)
+target_link_libraries(
+    tests_ColumnGeneration PRIVATE CppRO CppRO::project_warnings
+                                   CppRO::project_options catch_main)
 catch_discover_tests(
     tests_ColumnGeneration
     TEST_PREFIX
@@ -54,5 +56,24 @@ catch_discover_tests(
     .
     OUTPUT_PREFIX
     "ColumnGeneration"
+    OUTPUT_SUFFIX
+    .xml)
+
+find_package(Boost REQUIRED)
+
+add_executable(tests_csp src/test_csp.cpp)
+target_link_libraries(
+    tests_csp PRIVATE CppRO CppRO::project_warnings CppRO::project_options
+                      catch_main Boost::Boost)
+catch_discover_tests(
+    tests_csp
+    TEST_PREFIX
+    "CSP"
+    REPORTER
+    xml
+    OUTPUT_DIR
+    .
+    OUTPUT_PREFIX
+    "CSP"
     OUTPUT_SUFFIX
     .xml)
