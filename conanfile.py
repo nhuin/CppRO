@@ -12,7 +12,7 @@ from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout
 
 class CppROConan(ConanFile):
     name = "CppRO"
-    version = "0.0.2"
+    version = "0.1.1"
 
     # Optional metadata
     license = "Mozilla Public License 2.0"
@@ -27,12 +27,10 @@ class CppROConan(ConanFile):
     generators = "cmake_find_package_multi"
 
     cmake = None
+    requires = ["catch2/2.13.9", "boost/1.81.0"]
 
     # Sources are located in the same place as this recipe, copy them to the recipe
-    exports_sources = "CMakeLists.txt", "src/*", "include/*", "test/*", "configured_files/*", "conanfile.txt", "conanfile.py"
-
-    def requirements(self):
-        self.requires("catch2/2.13.9")
+    exports_sources = "CMakeLists.txt", "src/*", "test/*", "configured_files/*", "conanfile.txt", "conanfile.py", "cmake/*"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -55,4 +53,4 @@ class CppROConan(ConanFile):
         self.cmake.install()
 
     def package_info(self):
-        self.cpp_info.includedirs = ["include"]
+        self.cpp_info.includedirs = ['.']

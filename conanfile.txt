@@ -2,6 +2,7 @@
 
 [requires]
 catch2/2.13.9
+boost/1.81.0
 
 [generators]
 cmake_find_package_multi
