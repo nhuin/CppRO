@@ -71,8 +71,9 @@ void ParallelSeparator<SeparatorType, RowType,
             {
                 const auto threadId =
                     static_cast<std::size_t>(omp_get_thread_num());
-                m_rows[threadId].emplace_back(
-                    m_separators[threadId](separator, _state));
+                if (auto row = m_separators[threadId](separator, _state); row) {
+                    m_rows[threadId].emplace_back(*row);
+                }
             }
         }
     }
@@ -87,10 +88,8 @@ std::size_t moveRows(RMP& _rmp,
     std::size_t nbAddedRows = 0;
     for (const auto& rows : _pricer.getRows()) {
         for (const auto& row : rows) {
-            if (_rmp.isImprovingRow(row, _values)) {
-                _rmp.addRow(row);
-                ++nbAddedRows;
-            }
+            _rmp.addRow(row);
+            ++nbAddedRows;
         }
     }
     return nbAddedRows;
