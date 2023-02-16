@@ -83,8 +83,8 @@ void ParallelSeparator<SeparatorType, RowType,
 template <typename RMP, typename DualValues, typename SeparatorType,
     typename RowType, typename SeparatorInputRangeType>
 std::size_t moveRows(RMP& _rmp,
-    ParallelSeparator<SeparatorType, RowType, SeparatorInputRangeType>& _pricer,
-    const DualValues& _values) {
+    ParallelSeparator<SeparatorType, RowType, SeparatorInputRangeType>&
+        _pricer) {
     std::size_t nbAddedRows = 0;
     for (const auto& rows : _pricer.getRows()) {
         for (const auto& row : rows) {
