@@ -38,14 +38,14 @@ include(${_project_options_SOURCE_DIR}/Index.cmake)
 # Set the project name and language
 project(
     CppRO
-    VERSION 0.1.1
+    VERSION 0.1.2
     DESCRIPTION ""
     HOMEPAGE_URL "%%myurl%%"
     LANGUAGES CXX C)
 
 # This variable is set by project() in CMake 3.21+
 string(COMPARE EQUAL "${CMAKE_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}"
-               PROJECT_IS_TOP_LEVEL)
+    PROJECT_IS_TOP_LEVEL)
 if(PROJECT_IS_TOP_LEVEL)
     # Consider the CTest module, which creates targets and options! Only needed
     # if you want to enable submissions to a CDash server.
@@ -97,7 +97,7 @@ dynamic_project_options(
     PCH_HEADERS
     <vector>
     <string> # This is a list of headers to pre-compile, here are some common
-             # ones
+    # ones
     ENABLE_CONAN
     # CONAN_OPTIONS    # Extra options to pass to conan MSVC_WARNINGS    #
     # Override the defaults for the MSVC warnings CLANG_WARNINGS   # Override
@@ -133,8 +133,8 @@ if(ENABLE_TESTING)
     enable_testing()
     message(
         AUTHOR_WARNING
-            "Building Tests. Be sure to check out test/constexpr_tests.cpp for constexpr testing"
-    )
+        "Building Tests. Be sure to check out test/constexpr_tests.cpp for constexpr testing"
+        )
     add_subdirectory(test)
 endif()
 
@@ -142,8 +142,8 @@ option(ENABLE_FUZZING "Enable the fuzz tests" OFF)
 if(ENABLE_FUZZING)
     message(
         AUTHOR_WARNING
-            "Building Fuzz Tests, using fuzzing sanitizer https://www.llvm.org/docs/LibFuzzer.html"
-    )
+        "Building Fuzz Tests, using fuzzing sanitizer https://www.llvm.org/docs/LibFuzzer.html"
+        )
     add_subdirectory(fuzz_test)
 endif()
 
@@ -155,7 +155,7 @@ if(MSVC)
     message("all_targets=${all_targets}")
     set_target_properties(
         ${all_targets} PROPERTIES VS_DEBUGGER_ENVIRONMENT
-                                  "PATH=$(VC_ExecutablePath_x64);%PATH%")
+        "PATH=$(VC_ExecutablePath_x64);%PATH%")
 endif()
 
 # set the startup project for the "play" button in MSVC
@@ -172,6 +172,6 @@ endif()
 # build to a specific GIT SHA
 set(CPACK_PACKAGE_FILE_NAME
     "${CMAKE_PROJECT_NAME}-${CMAKE_PROJECT_VERSION}-${GIT_SHORT_SHA}-${CMAKE_SYSTEM_NAME}-${CMAKE_BUILD_TYPE}-${CMAKE_CXX_COMPILER_ID}-${CMAKE_CXX_COMPILER_VERSION}"
-)
+    )
 
 include(CPack)

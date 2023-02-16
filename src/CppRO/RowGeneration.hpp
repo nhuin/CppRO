@@ -6,6 +6,8 @@
 #include <iomanip>
 #include <iostream>
 #include <optional>
+#include <ranges>
+#include <utility>
 #include <vector>
 
 #include <omp.h>
@@ -13,83 +15,80 @@
 namespace CppRO::RowGeneration {
 
 /**
- * ParallelSeparater manages multi-threaded pricing resolutions
- * It stores multiple copies of a pricing problem class (one for each thread)
- * and stores the generated columns by these pricings.
+ * ParallelSeparator manages multi-threaded separator resolutions
+ * It stores multiple copies of a separator problem class (one for each thread)
+ * and stores the generated rows by these separators.
  */
-template <typename PricingProblemType, typename PricingInputIterator>
-class ParallelSeparater {
-    using RowType = typename PricingProblemType::RowType;
-    std::vector<PricingProblemType> m_pricings;
-    std::pair<PricingInputIterator, PricingInputIterator> m_inputIters;
-    std::vector<std::vector<RowType>> m_columns;
+template <typename SeparatorType, typename RowType,
+    typename SeparatorInputRangeType>
+class ParallelSeparator {
+    std::vector<SeparatorType> m_separators;
+    SeparatorInputRangeType m_inputRange;
+    std::vector<std::vector<RowType>> m_rows;
 
   public:
-    template <typename... Args>
-    explicit ParallelSeparater(std::size_t _nbPricing,
-        std::pair<PricingInputIterator, PricingInputIterator> _inputIters,
-        Args&&... _args);
+    template <typename... ArgTypes>
+    explicit ParallelSeparator(std::size_t _nbSeparators,
+        SeparatorInputRangeType _inputRange, ArgTypes&&... _args);
 
-    template <typename DualValues>
-    void generateRows(const DualValues& _values);
+    template <typename RMPState>
+    void generateRows(const RMPState& _state);
 
-    const std::vector<std::vector<RowType>>& getRows() const {
-        return m_columns;
-    }
+    const std::vector<std::vector<RowType>>& getRows() const { return m_rows; }
 };
 
-template <typename PricingProblemType, typename PricingInputIterator>
-template <typename... Args>
-ParallelSeparater<PricingProblemType, PricingInputIterator>::ParallelSeparater(
-    std::size_t _nbPricing,
-    std::pair<PricingInputIterator, PricingInputIterator> _inputIters,
-    Args&&... _args)
-    : m_pricings([&] {
-        std::vector<PricingProblemType> retval;
-        retval.reserve(_nbPricing);
-        for (std::size_t i = 0; i < _nbPricing; ++i) {
-            retval.emplace_back(std::forward<Args>(_args)...);
+template <typename SeparatorType, typename RowType,
+    typename SeparatorInputRangeType>
+template <typename... ArgTypes>
+ParallelSeparator<SeparatorType, RowType,
+    SeparatorInputRangeType>::ParallelSeparator(std::size_t _nbSeparators,
+    SeparatorInputRangeType _inputRange, ArgTypes&&... _args)
+    : m_separators([&] {
+        std::vector<SeparatorType> retval;
+        retval.reserve(_nbSeparators);
+        for (std::size_t i = 0; i < _nbSeparators; ++i) {
+            retval.emplace_back(std::forward<ArgTypes>(_args)...);
         }
         return retval;
     }())
-    , m_inputIters(std::move(_inputIters))
-    , m_columns(_nbPricing)
+    , m_inputRange(std::move(_inputRange))
+    , m_rows(_nbSeparators)
 
 {}
 
-template <typename PricingProblemType, typename PricingInputIterator>
-template <typename DualValues>
-void ParallelSeparater<PricingProblemType, PricingInputIterator>::generateRows(
-    const DualValues& _dualValues) {
-#pragma omp parallel num_threads(m_pricings.size()) default(none)              \
-    shared(m_pricings, _dualValues)
+template <typename SeparatorType, typename RowType,
+    typename SeparatorInputRangeType>
+template <typename RMPState>
+void ParallelSeparator<SeparatorType, RowType,
+    SeparatorInputRangeType>::generateRows(const RMPState& _state) {
+#pragma omp parallel num_threads(m_separators.size()) default(none)            \
+    shared(m_separators, _state)
     {
 #pragma omp single nowait
-        for (auto inputIte = m_inputIters.first;
-             inputIte != m_inputIters.second; ++inputIte) {
-#pragma omp task default(none) firstprivate(inputIte)                          \
-    shared(m_pricings, _dualValues)
+        for (const auto& separator : m_inputRange) {
+#pragma omp task default(none) firstprivate(separator)                         \
+    shared(m_separators, _state)
             {
                 const auto threadId =
                     static_cast<std::size_t>(omp_get_thread_num());
-                m_columns[threadId].emplace_back(
-                    m_pricings[threadId](*inputIte, _dualValues));
+                m_rows[threadId].emplace_back(
+                    m_separators[threadId](separator, _state));
             }
         }
     }
 #pragma omp taskwait
 }
 
-template <typename RMP, typename DualValues, typename PricingProblemType,
-    typename PricingInputIterator>
+template <typename RMP, typename DualValues, typename SeparatorType,
+    typename RowType, typename SeparatorInputRangeType>
 std::size_t moveRows(RMP& _rmp,
-    ParallelSeparater<PricingProblemType, PricingInputIterator>& _pricer,
+    ParallelSeparator<SeparatorType, RowType, SeparatorInputRangeType>& _pricer,
     const DualValues& _values) {
     std::size_t nbAddedRows = 0;
-    for (const auto& cols : _pricer.getRows()) {
-        for (const auto& col : cols) {
-            if (_rmp.isImprovingRow(col, _values)) {
-                _rmp.addRow(col);
+    for (const auto& rows : _pricer.getRows()) {
+        for (const auto& row : rows) {
+            if (_rmp.isImprovingRow(row, _values)) {
+                _rmp.addRow(row);
                 ++nbAddedRows;
             }
         }
@@ -97,22 +96,14 @@ std::size_t moveRows(RMP& _rmp,
     return nbAddedRows;
 }
 
-template <typename RMP, typename DualValues>
-std::optional<DualValues> solve(const RMP& _rmp, IloCplex& _solver) {
-    if (_solver.solve()) {
-        return _rmp.getDualValues(_solver);
-    }
-    return std::nullopt;
-}
-
 /**
  * Run the column generation algorithm on a reduced master problem
- * _solverFunc is the function used to solve the rmp and return an std::optional
- * with the dual values.
+ * _solveFunction is the function used to solve the rmp and return an
+ * std::optional with the dual values.
  */
-template <typename RMP, typename SolverFunc, typename GenerateRowFunc>
-bool solve(RMP& _rmp, SolverFunc&& _solverFunc, GenerateRowFunc&& _genRowFunc,
-    bool _verbose) {
+template <typename RMP, typename SolveFunctionType, typename RowSearchFunction>
+bool solve(RMP& _rmp, SolveFunctionType&& _solveFunction,
+    RowSearchFunction&& _rowSearchFunc, bool _verbose) {
     std::size_t nbIte = 0;
     std::size_t nbAddedRows = 0;
     do {
@@ -120,14 +111,14 @@ bool solve(RMP& _rmp, SolverFunc&& _solverFunc, GenerateRowFunc&& _genRowFunc,
         if (_verbose) {
             std::cout << "#ite: " << nbIte << "...Solving RMP..." << std::flush;
         }
-        if (auto dualValues = _solverFunc(_rmp); dualValues) {
+        if (auto rmpState = _solveFunction(_rmp); rmpState) {
             if (_verbose) {
                 std::cout << "#cols:" << _rmp.getNbRows() << '\n';
-                std::cout << "Searching for new columns..." << std::flush;
+                std::cout << "Searching for new rows..." << std::flush;
             }
-            nbAddedRows = _genRowFunc(_rmp, *dualValues);
+            nbAddedRows = _rowSearchFunc(_rmp, *rmpState);
             if (_verbose) {
-                std::cout << "added " << nbAddedRows << " new columns...\n\n";
+                std::cout << "added " << nbAddedRows << " new rows...\n\n";
             }
         } else {
             if (_verbose) {
