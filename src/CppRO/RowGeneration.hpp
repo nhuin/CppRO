@@ -63,7 +63,7 @@ template <typename SeparatorType, typename RowType,
 template <typename RMPState>
 void ParallelSeparator<SeparatorType, RowType,
     SeparatorInputRangeType>::generateRows(const RMPState& _state) {
-#pragma omp parallel num_threads(m_separators.size()) default(none)            \
+#pragma omp parallel num_threads(m_separators.size())                          \
     shared(m_separators, _state)
     {
 #pragma omp single nowait
