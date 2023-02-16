@@ -1,10 +1,17 @@
 find_package(OpenMP REQUIRED)
 find_package(CPLEX REQUIRED Concert IloCplex CP)
+find_package(spdlog CONFIG REQUIRED)
 
 add_library(CppRO INTERFACE)
 target_link_libraries(CppRO INTERFACE project_options project_warnings)
-target_link_system_libraries(CppRO INTERFACE OpenMP::OpenMP_CXX CPLEX::CPLEX
-                             CPLEX::Concert CPLEX::IloCplex)
+target_link_system_libraries(
+    CppRO
+    INTERFACE
+    OpenMP::OpenMP_CXX
+    CPLEX::CPLEX
+    CPLEX::Concert
+    CPLEX::IloCplex
+    spdlog::spdlog)
 set(INCLUDE_DIR ".") # must be relative paths
 
 target_include_directories(

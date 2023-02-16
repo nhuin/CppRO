@@ -7,6 +7,8 @@
 #include <iostream>
 #include <optional>
 #include <ranges>
+#include <spdlog/common.h>
+#include <spdlog/spdlog.h>
 #include <utility>
 #include <vector>
 
@@ -65,13 +67,13 @@ void ParallelSeparator<SeparatorType, RowType,
     shared(m_separators, _state)
     {
 #pragma omp single nowait
-        for (const auto& separator : m_inputRange) {
-#pragma omp task default(none) firstprivate(separator)                         \
-    shared(m_separators, _state)
+        for (auto first = begin(m_inputRange), last = end(m_inputRange);
+             first != last; ++first) {
+#pragma omp task default(none) firstprivate(first) shared(m_separators, _state)
             {
                 const auto threadId =
                     static_cast<std::size_t>(omp_get_thread_num());
-                if (auto row = m_separators[threadId](separator, _state); row) {
+                if (auto row = m_separators[threadId](*first, _state); row) {
                     m_rows[threadId].emplace_back(*row);
                 }
             }
@@ -80,52 +82,55 @@ void ParallelSeparator<SeparatorType, RowType,
 #pragma omp taskwait
 }
 
-template <typename RMP, typename DualValues, typename SeparatorType,
-    typename RowType, typename SeparatorInputRangeType>
-std::size_t moveRows(RMP& _rmp,
-    ParallelSeparator<SeparatorType, RowType, SeparatorInputRangeType>&
-        _pricer) {
-    std::size_t nbAddedRows = 0;
-    for (const auto& rows : _pricer.getRows()) {
-        for (const auto& row : rows) {
-            _rmp.addRow(row);
-            ++nbAddedRows;
-        }
+struct Visitor {
+    struct RMPSolveFailed {};
+    struct IterationStarted {};
+    struct RMPSolvedSuccess {};
+    struct RowGenerated {};
+
+    std::size_t nbIterations{0};
+    void operator()(IterationStarted /*_unused*/) {
+        spdlog::info("#ite: {}... Solving RMP...", nbIterations++);
     }
-    return nbAddedRows;
-}
+
+    void operator()(RMPSolvedSuccess /*_unused*/) {
+        spdlog::info("RMP solved");
+    }
+
+    void operator()(RMPSolveFailed /*_unused*/) {
+        spdlog::info("No solution found for RMP");
+    }
+
+    void operator()(RowGenerated /*_unused*/) {
+        spdlog::info("Row generation done");
+    }
+};
 
 /**
  * Run the column generation algorithm on a reduced master problem
  * _solveFunction is the function used to solve the rmp and return an
  * std::optional with the dual values.
  */
-template <typename RMP, typename SolveFunctionType, typename RowSearchFunction>
-bool solve(RMP& _rmp, SolveFunctionType&& _solveFunction,
-    RowSearchFunction&& _rowSearchFunc, bool _verbose) {
-    std::size_t nbIte = 0;
-    std::size_t nbAddedRows = 0;
-    do {
-        ++nbIte;
-        if (_verbose) {
-            std::cout << "#ite: " << nbIte << "...Solving RMP..." << std::flush;
-        }
-        if (auto rmpState = _solveFunction(_rmp); rmpState) {
-            if (_verbose) {
-                std::cout << "#cols:" << _rmp.getNbRows() << '\n';
-                std::cout << "Searching for new rows..." << std::flush;
-            }
-            nbAddedRows = _rowSearchFunc(_rmp, *rmpState);
-            if (_verbose) {
-                std::cout << "added " << nbAddedRows << " new rows...\n\n";
-            }
-        } else {
-            if (_verbose) {
-                std::cout << "No solution found for RMP\n";
-            }
+template <typename RowRange, typename SolveFunctionType,
+    typename GenerationFunctionType, typename VisitorType>
+bool solve(RowRange&& _initRows, SolveFunctionType&& _solveFunction,
+    GenerationFunctionType&& _genFunction, VisitorType _vis) {
+    _vis(Visitor::IterationStarted{});
+    auto rmpState = _solveFunction(_initRows);
+    if (!rmpState.has_value()) {
+        _vis(Visitor::RMPSolveFailed{});
+        return false;
+    }
+    _vis(Visitor::RMPSolvedSuccess{});
+    for (auto newRows = _genFunction(*rmpState); newRows;
+         newRows = _genFunction(*rmpState)) {
+        _vis(Visitor::RowGenerated{});
+        rmpState = _solveFunction(*newRows);
+        if (!rmpState.has_value()) {
+            _vis(Visitor::RMPSolveFailed{});
             return false;
         }
-    } while (nbAddedRows > 0);
+    }
     return true;
 }
 
