@@ -38,7 +38,7 @@ include(${_project_options_SOURCE_DIR}/Index.cmake)
 # Set the project name and language
 project(
     CppRO
-    VERSION 0.1.2
+    VERSION 0.1.3
     DESCRIPTION ""
     HOMEPAGE_URL "%%myurl%%"
     LANGUAGES CXX C)

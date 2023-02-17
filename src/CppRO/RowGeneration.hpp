@@ -37,6 +37,12 @@ class ParallelSeparator {
     void generateRows(const RMPState& _state);
 
     const std::vector<std::vector<RowType>>& getRows() const { return m_rows; }
+
+    void clear() {
+        for (auto& row : m_rows) {
+            row.clear();
+        }
+    }
 };
 
 template <typename SeparatorType, typename RowType,

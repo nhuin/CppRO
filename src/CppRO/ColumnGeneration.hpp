@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <iostream>
 #include <optional>
+#include <spdlog/spdlog.h>
 #include <vector>
 
 #include <omp.h>
@@ -259,6 +260,58 @@ bool solve(RMP& _rmp, SolverFunc&& _solverFunc,
             return false;
         }
     } while (nbAddedColumns > 0);
+    return true;
+}
+
+struct Visitor {
+    struct RMPSolveFailed {};
+    struct IterationStarted {};
+    struct RMPSolvedSuccess {};
+    struct ColumnsGenerated {};
+
+    std::size_t nbIterations{0};
+    void operator()(IterationStarted /*_unused*/) {
+        spdlog::info("#ite: {}... Solving RMP...", nbIterations++);
+    }
+
+    void operator()(RMPSolvedSuccess /*_unused*/) const {
+        spdlog::info("RMP solved");
+    }
+
+    void operator()(RMPSolveFailed /*_unused*/) const {
+        spdlog::info("No solution found for RMP");
+    }
+
+    void operator()(ColumnsGenerated /*_unused*/) const {
+        spdlog::info("Column generation done");
+    }
+};
+
+/**
+ * Run the column generation algorithm on a reduced master problem
+ * _solveFunction is the function used to solve the rmp and return an
+ * std::optional with the dual values.
+ */
+template <typename ColumnRange, typename SolveFunctionType,
+    typename GenerationFunctionType, typename VisitorType>
+bool solve(ColumnRange&& _initColumns, SolveFunctionType&& _solveFunction,
+    GenerationFunctionType&& _genFunction, VisitorType _vis) {
+    _vis(Visitor::IterationStarted{});
+    auto rmpState = _solveFunction(_initColumns);
+    if (!rmpState.has_value()) {
+        _vis(Visitor::RMPSolveFailed{});
+        return false;
+    }
+    _vis(Visitor::RMPSolvedSuccess{});
+    for (auto newColumns = _genFunction(*rmpState); newColumns;
+         newColumns = _genFunction(*rmpState)) {
+        _vis(Visitor::ColumnsGenerated{});
+        rmpState = _solveFunction(*newColumns);
+        if (!rmpState.has_value()) {
+            _vis(Visitor::RMPSolveFailed{});
+            return false;
+        }
+    }
     return true;
 }
 
