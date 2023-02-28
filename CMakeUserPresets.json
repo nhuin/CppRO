@@ -4,6 +4,6 @@
         "conan": {}
     },
     "include": [
-        "/home/nhuin/src/CppRO/build/Debug/generators/CMakePresets.json"
+        "/home/kosa/src/CppRO/build/generators/CMakePresets.json"
     ]
 }

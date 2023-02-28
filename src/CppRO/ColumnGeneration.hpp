@@ -95,18 +95,17 @@ std::size_t moveColumns(RMP& _rmp,
     return nbAddedColumns;
 }
 
-template <typename PricingProblemType, typename PricingInputIterator>
+template <typename ColumnType, typename PricingInputRange,
+    typename PricingProblemType>
 class ParallelPricer {
-    using ColumnType = typename PricingProblemType::ColumnType;
     std::vector<PricingProblemType> m_pricings;
-    std::pair<PricingInputIterator, PricingInputIterator> m_inputIters;
+    PricingInputRange m_inputRange;
     std::vector<std::vector<ColumnType>> m_columns;
 
   public:
     template <typename... Args>
-    explicit ParallelPricer(std::size_t _nbPricing,
-        std::pair<PricingInputIterator, PricingInputIterator> _inputIters,
-        Args&&... _args);
+    explicit ParallelPricer(
+        std::size_t _nbPricing, PricingInputRange _inputRange, Args&&... _args);
 
     template <typename DualValues, typename RMP>
     void generateColumnsUntilFound(
@@ -128,12 +127,12 @@ class ParallelPricer {
     [[nodiscard]] std::size_t getNbPricers() const { return m_pricings.size(); }
 };
 
-template <typename PricingProblemType, typename PricingInputIterator>
+template <typename ColumnType, typename PricingInputRange,
+    typename PricingProblemType>
 template <typename... Args>
-ParallelPricer<PricingProblemType, PricingInputIterator>::ParallelPricer(
-    std::size_t _nbPricing,
-    std::pair<PricingInputIterator, PricingInputIterator> _inputIters,
-    Args&&... _args)
+ParallelPricer<ColumnType, PricingInputRange,
+    PricingProblemType>::ParallelPricer(std::size_t _nbPricing,
+    PricingInputRange _inputRange, Args&&... _args)
     : m_pricings([&] {
         std::vector<PricingProblemType> retval;
         retval.reserve(_nbPricing);
@@ -142,29 +141,30 @@ ParallelPricer<PricingProblemType, PricingInputIterator>::ParallelPricer(
         }
         return retval;
     }())
-    , m_inputIters(std::move(_inputIters))
+    , m_inputRange(std::move(_inputRange))
     , m_columns(_nbPricing)
 
 {}
 
-template <typename PricingProblemType, typename PricingInputIterator>
+template <typename ColumnType, typename PricingInputRange,
+    typename PricingProblemType>
 template <typename DualValues, typename RMP>
-void ParallelPricer<PricingProblemType, PricingInputIterator>::
+void ParallelPricer<ColumnType, PricingInputRange, PricingProblemType>::
     generateColumnsUntilFound(const DualValues& _dualValues, const RMP& _rmp) {
 #pragma omp parallel num_threads(m_pricings.size()) default(none)              \
     shared(m_pricings, _rmp, _dualValues)
     {
         bool foundColumn = false;
 #pragma omp single nowait
-        for (auto inputIte = m_inputIters.first;
-             inputIte != m_inputIters.second; ++inputIte) {
-#pragma omp task default(none) firstprivate(inputIte)                          \
+        for (auto first = begin(m_inputRange), last = end(m_inputRange);
+             first != last; ++first) {
+#pragma omp task default(none) firstprivate(first)                             \
     shared(m_pricings, _rmp, _dualValues, foundColumn)
             {
                 if (!foundColumn) {
                     const auto threadId =
                         static_cast<std::size_t>(omp_get_thread_num());
-                    auto col = m_pricings[threadId](*inputIte, _dualValues);
+                    auto col = m_pricings[threadId](*first, _dualValues);
                     if (_rmp.isImprovingColumn(col, _dualValues)) {
                         m_columns[threadId].emplace_back(std::move(col));
 #pragma omp critical
@@ -177,33 +177,34 @@ void ParallelPricer<PricingProblemType, PricingInputIterator>::
 #pragma omp taskwait
 }
 
-template <typename PricingProblemType, typename PricingInputIterator>
+template <typename ColumnType, typename PricingInputRange,
+    typename PricingProblemType>
 template <typename DualValues>
-void ParallelPricer<PricingProblemType, PricingInputIterator>::generateColumns(
-    const DualValues& _dualValues) {
+void ParallelPricer<ColumnType, PricingInputRange,
+    PricingProblemType>::generateColumns(const DualValues& _dualValues) {
 #pragma omp parallel num_threads(m_pricings.size())                            \
     shared(m_pricings, _dualValues)
     {
 #pragma omp single nowait
-        for (auto inputIte = m_inputIters.first;
-             inputIte != m_inputIters.second; ++inputIte) {
-#pragma omp task default(none) firstprivate(inputIte)                          \
+        for (auto first = begin(m_inputRange), last = end(m_inputRange);
+             first != last; ++first) {
+#pragma omp task default(none) firstprivate(first)                             \
     shared(m_pricings, _dualValues)
             {
                 const auto threadId =
                     static_cast<std::size_t>(omp_get_thread_num());
                 m_columns[threadId].emplace_back(
-                    m_pricings[threadId](*inputIte, _dualValues));
+                    m_pricings[threadId](*first, _dualValues));
             }
         }
     }
 #pragma omp taskwait
 }
 
-template <typename RMP, typename DualValues, typename PricingProblemType,
-    typename PricingInputIterator>
+template <typename RMP, typename DualValues, typename ColumnType,
+    typename PricingInputRange, typename PricingProblemType>
 std::size_t moveColumns(RMP& _rmp,
-    ParallelPricer<PricingProblemType, PricingInputIterator>& _pricer,
+    ParallelPricer<ColumnType, PricingInputRange, PricingProblemType>& _pricer,
     const DualValues& _values) {
     std::size_t nbAddedColumns = 0;
     for (const auto& cols : _pricer.getColumns()) {

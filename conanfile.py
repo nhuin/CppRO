@@ -12,7 +12,7 @@ from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout
 
 class CppROConan(ConanFile):
     name = "CppRO"
-    version = "0.1.3"
+    version = "0.2.0"
 
     # Optional metadata
     license = "Mozilla Public License 2.0"
